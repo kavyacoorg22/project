@@ -1,0 +1,92 @@
+<div class="container">
+    <h1 style="color:green">SIGNUP</h1>
+    <form id="signup-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="firstname">firstname</label>
+                <input type="text" id="firstname" name="firstname" value="<%= firstname || '' %>" placeholder="Enter firstName" required>
+            </div>
+            <div class="form-group">
+                <label for="lastname">lastname</label>
+                <input type="text" name="lastname" id="lastname" placeholder="Enter lastName" value="<%= lastname || '' %>" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group-full">
+                <label for="number">Phone number</label>
+                <input type="tel" name="number" id="number" placeholder="Enter phone number" value="<%= number || '' %>" required>
+            </div>
+            <div class="form-group-full">
+                <label for="email">email</label>
+                <input type="email" id="email" name="email" placeholder="Enter EmailId" value="<%= email || '' %>">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group-full">
+                <label for="password">password</label>
+                <input type="password" name="password" id="password" value="<%= password || '' %>" placeholder="Enter password" required>
+            </div>
+            <div class="form-group-full">
+                <label for="confirmPassword">confirm password</label>
+                <input type="password" name="confirmPassword" id="confirmPassword" value="<%= confirmPassword || '' %>" placeholder="ReEnter the password" required>
+            </div>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="terms" required>
+            <label for="terms">I have accepted terms and condition</label>
+        </div>
+        <button type="submit" class="signup-btn">SIGN UP</button>
+        <button type="button" class="google-btn">
+            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991147.png" alt="Google" class="google-icon">
+            Sign up with Google
+        </button>
+        <div class="login-text">
+            have an account? <a href="/user/login">log in</a>
+          </div>
+    </form>
+  </div>
+  
+  
+  <script>
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault(); // Prevent default form submission
+  
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+  
+    if (!data.firstname || !data.lastname || !data.email || !data.number || !data.password || !data.confirmPassword) {
+      Swal.fire("Please fill all required fields.");
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:3000/user/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+  
+      let result;
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.error('Error parsing JSON:', jsonError);
+        Swal.fire('Unexpected server response. Please try again later.');
+        return;
+      }
+  
+      if (response.ok) {
+        Swal.fire(result.message);
+        window.location.href = '/user/login';
+      } else {
+        Swal.fire(result.message);
+      }
+    } catch (error) {
+      console.error('Fetch error:', error);
+      Swal.fire('An error occurred. Please check your network or try again later.');
+    }
+  });
+</script>

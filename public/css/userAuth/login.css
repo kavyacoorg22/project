@@ -1,0 +1,115 @@
+* {
+  margin: 0;
+  padding: 0;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.login-container {
+  width: 100%; /* Ensures it takes the full width of the parent */
+  max-width: 800px; /* Increased max-width to make the container wider */
+  padding: 30px; /* Retained padding for inner spacing */
+  background: white;
+  border-radius: 12px; /* Slightly rounded corners for aesthetics */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Light shadow for better visibility */
+}
+
+.form-group {
+  margin-bottom: 35px; /* Increased spacing between form groups */
+}
+
+label {
+  display: block;
+  margin-bottom: 12px; /* Larger margin below labels */
+  color: #333;
+  font-size: 16px; /* Larger font size */
+}
+
+input[type="email"],
+input[type="password"] {
+  width: 400px;
+  padding: 12px 5px; /* Increased padding for input fields */
+  border: none;
+  border-bottom: 2px solid #ddd; /* Thicker border for better visibility */
+  font-size: 16px; /* Larger font size */
+  outline: none;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 15px; /* Increased button padding */
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 30px; /* Larger border radius */
+  font-size: 18px; /* Larger font size for the button */
+  cursor: pointer;
+  margin: 30px 0; /* Larger margin above and below */
+}
+
+.google-btn {
+  width: 100%;
+  padding: 15px; /* Increased padding */
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 30px; /* Larger border radius */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 16px; /* Larger font size */
+  margin-top: 25px; /* Increased margin above */
+}
+
+.google-icon {
+  width: 24px; /* Larger icon */
+  height: 24px;
+}
+
+.bottom-text {
+  text-align: center;
+  margin-top: 20px; /* Increased margin above */
+  color: #666;
+  font-size: 14px;
+}
+
+.links-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 25px 0; /* Increased spacing between links */
+}
+
+.signup-link {
+  font-size: 14px; /* Larger font size */
+  color: #666;
+}
+
+.signup-link a{
+  color: #4CAF50;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.forgot-link {
+  font-size: 14px; /* Larger font size */
+  color: #333;
+  text-decoration: none;
+}
+
+.or-divider {
+  text-align: center;
+  margin: 25px 0; /* Increased margin above and below */
+  color: #666;
+  font-size: 14px; /* Larger font size */
+}

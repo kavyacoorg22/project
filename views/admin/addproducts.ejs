@@ -1,0 +1,86 @@
+<div class="form-container">
+  <!-- Content Header -->
+  <div class="content-header">
+    <div class="title-group">"
+      <h1 class="content-title">Add new Products</h1>
+      <p class="content-subtitle">Add new products</p>
+    </div>
+    <a href="/admin/product" class="back-button">Back to products</a>
+  </div>
+  
+
+  <form action="/admin/product" method="POST" enctype="multipart/form-data">
+    <% if (locals.error) { %>
+      <div class="error-message" style="color: red; margin-bottom: 10px;">
+        <%= error %>
+      </div>
+    <% } %>
+    <!-- First Row -->
+    <div class="form-row">
+      <div class="form-group">
+        <input type="text" class="form-input" name="name" placeholder="Product Name"required>
+      </div>
+      <div class="form-group" >
+        <select class="form-select" name="category" required>
+          
+          <option value="">Select Category</option>
+           <% categories.forEach(category =>{%>
+          <option value="<%=category.id%>"><%=category.name%></option>
+          <%})%>
+        </select>
+      </div>
+    </div>
+
+    <!-- Second Row -->
+    <div class="form-row" id="imageFieldsContainer">
+      <div class="form-group">
+        <input type="file" class="form-file" name="images" required accept="image/*">
+      </div>
+      <button type="button" class="add-image-button" onclick="addImageField()">Add Another Image</button>
+    </div>
+   
+    <!-- Third Row -->
+    <div class="form-row">
+      <div class="form-group full-width">
+        <textarea name="description" class="form-textarea" placeholder="Description" required></textarea>
+      </div>
+    </div>
+
+    <!-- Fourth Row -->
+    <div class="form-row">
+      <div class="form-group">
+        <input type="number" class="form-input" name="price" placeholder="Enter price" required>
+      </div>
+      <div class="form-group">
+        <input type="number" class="form-input" name="quantity" placeholder="Enter quantity" required>
+      </div>
+      <div class="form-group">
+        <select name="status" class="form-select">
+          
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Save Button -->
+    <button type="submit" class="save-button">Save Product</button>
+  </form>
+</div>
+
+<script>
+  function addImageField() {
+    // Get the container where image fields are added
+    const imageFieldsContainer = document.getElementById("imageFieldsContainer");
+
+    // Create a new file input field
+    const newField = document.createElement("div");
+    newField.classList.add("form-group");
+    newField.innerHTML = `
+      <input type="file" class="form-file" name="images" required accept="image/*">
+    `;
+
+    // Append the new field to the container
+    imageFieldsContainer.appendChild(newField);
+  }
+</script>

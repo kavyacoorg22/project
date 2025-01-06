@@ -1,0 +1,110 @@
+<main class="main-content">
+  <!-- Welcome Section -->
+  <div class="welcome">
+      <h1>Welcome to Dashboard</h1>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+      <div class="stat-card">
+          <div class="stat-icon">
+              <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+              <h3>12</h3>
+              <p>Today</p>
+          </div>
+      </div>
+
+      <div class="stat-card">
+          <div class="stat-icon">
+              <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-info">
+              <h3>1033</h3>
+              <p>Customer</p>
+          </div>
+      </div>
+
+      <div class="stat-card">
+          <div class="stat-icon">
+              <i class="fas fa-shopping-cart"></i>
+          </div>
+          <div class="stat-info">
+              <h3>33</h3>
+              <p>Orders</p>
+          </div>
+      </div>
+  </div>
+
+  <!-- Orders Section -->
+  <div class="orders-section">
+      <div class="section-header">
+          <h2>Latest Orders</h2>
+      </div>
+
+      <table class="orders-table">
+          <thead>
+              <tr>
+                  <th>Order ID</th>
+                  <th>Product</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Total</th>
+                  <th>Payment</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td>302012</td>
+                  <td>
+                      <div class="product-cell">
+                          <div class="product-image">
+                              <img src="/api/placeholder/40/40" alt="Strawberry">
+                          </div>
+                          <div class="product-info">
+                              <span class="product-name">Strawberry</span>
+                              <span class="product-count">3 Products</span>
+                          </div>
+                      </div>
+                  </td>
+                  <td>29 Dec 2022</td>
+                  <td>Josh Wisley</td>
+                  <td>$55</td>
+                  <td>24 Jun 2025</td>
+              </tr>
+              <tr>
+                  <td>302012</td>
+                  <td>
+                      <div class="product-cell">
+                          <div class="product-image">
+                              <img src="/api/placeholder/40/40" alt="Tomato">
+                          </div>
+                          <div class="product-info">
+                              <span class="product-name">Tomato</span>
+                              <span class="product-count">3 Products</span>
+                          </div>
+                      </div>
+                  </td>
+                  <td>29 Dec 2022</td>
+                  <td>Josh Wisley</td>
+                  <td>$44</td>
+                  <td>20 Jun 2025</td>
+              </tr>
+          </tbody>
+      </table>
+
+      <div class="pagination">
+          <span>Showing 1-10 from 100</span>
+          <div class="page-numbers">
+              <span><i class="fas fa-chevron-left"></i></span>
+              <span class="active">01</span>
+              <span>02</span>
+              <span>03</span>
+              <span>04</span>
+              <span>05</span>
+              <span><i class="fas fa-chevron-right"></i></span>
+          </div>
+      </div>
+  </div>
+</main>

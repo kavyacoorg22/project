@@ -1,0 +1,129 @@
+<div class="otp-container">
+  <h1 class="otp-title">Enter OTP</h1>
+  <form id="otpForm" action="/user/verifyotp" method="POST">
+      <input 
+          type="text" 
+          class="otp-input" 
+          id="otp" 
+          name="otp" 
+          placeholder="Enter otp code sent to <%= email.substring(0, 4) %>....com" 
+          maxlength="6" 
+          required
+          autocomplete="off"
+      >
+      <div class="info-text">
+          Don't receive OTP code ? ,
+          <a class="resend-link" id="resendLink" href="#">Resent</a>
+          <span class="timer" id="timer">01:00</span>
+      </div>
+      <button type="submit" class="reset-btn">Reset password</button>
+  </form>
+  <div id="errorMessage" style="color: red; text-align: center; margin-top: 10px; display: none;"></div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const timerDisplay = document.getElementById('timer');
+      const resendLink = document.getElementById('resendLink');
+      const otpForm = document.getElementById('otpForm');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      let timeLeft = Math.max(0, Math.floor(('<%= expiryTime %>' - Date.now()) / 1000));
+      if (timeLeft <= 0) timeLeft = 60;
+
+      startTimer();
+
+      function startTimer() {
+          resendLink.classList.add('disabled');
+          
+          const countdown = setInterval(() => {
+              const minutes = Math.floor(timeLeft / 60);
+              const seconds = timeLeft % 60;
+              timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+              
+              if (timeLeft <= 0) {
+                  clearInterval(countdown);
+                  resendLink.classList.remove('disabled');
+                  timerDisplay.textContent = '01:00';
+              }
+              timeLeft--;
+          }, 1000);
+      }
+
+      // Input validation
+      document.getElementById('otp').addEventListener('input', function(e) {
+          this.value = this.value.replace(/[^0-9]/g, '');
+          errorMessage.style.display = 'none';
+      });
+
+      // Resend OTP handler
+      resendLink.addEventListener('click', async function(e) {
+          e.preventDefault();
+          if (!resendLink.classList.contains('disabled')) {
+              try {
+                  const response = await fetch('/user/resendotp', {
+                      method: 'POST',
+                      headers: {
+                          'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({ email: '<%= email %>' })
+                  });
+                  
+                  const data = await response.json();
+                  
+                  if (data.success) {
+                      timeLeft = 60;
+                      startTimer();
+                      showMessage('OTP resent successfully', 'green');
+                  } else {
+                      showMessage(data.message, 'red');
+                  }
+              } catch (error) {
+                  showMessage('Failed to resend OTP. Please try again.', 'red');
+              }
+          }
+      });
+
+      // Form submission
+      otpForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+          
+          const otp = document.getElementById('otp').value.trim();
+          
+          if (otp.length !== 6) {
+              showMessage('Please enter a valid 6-digit OTP', 'red');
+              return;
+          }
+
+          try {
+              const response = await fetch('/user/verifyotp', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ otp })
+              });
+
+              const data = await response.json();
+
+              if (data.success) {
+                  window.location.href = data.redirectUrl;
+              } else {
+                  showMessage(data.message, 'red');
+              }
+          } catch (error) {
+              showMessage('An error occurred. Please try again.', 'red');
+          }
+      });
+
+      function showMessage(message, color) {
+          errorMessage.style.color = color;
+          errorMessage.textContent = message;
+          errorMessage.style.display = 'block';
+          
+          setTimeout(() => {
+              errorMessage.style.display = 'none';
+          }, 3000);
+      }
+  });
+</script>

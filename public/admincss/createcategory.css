@@ -1,0 +1,91 @@
+.form-container {
+  max-width: 900px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+}
+
+.form-title {
+  font-size: 20px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.form-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-size: 14px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  font-size: 14px;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.form-file {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background-color: #f8fafc;
+}
+
+.button-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-cancel {
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
+  color: #333;
+}
+
+.btn-create {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-create:hover {
+  background-color: #059669;
+}
+
+.btn-cancel:hover {
+  background-color: #f8fafc;
+}

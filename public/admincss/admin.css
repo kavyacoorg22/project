@@ -1,0 +1,281 @@
+
+/* additional for layout */
+
+
+/* Base styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.page-container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  overflow: hidden; /* Prevent scrollbars from affecting the layout */
+  
+}
+
+/* Sidebar styles */
+.page-container > div:first-child {
+  width: 250px; /* Fixed width for sidebar */
+  background-color: #f4f4f4; /* Sidebar background color */
+  overflow-y: auto; /* Add scroll if the sidebar content overflows */
+  height: 100%; /* Full height */
+}
+
+/* Content area styles */
+.content-area {
+  flex-grow: 1; /* Occupies the remaining space after sidebar */
+  display: flex;
+  flex-direction: column; /* Stack header and main content vertically */
+  height: 100%;
+  overflow: hidden; /* Prevent content overflow */
+}
+
+/* Header styles */
+.content-area > div:first-child {
+  height: 60px; /* Fixed height for header */
+  background-color: #fff; /* Header background color */
+  border-bottom: 1px solid #ddd; /* Optional: header bottom border */
+  display: flex;
+  align-items: center;
+  padding: 0 20px; /* Spacing inside header */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Optional: shadow */
+  z-index: 1; /* Ensure header stays above content */
+}
+
+/* Main content styles */
+.body-main{
+  flex-grow: 1; /* Occupies remaining vertical space after header */
+  overflow-y: auto; /* Scrollable if content overflows */
+  padding: 20px; /* Spacing inside main content */
+  background-color: #f9f9f9; /* Main content background */
+  box-sizing: border-box; /* Includes padding in size calculations */
+  margin-left: 19%;
+  margin-top:5%;
+}
+
+@media (max-width: 768px) {
+  .page-container > div:first-child {
+      width: 60px; /* Collapse sidebar width */
+  }
+  .body-main{
+      padding: 10px; /* Reduce padding for smaller screens */
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 240px;
+  height: 100vh;
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  position: fixed;
+  left: 0;
+  top: 0;
+  padding: 20px 0;
+  overflow-y: auto;
+}
+
+.logo {
+  padding: 0 20px;
+  margin-bottom: 30px;
+}
+
+.logo-text {
+  color: #4CAF50;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.menu {
+  list-style: none;
+  padding: 0 10px;
+}
+
+.menu-item {
+  margin-bottom: 5px;
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.menu-link:hover
+ {
+  background: #e8f5e9;
+  color: #42cf46;
+}
+.menu-link.active {
+  background-color:#42cf46;
+  color: #0b780e;;
+}
+.menu-link i {
+  width: 20px;
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.menu-text {
+  font-size: 15px;
+}
+
+.menu-item.bottom {
+  position: absolute;
+  bottom: 20px;
+  width: calc(100% - 20px);
+}
+
+.divider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 15px 0;
+}
+
+
+/* search header */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+/* Header Container */
+.header {
+  height: 60px;
+  background: #ffffff;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 240px; /* Width of sidebar */
+  z-index: 100;
+}
+
+/* Search Bar */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+.header {
+  height: 60px;
+  background: #ffffff;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e0e0e0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 240px;
+  z-index: 100;
+}
+
+.search-container {
+  flex: 1;
+  max-width: 500px;
+  margin: 0 20px;
+  position: relative;
+}
+
+.search-container input {
+  width: 100%;
+  padding: 8px 15px;
+  padding-left: 35px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+}
+
+.search-container input:focus {
+  border-color: #4CAF50;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.notification {
+  position: relative;
+  color: #666;
+  cursor: pointer;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4CAF50;
+  color: white;
+  font-size: 10px;
+  padding: 2px 5px;
+  border-radius: 10px;
+  min-width: 15px;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-icon {
+  width: 35px;
+  height: 35px;
+  background: #e8f5e9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #4CAF50;
+  cursor: pointer;
+}
+
+.user-icon i {
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .header {
+      left: 0;
+  }
+
+  .search-container {
+      max-width: 200px;
+  }
+}
+
+

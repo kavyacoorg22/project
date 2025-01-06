@@ -1,0 +1,153 @@
+<aside class="sidebar">
+  <div class="logo">
+      <a href="#" class="logo-text">VEGEFOODS</a>
+  </div>
+  
+  <ul class="menu">
+      <li class="menu-item">
+          <a href="/admin/dashboard" class="menu-link">
+              <i class="fas fa-home"></i>
+              <span class="menu-text">Dashboard</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="/admin/product" class="menu-link">
+              <i class="fas fa-box"></i>
+              <span class="menu-text">Products</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="#" class="menu-link">
+              <i class="fas fa-shopping-cart"></i>
+              <span class="menu-text">Orders</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="/admin/user" class="menu-link">
+              <i class="fas fa-users"></i>
+              <span class="menu-text">Users</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="/admin/category" class="menu-link" >
+              <i class="fas fa-tags"></i>
+              <span class="menu-text">Categories</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="#" class="menu-link">
+              <i class="fas fa-percent"></i>
+              <span class="menu-text">Offer</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="#" class="menu-link">
+              <i class="fas fa-tags"></i>
+              <span class="menu-text">Coupon</span>
+          </a>
+      </li>
+      
+      <li class="menu-item">
+          <a href="#" class="menu-link">
+              <i class="fas fa-exchange-alt"></i>
+              <span class="menu-text">Transaction</span>
+          </a>
+      </li>
+
+      <div class="divider"></div>
+      
+      <li class="menu-item">
+        <a href="#" class="menu-link" onclick="logout(event)">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="menu-text">Log Out</span>
+        </a>
+      </li>
+</ul>
+</aside>      
+<script>
+    // Logout function
+    function logout(event) {
+      event.preventDefault();  // Prevent the default anchor tag behavior 
+  
+      fetch('/admin/logout', {
+        method: 'POST',  // Use POST for logout
+        credentials: 'same-origin'
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.href = '/admin/signup';  // Redirect after successful logout
+        } else {
+          alert('Logout failed!');
+        }
+      })
+      .catch(error => {
+        console.error('Error during logout:', error);
+      });
+    }
+  
+   // Function to set the active link
+  function setActiveLink(event) {
+    // Get all menu links
+    const menuLinks = document.querySelectorAll('.menu-link');
+    
+    // Remove 'active' class from all links
+    menuLinks.forEach(link => {
+      link.classList.remove('active');
+    });
+    
+    // Add 'active' class to the clicked link
+    event.currentTarget.classList.add('active');
+  }
+
+  // Function to set active link on page load based on the current route
+  function setActiveLinkOnPageLoad() {
+    const path = window.location.pathname;  // Get the current URL path
+
+    // Get all menu links
+    const menuLinks = document.querySelectorAll('.menu-link');
+
+    // Loop through each menu link and check if its href matches the current path
+    menuLinks.forEach(link => {
+      if (link.getAttribute('href') === path) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  // Add event listeners to all menu links
+  document.querySelectorAll('.menu-link').forEach(link => {
+    link.addEventListener('click', setActiveLink);
+  });
+
+  // Set active link when the page loads
+  window.onload = setActiveLinkOnPageLoad;
+  </script>
+  
+
+<!--   
+  function logout(event) {
+    event.preventDefault();  // Prevent the default button behavior (though button doesn't navigate by default)
+
+    console.log("Logout function triggered");
+
+    fetch('/admin/logout', {
+      method: 'POST',  // Use POST for logout
+      credentials: 'same-origin'  // To include cookies if necessary
+    })
+    .then(response => {
+      if (response.ok) {
+        window.location.href = '/admin/signup';  // Redirect after successful logout
+      } else {
+        alert('Logout failed!');
+      }
+    })
+    .catch(error => {
+      console.error('Error during logout:', error);
+    });
+  } -->

@@ -1,0 +1,67 @@
+<div class="main-content">
+  <h1 class="page-title">Edit Category</h1>
+  <p class="subtitle">Update category information</p>
+
+  <form action="/admin/category/edit/<%= category._id %>?_method=PUT" method="POST" enctype="multipart/form-data">
+      <div class="form-group">
+          <label class="form-label">Category Name</label>
+          <input 
+              type="text" 
+              class="form-input" 
+              value="<%= category.name %>" 
+              name="name" 
+              id="name" 
+              required>
+      </div>
+
+      <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea 
+              class="form-textarea" 
+              name="description" 
+              id="description" 
+              required><%= category.description %></textarea>
+      </div>
+
+      <div class="form-group">
+          <label class="form-label">Category Image</label>
+          <div class="image-section">
+              <img 
+                  id="imagePreview" 
+                  class="preview-image" 
+                  src="<%= category.image || '/api/placeholder/100/100' %>" 
+                  alt="Category icon">
+              <input 
+                  type="file" 
+                  accept="image/*" 
+                  id="categoryIcon" 
+                  onchange="previewImage(this)" 
+                  name="image">
+          </div>
+      </div>
+
+      <div class="btn-section">
+          <button 
+              type="button" 
+              class="btn btn-cancel" 
+              onclick="window.location.href='/admin/category'">Cancel</button>
+              
+          <button type="submit" class="btn btn-save">Save Changes</button>
+        
+      </div>
+  </form>
+</div>
+
+<script>
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      
+      reader.onload = function(e) {
+          document.getElementById('imagePreview').src = e.target.result;
+      }
+      
+      reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>

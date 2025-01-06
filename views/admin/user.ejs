@@ -1,0 +1,137 @@
+<div class="content-wrapper">
+    <h1 class="page-title">Users</h1>
+    <p class="page-subtitle">Manage all users here</p>
+
+    <table class="users-table">
+        <thead>
+            <tr>
+                <th class="profile-cell">Profile</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th class="status-cell">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% users.forEach(user => { %>
+            <tr>
+                <td class="profile-cell">
+                    <div class="profile-image">
+                        <img src="/api/placeholder/35/35" alt="<%= user.firstname %>">
+                    </div>
+                </td>
+                <td class="name-cell"><%= user.firstname %> <%= user.lastname %></td>
+                <td class="email-cell"><%= user.email %></td>
+                <td>
+                    <div class="status-cell">
+                        <label class="status-toggle">
+                            <input 
+                                type="checkbox" 
+                                class="status-toggle-input" 
+                                data-user-id="<%= user._id %>" 
+                                data-user-name="<%= user.firstname %>"
+                                <%= user.status === 'active' ? 'checked' : '' %>>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <% if (page > 1) { %>
+            <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+        <% } %>
+    
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+                <%= i %>
+            </a>
+        <% } %>
+    
+        <% if (page < totalPages) { %>
+            <a href="?page=<%= page + 1 %>" class="page-link">></a>
+        <% } %>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Select all status toggles
+        document.querySelectorAll('.status-toggle-input').forEach(toggle => {
+            toggle.addEventListener('change', async (event) => {
+                const toggle = event.target;
+                const userId = toggle.dataset.userId;
+                const userName = toggle.dataset.userName;
+                const newStatus = toggle.checked ? 'active' : 'inactive';
+    
+                // Show confirmation dialog
+                const result = await Swal.fire({
+                    title: 'Confirm Status Change',
+                    text: `Are you sure you want to ${newStatus === 'active' ? 'unblock' : 'block'} ${userName}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, change it!'
+                });
+    
+                // If user cancels, revert the toggle
+                if (!result.isConfirmed) {
+                    toggle.checked = !toggle.checked;
+                    return;
+                }
+    
+                try {
+                    // Show loading state
+                    Swal.fire({
+                        title: 'Processing...',
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                        allowOutsideClick: false
+                    });
+    
+                    // Send request to the server
+                    const response = await fetch('/admin/updateStatus', {  // Update this URL to match your route
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ 
+                            userId: userId, 
+                            status: newStatus 
+                        })
+                    });
+    
+                    const data = await response.json();
+    
+                    if (response.ok) {
+                        // Success message
+                        await Swal.fire({
+                            icon: 'success',
+                            title: 'Status Updated',
+                            text: `User has been ${newStatus === 'active' ? 'unblocked' : 'blocked'} successfully!`,
+                            timer: 2000
+                        });
+                    } else {
+                        // Error occurred, revert the toggle
+                        toggle.checked = !toggle.checked;
+                        throw new Error(data.message || 'Failed to update status');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    // Show error message and revert the toggle
+                    toggle.checked = !toggle.checked;
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message || 'Failed to update user status. Please try again.'
+                    });
+                }
+            });
+        });
+    });
+    </script>
+

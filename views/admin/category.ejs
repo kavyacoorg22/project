@@ -1,0 +1,67 @@
+<div class="main-content">
+  <div class="content-left">
+      <div class="header-section">
+          <div>
+              <h1 class="page-title">Categories</h1>
+              <p class="page-subtitle">Manage your product categories and subcategories</p>
+          </div>
+          <button class="create-btn" onclick="window.location.href='/admin/category/create'">+ Create Category</button>
+      </div>
+     
+      <div class="category-headers">
+          <div class="header-name">Category Name</div>
+          <div class="header-action">Action</div>
+      </div>
+
+      <div class="category-list">
+          <% if (categories && categories.length > 0) { %>
+              <% categories.forEach(category => { %>
+                  <div class="category-item">
+                      <div class="category-image-container">
+                          <img 
+                              src="<%= category.image || '/images/placeholder.png' %>" 
+                              alt="<%= category.name %>" 
+                              class="category-thumbnail"
+                              onerror="this.src='/images/placeholder.png'"
+                          >
+                      </div>
+                      
+                      <div class="category-info">
+                          <h4><%= category.name %></h4>
+                          <p>Created: <%= new Date(category.createdAt).toLocaleDateString() %></p>
+                      </div>
+                      
+                      <div class="action-buttons">
+                          <a href="/admin/category/edit/<%= category._id %>" class="action-btn edit">
+                              <span>✏️</span>
+                          </a>
+                          <form action="/admin/category/<%= category._id %>?_method=DELETE" method="POST" class="delete-form" onsubmit="confirmDelete(event)">
+                              <button type="submit" class="action-btn delete">
+                                  <span>🗑️</span>
+                              </button>
+                          </form>
+                      </div>
+                  </div>
+              <% }); %>
+          <% } else { %>
+              <div class="no-categories">
+                  <p>No categories found</p>
+              </div>
+          <% } %>
+      </div>
+
+      <div class="pagination">
+          <button class="page-btn active">1</button>
+          <button class="page-btn">2</button>
+          <button class="page-btn">3</button>
+          <button class="page-btn">→</button>
+      </div>
+  </div>
+</div>
+<script>
+function confirmDelete(event) {
+  if (!confirm('Are you sure you want to delete this category?')) {
+      event.preventDefault();
+  }
+}
+</script>

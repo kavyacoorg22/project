@@ -1,0 +1,53 @@
+<div class="otp-container">
+    <div class="form-box">
+        <p>Please enter the email address associated with your account. We'll send you an OTP to reset your password.</p>
+        <form id="emailform">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            <button type="submit">Continue</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('emailform').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const submitButton = e.target.querySelector('button');
+    
+    try {
+        // Disable button during submission
+        submitButton.disabled = true;
+        
+        const response = await fetch('http://localhost:3000/user/email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                text: data.message
+            }).then(() => {
+                window.location.href = '/user/otp';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                text: data.message || 'Failed to send OTP'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            text: 'Something went wrong. Please try again.'
+        });
+    } finally {
+        submitButton.disabled = false;
+    }
+});
+</script>

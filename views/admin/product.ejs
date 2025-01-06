@@ -1,0 +1,98 @@
+<div class="main-content">
+  <div class="content-header">
+      <div>
+          <h1>Products</h1>
+          <p>Manage all your products here</p>
+      </div>
+      <button onclick="window.location.href='/admin/product/add'" class="add-product-btn">+ Add product</button>
+  </div>
+
+  
+  <% if (products.length === 0) { %>
+    <p>No products available. Click "+ Add product" to create a new one.</p>
+  <% } %>
+
+  <div class="products-grid">
+      <!-- Repeat this product card structure -->
+      <% products.forEach(product=>{%>
+        <div class="product-card">
+            <div class="product-image">
+                <% if (product.images && product.images.length > 0) { %>
+                    <img 
+                        src="/img/productsimg/<%= product.images[0] %>" 
+                        alt="<%= product.name %>"
+                        onerror="this.onerror=null; this.src='/img/default-product.jpg';"
+                    >
+                <% } else { %>
+                    <img 
+                        src="/img/default-product.jpg" 
+                        alt="<%= product.name %>"
+                    >
+                <% } %>
+            </div>
+            <div class="product-info">
+                <h3 class="product-name"><%= product.name %></h3>
+                <p class="product-price">₹<%= product.price %></p>
+                <div class="action-buttons">
+                    <button class="edit-btn" onclick='window.location.href="/admin/product/edit/<%=product._id %>"'>Edit</button>
+                    <button class="delete-btn" onclick="deleteProduct('<%=product._id%>')">Delete</button>
+                </div>
+            </div>
+        </div>
+      <%})%>
+      <!-- Repeat product cards as needed -->
+  </div>
+
+  <div class="pagination">
+    <% if (page > 1) { %>
+        <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (page < totalPages) { %>
+        <a href="?page=<%= page + 1 %>" class="page-link">></a>
+    <% } %>
+</div>
+
+</div>
+<script>
+   
+    function deleteProduct(productId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this product? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with the delete request
+            fetch(`/admin/product/delete/${productId}`, {
+                method: 'DELETE',
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        Swal.fire('Deleted!', 'Product has been deleted successfully.', 'success');
+                        location.reload();
+                    } else {
+                        Swal.fire('Error!', 'Failed to delete the product.', 'error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error during delete:', error);
+                    Swal.fire('Error!', 'Something went wrong while deleting the product.', 'error');
+                });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire('Cancelled', 'Your product is safe :)', 'info');
+        }
+    });
+}
+
+
+</script>
