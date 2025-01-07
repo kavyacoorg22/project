@@ -4,6 +4,7 @@ const userAuthController=require('../controller/usercontroller/userAuthControlle
 const validateSignUpData=require('../middleware/signupvalidate')
 const {userAuth}=require('../middleware/userAuth')
 const homeController=require('../controller/usercontroller/homecontroller')
+const reviewController=require('../controller/usercontroller/singlePoductController')
 
 
 
@@ -30,5 +31,7 @@ router.get('/shop',userAuth,homeController.shop)
 
 
 router.get('/product/:id',userAuth,homeController.product)
+router.get('/product/:productId/reviews',reviewController.loadreviews)
+router.post('/product/reviews',reviewController.reviews)
 
 module.exports=router

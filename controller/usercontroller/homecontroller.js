@@ -1,5 +1,6 @@
 const productModel=require("../../model/adminModel/productModel")
 require("dotenv").config()
+const reviewModel=require('../../model/userModel/reviewModel')
 
 const home = async (req, res) => {
   try {
@@ -43,9 +44,13 @@ const product = async (req, res) => {
   try {
     const {id}=req.params;
     const product=await productModel.findById(id)
-    console.log(product.images)
+    const reviews = await reviewModel.find({ productId: req.params.id })
+      .populate('userId', 'firstname avatar')
+      .sort({ createdAt: -1 });
+
+  
     const relatedProducts=await productModel.find({isDeleted:false})
-    res.render('user/product', { title: "product" ,product,relatedProducts});
+    res.render('user/product', { title: "product" ,product,relatedProducts,reviews});
   } catch (err) {
     res.status(500).send(err.message); 
   }

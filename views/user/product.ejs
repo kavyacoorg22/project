@@ -9,59 +9,10 @@
   </div>
 </div>
 
-<!-- <section class="ftco-section">
-  
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-6 mb-5 ftco-animate">
-        <a href="images/product-1.jpg" class="image-popup"><img src="/images/product-1.jpg" class="img-fluid" alt="Colorlib Template"></a>
-      </div>
-      <div class="col-lg-6 product-details pl-md-5 ftco-animate">
-        <h3><%=product.name%></h3>
-        <div class="rating d-flex">
-          <p class="text-left mr-4">
-            <a href="#" class="mr-2">5.0</a>
-            <a href="#"><span class="ion-ios-star-outline"></span></a>
-            <a href="#"><span class="ion-ios-star-outline"></span></a>
-            <a href="#"><span class="ion-ios-star-outline"></span></a>
-            <a href="#"><span class="ion-ios-star-outline"></span></a>
-            <a href="#"><span class="ion-ios-star-outline"></span></a>
-          </p>
-          <p class="text-left mr-4">
-            <a href="#" class="mr-2" style="color: #000;">100 <span style="color: #bbb;">Rating</span></a>
-          </p>
-         
-        </div>
-        <p class="price"><span><%product.price%></span></p>
-        <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Text should turn around and return to its own, safe country. But nothing the copy said could convince her and so it didn’t take long until.
-        </p>
-        <div class="row mt-4">
-         
-          <div class="w-100"></div>
-          <div class="input-group col-md-6 d-flex mb-3">
-             <span class="input-group-btn mr-2">
-                <button type="button" class="quantity-left-minus btn"  data-type="minus" data-field="">
-                 <i class="ion-ios-remove"></i>
-                </button>
-              </span>
-             <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
-             <span class="input-group-btn ml-2">
-                <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
-                   <i class="ion-ios-add"></i>
-               </button>
-             </span>
-          </div>
-          <div class="w-100"></div>
-          <div class="col-md-12">
-            <p style="color: #000;"><%=product.quantity%> kg available</p>
-          </div>
-        </div>
-        <p><a href="cart.html" class="btn btn-black py-3 px-5">Add to Cart</a></p>
-      </div>
-    </div>
-  </div>
-</section> -->
 
+  
+
+<!-- main content section -->
 
 <section class="ftco-section">
   <div class="container">
@@ -147,7 +98,67 @@
   </div>
 </section>
 
+<!-- review section -->
+<section>
+<div class="reviews-section">
+  <!-- Review Form -->
+  <div class="review-form-container">
+    <h3>Write a Review</h3>
+    <form id="reviewForm" class="review-form">
+      <div class="rating-input">
+        <span>Your Rating:</span>
+        <div class="stars">
+          <input type="radio" id="star5" name="rating" value="5">
+          <label for="star5">★</label>
+          <input type="radio" id="star4" name="rating" value="4">
+          <label for="star4">★</label>
+          <input type="radio" id="star3" name="rating" value="3">
+          <label for="star3">★</label>
+          <input type="radio" id="star2" name="rating" value="2">
+          <label for="star2">★</label>
+          <input type="radio" id="star1" name="rating" value="1">
+          <label for="star1">★</label>
+        </div>
+      </div>
+      <textarea name="review" placeholder="Write your review here..." required></textarea>
+      <button type="submit" class="submit-review">Submit Review</button>
+    </form>
+  </div>
 
+  <!-- Reviews Display -->
+  <div class="reviews-container">
+    <h3>Customer Reviews</h3>
+    <div class="reviews-list">
+      <% if (reviews && reviews.length > 0) { %>
+        <% reviews.forEach(review => { %>
+          <div class="review-item">
+            <div class="review-header">
+              <div class="reviewer-info">
+                <img src="<%= review.userId.avatar || '/default-avatar.png' %>" alt="User">
+                <span class="reviewer-name"><%= review.userId.firstname %></span>
+              </div>
+              <div class="rating-stars">
+                <% for(let i = 0; i < 5; i++) { %>
+                  <span class="star <%= i < review.rating ? 'filled' : '' %>">★</span>
+                <% } %>
+              </div>
+            </div>
+            <div class="review-content">
+              <p><%= review.review %></p>
+            </div>
+            <div class="review-date">
+              <%= new Date(review.createdAt).toLocaleDateString() %>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <p>No reviews yet. Be the first to review this product!</p>
+      <% } %>
+    </div>
+  </div>
+</div>
+</section>
+<!-- related product section  -->
 <section class="ftco-section">
   <div class="container">
     <div class="row justify-content-center mb-3 pb-3">
@@ -300,6 +311,49 @@ $(document).ready(function() {
         $img.css('transform', 'scale(1)');
         $('#product-slider').removeClass('zooming');
     });
+});
+
+
+
+document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  const formData = new FormData(e.target);
+  const data = {
+    productId: '<%= product._id %>',
+    rating: formData.get('rating'),
+    review: formData.get('review')
+  };
+
+  try {
+    const response = await fetch('/user/reviews', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Thank you!',
+        text: 'Your review has been submitted successfully'
+      }).then(() => {
+        window.location.reload();
+      });
+    } else {
+      throw new Error(result.message);
+    }
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: error.message || 'Something went wrong!'
+    });
+  }
 });
 
 </script>
