@@ -5,8 +5,8 @@ const validateSignUpData = (req, res,next) => {
   console.log("middleware is called")
   const { firstname, lastname, email, number, password, confirmPassword } = req.body;
 
-  if (validator.isEmpty(firstname) || validator.isEmpty(lastname)) {
-    console.log('first')
+  if (validator.isEmpty(firstname) && validator.isEmpty(lastname)) {
+    
     return res.status(400).json({
       success: false,
       message: "Firstname and Lastname are required.",
@@ -14,7 +14,7 @@ const validateSignUpData = (req, res,next) => {
   }
 
   if (!validator.isEmail(email)) {
-    console.log('second')
+    
     return res.status(400).json({
       success: false,
       message: "Please enter a valid email address.",
@@ -22,7 +22,7 @@ const validateSignUpData = (req, res,next) => {
   }
 
   if (!validator.isMobilePhone(number, 'any')) {
-    console.log('third')
+    
     return res.status(400).json({
       success: false,
       message: "Please enter a valid phone number.",
@@ -30,7 +30,7 @@ const validateSignUpData = (req, res,next) => {
   }
 
   if (!validator.isStrongPassword(password)) {
-    console.log('fourth')
+    
     return res.status(400).json({
       success: false,
       message: "Please enter a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols.",
@@ -45,7 +45,7 @@ const validateSignUpData = (req, res,next) => {
   }
 
   if (!validator.equals(password, confirmPassword)) {
-    console.log("fifth")
+    
     return res.status(400).json({
       success: false,
       message: "Passwords do not match.",

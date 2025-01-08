@@ -186,7 +186,7 @@ const email = async (req, res) => {
 
       // Generate OTP
       const otp = generateOTP();
-      const expiryTime = Date.now() + 30 * 1000; // 30 seconds
+      const expiryTime = Date.now() + 60 * 1000; // 60 seconds
 
       // Store OTP data in session
       req.session.otpData = {
@@ -209,7 +209,7 @@ const email = async (req, res) => {
           from: process.env.EMAIL_USER,
           to: email,
           subject: 'Password Reset OTP',
-          text: `Your OTP for password reset is: ${otp}. Valid for 30 seconds.`
+          text: `Your OTP for password reset is: ${otp}. Valid for 60 seconds.`
       });
       
       return res.status(200).json({
@@ -263,58 +263,6 @@ const loadotp = async (req, res) => {
 
 
 
-// const verifyotp = async (req, res) => {
-//   try {
-//       // Force session reload before verification
-//       await new Promise((resolve, reject) => {
-//           req.session.reload((err) => {
-//               if (err) reject(err);
-//               else resolve();
-//           });
-//       });
-
-//       const { otp } = req.body;
-//       const otpData = req.session.otpData;
-
-//       if (!otpData || !otpData.otp || !otpData.expiryTime) {
-//           return res.status(400).json({ 
-//               success: false,
-//               message: 'OTP expired or invalid' 
-//           });
-//       }
-
-//       if (Date.now() > otpData.expiryTime) {
-//           req.session.otpData = null;
-//           await new Promise(resolve => req.session.save(resolve));
-//           return res.status(400).json({ 
-//               success: false,
-//               message: 'OTP expired' 
-//           });
-//       }
-
-//       if (otp !== otpData.otp) {
-//           return res.status(400).json({ 
-//               success: false,
-//               message: 'Invalid OTP' 
-//           });
-//       }
-
-//       // Clear OTP data and save session
-//       req.session.otpData = null;
-//       await new Promise(resolve => req.session.save(resolve));
-
-//       res.json({ 
-//           success: true,
-//           redirectUrl: '/user/password'
-//       });
-//   } catch (error) {
-//       console.error('Verify OTP error:', error);
-//       res.status(500).json({ 
-//           success: false,
-//           message: 'Server error' 
-//       });
-//   }
-// };
 
 const verifyotp = async (req, res) => {
   try {

@@ -1,0 +1,98 @@
+<div class="container">
+  <!-- Sidebar -->
+  <div class="sidebar">
+      <a href="#"><span>Profile</span></a>
+      <a href="#" class="active"><span>Address</span></a>
+      <a href="#"><span>Order</span></a>
+      <a href="#"><span>Wallet</span></a>
+      <a href="#" class="logout"><span>logout</span></a>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+      <div class="address-card">
+          <div class="address-header">
+              <div class="address-info">
+                  <h2>kavya kavya</h2>
+                  <p>123 main st,Anytown USA</p>
+                  <p>682030, USA</p>
+                  <p>kavya@gmail.com</p>
+                  <p>9483244327</p>
+              </div>
+              <div class="address-actions">
+                  <button class="edit-btn">EDIT</button>
+                  <button class="delete-btn">🗑️</button>
+              </div>
+          </div>
+          <button class="add-new-btn" onclick="openModal()">add new +</button>
+      </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="addressModal" class="modal">
+      <div class="modal-content">
+          <span class="close" onclick="closeModal()">&times;</span>
+          <h2>Add New Address</h2>
+          <form id="addressForm">
+              <div class="form-group">
+                  <label for="firstName">First Name</label>
+                  <input type="text" id="firstName" required>
+              </div>
+              
+              <div class="form-group">
+                  <label for="lastName">Last Name</label>
+                  <input type="text" id="lastName" required>
+              </div>
+
+              <div class="form-group">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" required>
+              </div>
+
+              <div class="form-group">
+                  <label for="mobile">Mobile Number</label>
+                  <input type="tel" id="mobile" required>
+              </div>
+
+              <div class="form-group">
+                  <label for="postal">Postal Code</label>
+                  <input type="text" id="postal" required>
+              </div>
+
+              <div class="form-group">
+                  <label for="address">Address</label>
+                  <textarea id="address" required></textarea>
+              </div>
+
+              <button type="submit">Add Address</button>
+          </form>
+      </div>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('addressModal');
+
+  function openModal() {
+      modal.style.display = 'block';
+  }
+
+  function closeModal() {
+      modal.style.display = 'none';
+  }
+
+  // Close modal when clicking outside
+  window.onclick = function(event) {
+      if (event.target == modal) {
+          closeModal();
+      }
+  }
+
+  // Form submission
+  document.getElementById('addressForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Add your form submission logic here
+      console.log('Form submitted');
+      closeModal();
+  });
+</script>

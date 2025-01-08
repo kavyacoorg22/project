@@ -32,7 +32,7 @@ app.use(express.static('public'));
 app.use('/js', express.static(path.join(__dirname, 'public/js')));
 app.use('/css', express.static(path.join(__dirname, 'public/css')));
 app.use('/admincss', express.static(path.join(__dirname, 'public/admincss')));
-
+app.use('/usercss', express.static(path.join(__dirname, 'public/usercss')));
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
 app.use('/fonts', express.static(path.join(__dirname, 'public/fonts')));
