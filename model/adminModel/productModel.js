@@ -38,8 +38,8 @@ const productShema=new mongoose.Schema({
 },
 status: { 
   type: String, 
-  enum: ['active', 'inactive'], 
-  default: 'active' 
+  enum: ['In-stock', 'Out-of-stock'], 
+  default: 'In-stock' 
 },
 isDeleted: { type: Boolean, default: false },
 },{timestamps:true})

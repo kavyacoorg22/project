@@ -1,6 +1,9 @@
 const productModel=require('../../model/adminModel/productModel')
 const {processImage}=require('../../utils/productImgProcessor')
 const categoryModel=require('../../model/adminModel/categoryModel')
+const path=require('path');
+const fs=require('fs').promises;
+
 
 
 const loadproduct=async(req,res)=>
@@ -35,7 +38,8 @@ const loadAddproduct=async(req,res)=>
     {
       try{
         const categories=await categoryModel.find()
-        res.render('admin/addproducts',{title:"addproduct",csspage:"addproduct.css" ,categories,layout: './layout/admin-layout'})  //user page
+        const product=await productModel.find({})
+        res.render('admin/addproducts',{title:"addproduct",csspage:"addproduct.css" ,categories,layout: './layout/admin-layout',product})  //user page
       }catch(err)
       {
         res.send(err.message)
@@ -81,7 +85,7 @@ const product=async(req,res)=>{
         status,
         images
       })
-      console.log(product)
+      
     await product.save();
     res.redirect('/admin/product')
   }catch(err)
@@ -158,12 +162,8 @@ const editproduct = async (req, res) => {
     // Handle image upload
     if (req.file) {
       try {
-        // Create products directory if it doesn't exist
-        const uploadDir = path.join('public', 'img', 'productsimg');
-        await fs.promises.mkdir(uploadDir, { recursive: true });
-
         // Delete old image if it exists
-        if (product.images && product.images[0]) {
+        if (product.images && product.images.length > 0) {
           const oldImagePath = path.join('public', 'img', 'productsimg', product.images[0]);
           try {
             await fs.promises.access(oldImagePath);
@@ -174,14 +174,20 @@ const editproduct = async (req, res) => {
         }
 
         // Process new image
-        const filename = `${Date.now()}-${req.file.originalname}`;
-        await sharp(req.file.buffer)
-          .resize(800) // Resize to width 800px
-          .jpeg({ quality: 80 }) // Convert to JPEG with 80% quality
-          .toFile(path.join(uploadDir, filename));
+        const filename = await processImage(
+          req.file.buffer,
+          req.file.originalname
+        );
 
-        // Update images array
-        updateData.images = [filename];
+        // Properly update the images array
+        // If product doesn't have images array, initialize it
+        if (!product.images) {
+          updateData.images = [filename];
+        } else {
+          // Replace first image or add if array is empty
+          updateData.images = [...product.images];
+          updateData.images[0] = filename;
+        }
       } catch (error) {
         console.error('Image processing error:', error);
         return res.status(500).json({

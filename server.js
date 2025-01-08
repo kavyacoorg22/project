@@ -10,6 +10,8 @@ const cors=require('cors')
 const session=require('express-session')
 const MongoStore = require('connect-mongo');
 const path=require('path')
+const methodOverride = require('method-override');
+const nocache=require("nocache")
 
 
 const port = process.env.PORT || 3000;
@@ -19,6 +21,8 @@ app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
+app.use(methodOverride('_method'));
+app.use(nocache());
 
 
 
@@ -44,9 +48,9 @@ app.set('view engine', 'ejs');
 
 app.use(session({
   store: MongoStore.create({
-    mongoUrl: 'mongodb://localhost:27017/yourdb'
+    mongoUrl: 'mongodb://localhost:27017/adminDB'
   }),
-  secret: 'mysecret',
+  secret: process.env.SESSION_SECRET||'mysecret',
   resave: true,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }

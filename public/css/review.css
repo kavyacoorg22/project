@@ -106,3 +106,38 @@ textarea {
   font-size: 0.9em;
   margin-top: 10px;
 }
+
+.reviewer-name{
+  color: rgb(75, 77, 234);
+}
+
+.review-content{
+  color:chocolate;
+  padding-left: 5%;
+}
+
+
+/* notify button */
+
+.btn-add-to-cart,
+.btn-notify {
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    max-width: 300px;
+}
+
+.btn-add-to-cart {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+}
+
+.btn-notify {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border: 1px solid #d1d5db;
+}

@@ -1,6 +1,7 @@
 const productModel=require("../../model/adminModel/productModel")
 require("dotenv").config()
 const reviewModel=require('../../model/userModel/reviewModel')
+const categoryModel=require('../../model/adminModel/categoryModel')
 
 const home = async (req, res) => {
   try {
@@ -21,21 +22,17 @@ const shop = async (req, res) => {
         const products = await productModel.find({ isDeleted: false })
                                       .skip(skip)
                                       .limit(limit);
-      // Add this to your user app route
-products.forEach(product => {
-  if (product.images && product.images.length > 0) {
-    console.log('Image URL:', `${process.env.ADMIN_URL}/images/${product.images[0]}`);
-  }
-});
+
     
         // Total products for pagination
         const totalProducts = await productModel.countDocuments({ isDeleted: false });
         const totalPages = Math.ceil(totalProducts / limit);
     
-       
+      //  to get category
+      const categories=await categoryModel.find({})
         
     
-    res.render('user/shop', { title: "shop",products,page,totalPages });
+    res.render('user/shop', { title: "shop",products,page,totalPages,categories});
   } catch (err) {
     res.status(500).send(err.message); // Send an error response if something goes wrong
   }
@@ -43,7 +40,8 @@ products.forEach(product => {
 const product = async (req, res) => {
   try {
     const {id}=req.params;
-    const product=await productModel.findById(id)
+    const product=await productModel.findById(id).populate('category')
+    
     const reviews = await reviewModel.find({ productId: req.params.id })
       .populate('userId', 'firstname avatar')
       .sort({ createdAt: -1 });

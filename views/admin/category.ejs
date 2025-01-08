@@ -51,10 +51,19 @@
       </div>
 
       <div class="pagination">
-          <button class="page-btn active">1</button>
-          <button class="page-btn">2</button>
-          <button class="page-btn">3</button>
-          <button class="page-btn">→</button>
+        <% if (page > 1) { %>
+            <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+        <% } %>
+    
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+                <%= i %>
+            </a>
+        <% } %>
+    
+        <% if (page < totalPages) { %>
+            <a href="?page=<%= page + 1 %>" class="page-link">></a>
+        <% } %>
       </div>
   </div>
 </div>

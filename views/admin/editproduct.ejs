@@ -46,7 +46,7 @@
       <div class="form-group">
         <label class="form-label">Status</label>
         <select name="status" class="form-select" required>
-          <option value="<%=product.status%>" selected><%=product.status%></option>
+          <option value="In-stock" selected>In-stock</option>
           <option value="out-of-stock">Out of stock</option>
         </select>
       </div>
@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       const response = await fetch(`/admin/product/edit/<%= product._id %>`, {
-        method: 'POST',
+        method: 'PUT',
         body: formData
       });
 

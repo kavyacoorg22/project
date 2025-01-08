@@ -30,7 +30,7 @@ router.delete('/category/:id',categoryController.deleteCat)
 router.get('/product',productController.loadproduct)
 router.get('/product/add',productController.loadAddproduct)
 router.get('/product/edit/:id',productController.loadEditproduct)
-router.post('/product/edit/:id',upload.single('image'),productController.editproduct)
+router.put('/product/edit/:id',upload.single('image'),productController.editproduct)
 router.post('/product',upload.array('images',10),validateImg,productController.product)
 router.delete('/product/delete/:id',productController.deleteProduct)
 

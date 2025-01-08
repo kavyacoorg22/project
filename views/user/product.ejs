@@ -63,10 +63,14 @@
             <a href="#"><span class="ion-ios-star-outline"></span></a>
             <a href="#"><span class="ion-ios-star-outline"></span></a>
           </p>
-         
-          
+         </div>
+        <div>
+          <%if(product.category.name!=='Juice'){%>
+          <p class="price" style="color: #000;"><span>₹<%=product.price%> / KG</span></p>
+          <%}else{%>
+            <p class="price"style="color: #000;"><span>₹<%=product.price%> / Bottel</span></p>
+            <%}%>
         </div>
-        <p class="price"><span>₹<%=product.price%></span></p>
         <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Text should turn around and return to its own, safe country. But nothing the copy said could convince her and so it didn’t take long until.
         </p>
         <div class="row mt-4">
@@ -87,10 +91,20 @@
           </div>
           <div class="w-100"></div>
           <div class="col-md-12">
-            <p style="color: #000;"><%=product.quantity%> kg available</p>
+           <%if(product.category.name!=='Juice'){%>
+             <p style="color: #000;"><%=product.quantity%> kg available</p>
+              <%}else{%>
+              <p style="color: #000;"><%=product.quantity%> bottel available</p>
+            <%}%>
+             
+             
           </div>
         </div>
+        <%if(product.status==='In-stock'){%>
         <p><a href="cart.html" class="btn btn-black py-3 px-5">Add to Cart</a></p>
+        <%}else if(product.status==='Out-of-stock'){%>
+          <p><a href="cart.html" class="btn-notify">Notify me</a></p>
+          <%}%>
       </div>
         
       </div>
@@ -104,7 +118,7 @@
   <!-- Review Form -->
   <div class="review-form-container">
     <h3>Write a Review</h3>
-    <form id="reviewForm" class="review-form">
+    <form id="reviewForm" class="review-form" data-product-id="<%= product._id %>">
       <div class="rating-input">
         <span>Your Rating:</span>
         <div class="stars">
@@ -134,7 +148,7 @@
           <div class="review-item">
             <div class="review-header">
               <div class="reviewer-info">
-                <img src="<%= review.userId.avatar || '/default-avatar.png' %>" alt="User">
+                <img src="/img/productsimg/image.png" alt="User">
                 <span class="reviewer-name"><%= review.userId.firstname %></span>
               </div>
               <div class="rating-stars">
@@ -183,7 +197,7 @@
             <h3><a href="/user/product/<%=products._id%>"><%=products.name%></a></h3>
             <div class="d-flex">
               <div class="pricing">
-                <p class="price"><span class="mr-2 price-dc"></span><span class="price-sale"><%=products.price%></span></p>
+                <p class="price"><span class="mr-2 price-dc"></span><span class="price-sale">₹<%=products.price%></span></p>
               </div>
             </div>
             <div class="bottom-area d-flex px-3">
@@ -207,6 +221,8 @@
   </div>
 </section>
 <script>
+
+  // quantity increment and decrement
   $(document).ready(function() {
     // Quantity increment
     $('.quantity-right-plus').click(function(e) {
@@ -215,7 +231,7 @@
       // Get the closest quantity input field
       var quantityInput = $(this).closest('.input-group').find('.input-number');
       var quantity = parseInt(quantityInput.val());
-      var maxQuantity = parseInt(quantityInput.attr('max')); // Get the max quantity from the input field
+      var maxQuantity = parseInt(quantityInput.attr('<%=product.quantity%>')); // Get the max quantity from the input field
 
       // If quantity is less than max, increment it
       if (quantity < maxQuantity) {
@@ -240,120 +256,191 @@
 
 
 
+// zoom script
+// $(document).ready(function() {
+//     // Initialize magnify for all zoom images
+//     function initZoom() {
+//         $('.zoom-img').magnify({
+//             magnifiedWidth: 2000,
+//             magnifiedHeight: 2000,
+//             speed: 100,
+//             // Ensure source image is same as display image for higher quality
+//             src: function() {
+//                 return $(this).data('magnify-src');
+//             }
+//         });
+//     }
 
-$(document).ready(function() {
-    // Initialize magnify on all zoom-img elements
-    $('.zoom-img').each(function() {
-        $(this).magnify({
-            speed: 200,
-            src: $(this).attr('src'),
-            width: 2000,
-            height: 2000
-        });
-    });
+//     // Initialize zoom on page load
+//     initZoom();
 
-    // Handle carousel slides
-    $('#product-slider').on('slide.bs.carousel', function () {
-        // Destroy existing magnify instances
-        $('.zoom-img').magnify('destroy');
-        
-        // Reinitialize magnify after slide
-        setTimeout(function() {
-            $('.zoom-img').each(function() {
-                $(this).magnify({
-                    speed: 200,
-                    src: $(this).attr('src'),
-                    width: 2000,
-                    height: 2000
-                });
-            });
-        }, 500);
-    });
+//     // Handle carousel events
+//     $('#product-slider')
+//         .on('slide.bs.carousel', function() {
+//             // Remove existing magnify instances before slide
+//             $('.zoom-img').magnify('destroy');
+//         })
+//         .on('slid.bs.carousel', function() {
+//             // Reinitialize magnify after slide complete
+//             setTimeout(initZoom, 100);
+//         });
 
-    // Add custom mouse-move zoom effect
-    $('.zoom-container').on('mousemove', function(e) {
-        const $container = $(this);
-        const $img = $container.find('img');
-        
-        if (!$container.hasClass('active-zoom')) return;
+//     // Custom zoom functionality
+//     $('.zoom-container').each(function() {
+//         const $container = $(this);
+//         const $img = $container.find('.zoom-img');
+//         let isZoomed = false;
 
-        const containerRect = $container[0].getBoundingClientRect();
-        const xPos = (e.clientX - containerRect.left) / containerRect.width;
-        const yPos = (e.clientY - containerRect.top) / containerRect.height;
+//         // Handle click to zoom
+//         $container.on('click', function(e) {
+//             if (!isZoomed) {
+//                 // Zoom in
+//                 isZoomed = true;
+//                 $container.addClass('active-zoom');
+//                 $('#product-slider').addClass('zooming');
+//                 $img.css('cursor', 'zoom-out');
+                
+//                 // Calculate zoom position
+//                 const rect = this.getBoundingClientRect();
+//                 const x = (e.clientX - rect.left) / rect.width * 100;
+//                 const y = (e.clientY - rect.top) / rect.height * 100;
+                
+//                 $img.css({
+//                     'transform': 'scale(2.5)',
+//                     'transform-origin': `${x}% ${y}%`
+//                 });
+//             } else {
+//                 // Zoom out
+//                 isZoomed = false;
+//                 $container.removeClass('active-zoom');
+//                 $('#product-slider').removeClass('zooming');
+//                 $img.css({
+//                     'transform': 'scale(1)',
+//                     'transform-origin': 'center',
+//                     'cursor': 'zoom-in'
+//                 });
+//             }
+//         });
 
-        $img.css('transform-origin', `${xPos * 100}% ${yPos * 100}%`);
-    });
+//         // Handle mouse move when zoomed
+//         $container.on('mousemove', function(e) {
+//             if (!isZoomed) return;
+            
+//             const rect = this.getBoundingClientRect();
+//             const x = (e.clientX - rect.left) / rect.width * 100;
+//             const y = (e.clientY - rect.top) / rect.height * 100;
+            
+//             $img.css('transform-origin', `${x}% ${y}%`);
+//         });
 
-    // Handle zoom in/out on click
-    $('.zoom-container').on('click', function() {
-        const $container = $(this);
-        const $img = $container.find('img');
-        
-        if ($container.hasClass('active-zoom')) {
-            // Zoom out
-            $container.removeClass('active-zoom');
-            $img.css('transform', 'scale(1)');
-            $('#product-slider').removeClass('zooming');
-        } else {
-            // Zoom in
-            $container.addClass('active-zoom');
-            $img.css('transform', 'scale(2.5)');
-            $('#product-slider').addClass('zooming');
-        }
-    });
+//         // Reset zoom on mouse leave
+//         $container.on('mouseleave', function() {
+//             if (isZoomed) {
+//                 isZoomed = false;
+//                 $container.removeClass('active-zoom');
+//                 $('#product-slider').removeClass('zooming');
+//                 $img.css({
+//                     'transform': 'scale(1)',
+//                     'transform-origin': 'center',
+//                     'cursor': 'zoom-in'
+//                 });
+//             }
+//         });
+//     });
 
-    // Reset zoom when mouse leaves
-    $('.zoom-container').on('mouseleave', function() {
-        const $container = $(this);
-        const $img = $container.find('img');
-        
-        $container.removeClass('active-zoom');
-        $img.css('transform', 'scale(1)');
-        $('#product-slider').removeClass('zooming');
-    });
-});
+//     // Prevent default drag behavior on images
+//     $('.zoom-img').on('dragstart', function(e) {
+//         e.preventDefault();
+//     });
+// });
 
 
 
-document.getElementById('reviewForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
+
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('reviewForm');
   
-  const formData = new FormData(e.target);
-  const data = {
-    productId: '<%= product._id %>',
+  if (!form) {
+    console.error('Review form not found');
+    return;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const productId = form.dataset.productId;
+    const rating = formData.get('rating');
+     const review = formData.get('review');
+    
+     console.log('Form Data:', {
+    productId,
     rating: formData.get('rating'),
     review: formData.get('review')
-  };
+  });
 
-  try {
-    const response = await fetch('/user/reviews', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-
-    if (response.ok) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Thank you!',
-        text: 'Your review has been submitted successfully'
-      }).then(() => {
-        window.location.reload();
-      });
-    } else {
-      throw new Error(result.message);
-    }
-  } catch (error) {
+     if (!rating) {
     Swal.fire({
       icon: 'error',
       title: 'Oops...',
-      text: error.message || 'Something went wrong!'
+      text: 'Please select a rating!'
     });
+    return;
   }
+
+  if (!review.trim()) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Oops...',
+      text: 'Please write a review!'
+    });
+    return;
+  }
+
+
+    if (!productId) {
+      console.error('Product ID not found');
+      return;
+    }
+
+    const data = {
+      productId: productId,
+      rating: formData.get('rating'),
+      review: formData.get('review')
+    };
+
+    try {
+      const response = await fetch('/user/product/reviews', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Thank you!',
+          text: 'Your review has been submitted successfully'
+        }).then(() => {
+          window.location.reload();
+        });
+      } else {
+        throw new Error(result.message || 'Failed to submit review');
+      }
+    } catch (error) {
+      console.error('Review submission error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.message || 'Something went wrong!'
+      });
+    }
+  });
 });
 
 </script>

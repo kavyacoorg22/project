@@ -46,12 +46,27 @@ const createcat = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    const categories = await categoryModel.find().sort({ createdAt: -1 });
+    //const categories = await categoryModel.find().sort({ createdAt: -1 });
+     const page = parseInt(req.query.page) || 1; // Default to page 1
+            const limit = 3; // Products per page
+            const skip = (page - 1) * limit;  //1-1*3=0 ,,,2-1*3=3
+        
+            // Fetch products with pagination
+            const categories= await categoryModel.find({})
+                                          .skip(skip)
+                                          .limit(limit);
+        
+            // Total products for pagination
+            const totalcategory = await categoryModel.countDocuments({});
+            const totalPages = Math.ceil(totalcategory / limit);
     res.render('admin/category', {
-      categories,
+      
       title: 'Categories',
       csspage: 'category.css',
-      layout: './layout/admin-layout'
+      layout: './layout/admin-layout',
+      page,
+      totalPages,
+      categories,
     });
   } catch (error) {
     console.error(error);
