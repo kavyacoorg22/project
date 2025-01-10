@@ -5,7 +5,21 @@ const validateSignUpData=require('../middleware/signupvalidate')
 const {userAuth}=require('../middleware/userAuth')
 const homeController=require('../controller/usercontroller/homecontroller')
 const reviewController=require('../controller/usercontroller/singlePoductController')
+const passport = require('passport');
+require('../utils/passport');
 
+
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
+
+router.get('/auth/google/callback',
+  passport.authenticate('google', { 
+    failureRedirect: '/user/login',
+    successRedirect: '/user/home'
+  })
+);
 
 
 router.get('/signup',userAuthController.loadsignup)

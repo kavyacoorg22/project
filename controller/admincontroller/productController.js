@@ -103,12 +103,11 @@ const product=async(req,res)=>{
 const deleteProduct = async (req, res) => {
   const { id } = req.params;
 
-  console.log(`Deleting product with ID: ${id}`);
 
   try {
       // Check if the product exists
       const product = await productModel.findOne({ _id: id  });
-      console.log(product)
+      
 
       if (!product) {
           return res.status(404).json({ message: 'Product not found' });

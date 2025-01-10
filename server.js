@@ -12,11 +12,13 @@ const MongoStore = require('connect-mongo');
 const path=require('path')
 const methodOverride = require('method-override');
 const nocache=require("nocache")
+const passport=require("passport")
 
 
+//port
 const port = process.env.PORT || 3000;
 
-// Static Files
+
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +27,7 @@ app.use(methodOverride('_method'));
 app.use(nocache());
 
 
-
+// Static Files
 app.use('/images', express.static(path.join(__dirname, 'public/images')));
 app.use(express.static('public'));
 
@@ -43,9 +45,9 @@ app.use(expressLayout);
 app.set('layout', './layout/user-layout.ejs'); // Default layout for all views
 app.set('view engine', 'ejs');
 
+
+
 //session
-
-
 app.use(session({
   store: MongoStore.create({
     mongoUrl: 'mongodb://localhost:27017/adminDB'
@@ -56,7 +58,8 @@ app.use(session({
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 // Routes
