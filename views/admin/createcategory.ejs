@@ -2,7 +2,7 @@
   <h1 class="form-title">Create Categories</h1>
   <p class="form-subtitle">Add new categories</p>
   
-  <form action="/admin/category" method="POST" enctype="multipart/form-data">
+  <form id="categoryForm" enctype="multipart/form-data">
     <div class="form-group">
       <label class="form-label">Category Name</label>
       <input type="text" class="form-input" placeholder="Type here" id="name" 
@@ -30,3 +30,67 @@
     </div>
   </form>
 </div>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('categoryForm');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+     
+        
+        try {
+            const formData = new FormData(this);
+            
+            const response = await fetch('/admin/category', {
+                method: 'POST',
+                body: formData,
+               
+            });
+           
+        const responseText = await response.text();
+       
+        
+     let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('Error parsing JSON:', jsonError);
+        Swal.fire('Unexpected server response. Please try again later.');
+        return;
+      }
+            
+            if (!data.success) {
+                // Show error message
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.error || data.message || 'Something went wrong!',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+            
+            // Success case
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Category added successfully!',
+                confirmButtonColor: '#3085d6'
+            });
+            
+            // Redirect after success
+            window.location.href = '/admin/category';
+            
+        } catch (error) {
+            console.error('Error:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Something went wrong. Please try again.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
+</script>

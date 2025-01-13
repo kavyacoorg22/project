@@ -67,37 +67,77 @@ const loadEditproduct=async(req,res)=>
    }
  }
 
-const product=async(req,res)=>{
+ const product = async (req, res) => {
+  try {
+    
+      const { name, description, category, price, quantity, status} = req.body;
+     
+      if (!name || !description || !category || !price || !quantity || !status) {
+          return res.status(400).json({
+              success: false,
+              message: 'All fields are required'
+          });
+      }
 
-  try{
-       const {name,description,category,price,quantity,status}=req.body;
-       
-       const images=await Promise.all(
-        req.files.map(file=>processImage(file.buffer,file.originalname))
-       )
-
-       const product=new productModel({
-        name,
-        description,
-        category,
-        price,
-        quantity,
-        status,
-        images
-      })
-      
-    await product.save();
-    res.redirect('/admin/product')
-  }catch(err)
-  {
-    console.log(err.message);
-    const categories = await categoryModel.find({}); 
-        res.render('addproducts', { 
-            error: err.message,
-            categories
+      if (name.trim() === '') {
+        return res.status(400).json({
+          success: false,
+          message: 'Name should not be empty or only spaces.',
         });
+      }
+  
+      if (description.trim() === '') {
+        return res.status(400).json({
+          success: false,
+          message: 'Description should not be empty or only spaces.',
+        });
+      }
+  
+
+      if (price<= 0 || quantity<= 0) {
+          return res.status(400).json({
+              success: false,
+              error: "Price and quantity must be positive numbers"
+          });
+      }
+       
+      if (!req.files || req.files.length < 3) {
+        return res.status(400).json({
+          success: false,
+          message: 'At least 3 images are  required.',
+        });
+      }
+
+      const images = await Promise.all(
+          req.files.map(file => processImage(file.buffer, file.originalname))
+      );
+
+      const product = new productModel({
+          name,
+          description,
+          category,
+          price,
+          quantity,
+          status,
+          images
+      });
+
+      await product.save();
+      
+      // Sends success message 
+      res.json({
+          success: true,
+          message: 'Product added successfully'
+      });
+
+  } catch (err) {
+      console.log(err.message);
+      res.status(400).json({
+          success: false,
+          error: err.message
+      });
   }
-} 
+};
 
 
 const deleteProduct = async (req, res) => {
@@ -105,7 +145,7 @@ const deleteProduct = async (req, res) => {
 
 
   try {
-      // Check if the product exists
+      
       const product = await productModel.findOne({ _id: id  });
       
 

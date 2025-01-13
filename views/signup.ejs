@@ -13,13 +13,11 @@
   </form>
 </div>
 
+<script>
 
-
-  
- <script>
 document.getElementById('loginform').addEventListener('submit', async (event) => {
-  event.preventDefault(); // Prevent the default form submission
-  console.log('Form submitted'); // This will confirm the form submission handler is triggered
+  event.preventDefault();
+  console.log('Form submitted');
   
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
@@ -30,23 +28,22 @@ document.getElementById('loginform').addEventListener('submit', async (event) =>
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include',  // Add this line - crucial for session cookies
       body: JSON.stringify({ email, password }),
     });
 
     if (response.ok) {
-      const data = await response.json(); // Assuming the server sends a JSON response
+      const data = await response.json();
       Swal.fire('Success', data.message, 'success').then(() => {
-        window.location.href = '/admin/dashboard'; // Redirect after the alert is closed
+        window.location.href = '/admin/dashboard';
       });
-      
     } else {
-      const error = await response.json(); // Assuming error message is returned as JSON
-      Swal.fire('Error', error.message, 'error'); // Display error message
+      const error = await response.json();
+      Swal.fire('Error', error.message, 'error');
     }
   } catch (err) {
     console.error('Error:', err);
-    Swal.fire('Error', 'An error occurred. Please try again.', 'error'); // Handle any network or other errors
+    Swal.fire('Error', 'An error occurred. Please try again.', 'error');
   }
 });
-
-</script> 
+</script>

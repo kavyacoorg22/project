@@ -9,14 +9,20 @@ const createcat = async (req, res) => {
     const { name, description } = req.body;
 
     if (!name || !description) {
-      return res.render('admin/createcategory', {
-        error: 'Both name and description are required',
-        values: req.body,
-        title:"create category",
-        csspage:"createcategory.css",
-        layout: './layout/admin-layout'
-      });
+      return res.status(400).json({
+        sucess:false,
+        message:"Should enter name and description"
+      })
     }
+
+   if(name.trim()===''||description.trim()==='')
+   {
+     return res.status(400).json({
+      success:false,
+      message:"Name and Description should not be empty or black space"
+     })
+   }
+
 
     let imageUrl = null;
     if (req.file) {
@@ -30,8 +36,11 @@ const createcat = async (req, res) => {
     const category = new categoryModel({ name, description, image: imageUrl });
     console.log("data",category)
     await category.save();
+    res.json({
+      success: true,
+      message: 'Product added successfully'
+  });
 
-    res.redirect('/admin/category');
   } catch (error) {
     console.error('Error creating category:', error);
     res.render('admin/createcategory', {
@@ -52,12 +61,12 @@ const getAllCategories = async (req, res) => {
             const skip = (page - 1) * limit;  //1-1*3=0 ,,,2-1*3=3
         
             // Fetch products with pagination
-            const categories= await categoryModel.find({})
+            const categories= await categoryModel.find({isDeleted:false})
                                           .skip(skip)
                                           .limit(limit);
         
             // Total products for pagination
-            const totalcategory = await categoryModel.countDocuments({});
+            const totalcategory = await categoryModel.countDocuments({isDeleted:false});
             const totalPages = Math.ceil(totalcategory / limit);
     res.render('admin/category', {
       
@@ -153,33 +162,29 @@ const updateCategory = async (req, res) => {
 
 
 const deleteCat=async(req,res)=>{
-  try {
-    const category = await categoryModel.findById(req.params.id);
-    
-    if (!category) {
-        return res.status(404).json({ error: 'Category not found' });
-    }
-
-    // Delete the image file if it exists
-    if (category.image) {
-        try {
-            const imagePath = path.join('public', category.image);
-            await fs.unlink(imagePath);
-        } catch (error) {
-            console.error('Error deleting image file:', error);
-            // Continue with category deletion even if image deletion fails
+  const { id } = req.params;
+  
+  
+    try {
+        
+        const category = await categoryModel.findOne({ _id: id  });
+        
+  
+        if (!category) {
+            return res.status(404).json({ message: 'chategorynot found' });
         }
+  
+        // Soft delete the category
+       const result= await categoryModel.updateOne(
+            { _id: id},
+            { $set: { isDeleted: true } }
+        );
+        console.log(`Update result:`, result);
+        res.status(200).json({ message: 'Category soft deleted successfully' });
+    } catch (err) {
+        console.error('Error during category deletion:', err.message);
+        res.status(500).json({ message: 'Failed to delete category' });
     }
-
-    // Delete the category from database
-    await categoryModel.findByIdAndDelete(req.params.id);
-    
-    // Redirect back to categories page
-    res.redirect('/admin/category');
-} catch (error) {
-    console.error('Error deleting category:', error);
-    res.status(500).json({ error: 'Error deleting category' });
-}
   
 }
 

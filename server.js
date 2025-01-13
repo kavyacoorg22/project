@@ -15,6 +15,7 @@ const nocache=require("nocache")
 const passport=require("passport")
 
 
+
 //port
 const port = process.env.PORT || 3000;
 
@@ -53,7 +54,7 @@ app.use(session({
     mongoUrl: 'mongodb://localhost:27017/adminDB'
   }),
   secret: process.env.SESSION_SECRET||'mysecret',
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
@@ -68,6 +69,9 @@ app.use((req, res, next) => {
   res.header('X-Content-Type-Options', 'nosniff');
   next();
 });
+
+
+
 app.use('/user',userRouter)
 app.use('/admin',adminRouter)
 

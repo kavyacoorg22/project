@@ -14,47 +14,41 @@ const loadSignup=async(req,res)=>
   res.status(400).send(err.message)
 }
 }
-
-const signup = async (req,res) => {
+//signup
+const signup = async (req, res) => {
   try {
-    // Validate the data
     validateSignUpData(req);
-    
-    const {email,password} = req.body;
-  
-
-    // Check if the admin exists in the database
+    const {email, password} = req.body;
     const admin = await signinModel.findOne({ email });
-    
 
     if (!admin) {
-      // If admin is not found, return error response as JSON
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Compare the provided password with the stored hashed password
     const isMatch = await bcrypt.compare(password, admin.password);
     
-    
-   
-    
     if (!isMatch) {
-      // If password does not match, return error response as JSON
       return res.status(400).json({ message: 'Invalid credentials' });
-    } else {
-     
-       req.session.admin = true;  
-       return res.status(200).json({ message: 'Login successful' }); 
-        // Send success response
     }
 
+    
+    req.session.admin = true;
+    req.session.adminId = admin._id; // Store admin ID
+    
+
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.status(500).json({ message: 'Session error' });
+      }
+      return res.status(200).json({ message: 'Login successful' });
+    });
+
   } catch (err) {
-    // Handle any other errors
-  
+    console.error('Login error:', err);
     return res.status(500).json({ message: 'An error occurred. Please try again.' });
   }
 };
-
 
 const loadDashboard=async(req,res)=>
 {

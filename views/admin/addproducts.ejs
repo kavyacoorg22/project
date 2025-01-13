@@ -1,86 +1,135 @@
 <div class="form-container">
-  <!-- Content Header -->
+  <!-- Header -->
   <div class="content-header">
-    <div class="title-group">"
-      <h1 class="content-title">Add new Products</h1>
-      <p class="content-subtitle">Add new products</p>
-    </div>
-    <a href="/admin/product" class="back-button">Back to products</a>
+      <div class="title-group">
+          <h1 class="content-title">Add new Products</h1>
+          <p class="content-subtitle">Add new products</p>
+      </div>
+      <a href="/admin/product" class="back-button">Back to products</a>
   </div>
-  
 
-  <form action="/admin/product" method="POST" enctype="multipart/form-data">
-    <% if (locals.error) { %>
-      <div class="error-message" style="color: red; margin-bottom: 10px;">
-        <%= error %>
-      </div>
-    <% } %>
-    <!-- First Row -->
-    <div class="form-row">
-      <div class="form-group">
-        <input type="text" class="form-input" name="name" placeholder="Product Name"required>
-      </div>
-      <div class="form-group" >
-        <select class="form-select" name="category" required>
-          
-          <option value="">Select Category</option>
-           <% categories.forEach(category =>{%>
-          <option value="<%=category.id%>"><%=category.name%></option>
-          <%})%>
-        </select>
-      </div>
-    </div>
-
-    <!-- Second Row -->
-    <div class="form-row" id="imageFieldsContainer">
-      <div class="form-group">
-        <input type="file" class="form-file" name="images" required accept="image/*">
-      </div>
-      <button type="button" class="add-image-button" onclick="addImageField()">Add Another Image</button>
-    </div>
-   
-    <!-- Third Row -->
-    <div class="form-row">
-      <div class="form-group full-width">
-        <textarea name="description" class="form-textarea" placeholder="Description" required></textarea>
-      </div>
-    </div>
-
-    <!-- Fourth Row -->
-    <div class="form-row">
-      <div class="form-group">
-        <input type="number" class="form-input" name="price" placeholder="Enter price" required>
-      </div>
-      <div class="form-group">
-        <input type="number" class="form-input" name="quantity" placeholder="Enter quantity" required>
-      </div>
-      <div class="form-group">
-        <select name="status" class="form-select">
-          <option value="In-stock"  selected>In-stock</option>
-            <option value="Out-of-stoke">Out-of-stock</option>
-        </select>
-      </div>
+  <!-- Form -->
+  <form id="productForm"  enctype="multipart/form-data">
       
-    </div>
+      <div class="form-row">
+          <div class="form-group">
+              <input type="text" class="form-input" name="name" placeholder="Product Name" required>
+          </div>
+          <div class="form-group">
+              <select class="form-select" name="category" required>
+                  <option value="">Select Category</option>
+                  <% categories.forEach(category => { %>
+                      <option value="<%= category.id %>"><%= category.name %></option>
+                  <% }) %>
+              </select>
+          </div>
+      </div>
 
-    <!-- Save Button -->
-    <button type="submit" class="save-button">Save Product</button>
+      <!-- Images -->
+      <div class="form-row" id="imageFieldsContainer">
+          <div class="form-group">
+              <input type="file" class="form-file" name="images" required accept="image/*">
+          </div>
+          <button type="button" class="add-image-button" onclick="addImageField()">Add Another Image</button>
+      </div>
+
+      <!-- Description -->
+      <div class="form-row">
+          <div class="form-group full-width">
+              <textarea name="description" class="form-textarea" placeholder="Description" required></textarea>
+          </div>
+      </div>
+
+      <!-- Price, Quantity and Status -->
+      <div class="form-row">
+          <div class="form-group">
+              <input type="number" class="form-input" name="price" placeholder="Enter price" required>
+          </div>
+          <div class="form-group">
+              <input type="number" class="form-input" name="quantity" placeholder="Enter quantity" required>
+          </div>
+          <div class="form-group">
+              <select name="status" class="form-select">
+                  <option value="In-stock" selected>In-stock</option>
+                  <option value="Out-of-stock">Out-of-stock</option>
+              </select>
+          </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="save-button">Save Product</button>
   </form>
 </div>
 
 <script>
-  function addImageField() {
-    // Get the container where image fields are added
-    const imageFieldsContainer = document.getElementById("imageFieldsContainer");
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('productForm');
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+     
+        
+        try {
+            const formData = new FormData(this);
+            
+            const response = await fetch('/admin/product', {
+                method: 'POST',
+                body: formData,
+               
+            });
+           
+        const responseText = await response.text();
+       
+        
+     let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error('Error parsing JSON:', jsonError);
+        Swal.fire('Unexpected server response. Please try again later.');
+        return;
+      }
+            
+            if (!data.success) {
+                // Show error message
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.error || data.message || 'Something went wrong!',
+                    confirmButtonColor: '#d33'
+                });
+                return;
+            }
+            
+            // Success case
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Product added successfully!',
+                confirmButtonColor: '#3085d6'
+            });
+            
+            // Redirect after success
+            window.location.href = '/admin/product';
+            
+        } catch (error) {
+            console.error('Error:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Something went wrong. Please try again.',
+                confirmButtonColor: '#d33'
+            });
+        }
+    });
+});
 
-    // Create a new file input field
-    const newField = document.createElement("div");
-    newField.classList.add("form-group");
-    newField.innerHTML = `
-      <input type="file" class="form-file" name="images" required accept="image/*">
-    `;
-
-    // Append the new field to the container
-    imageFieldsContainer.appendChild(newField);
-  }
+// Add new image field function
+function addImageField() {
+    const container = document.getElementById('imageFieldsContainer');
+    const newField = document.createElement('div');
+    newField.className = 'form-group';
+    newField.innerHTML = `<input type="file" class="form-file" name="images" required accept="image/*">`;
+    container.appendChild(newField);
+}
 </script>

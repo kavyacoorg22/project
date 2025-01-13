@@ -35,11 +35,11 @@
                           <a href="/admin/category/edit/<%= category._id %>" class="action-btn edit">
                               <span>✏️</span>
                           </a>
-                          <form action="/admin/category/<%= category._id %>?_method=DELETE" method="POST" class="delete-form" onsubmit="confirmDelete(event)">
-                              <button type="submit" class="action-btn delete">
+                          
+                              <button type="submit" onclick="deleteProduct('<%=category._id%>')" class="action-btn delete">
                                   <span>🗑️</span>
                               </button>
-                          </form>
+                          
                       </div>
                   </div>
               <% }); %>
@@ -68,9 +68,36 @@
   </div>
 </div>
 <script>
-function confirmDelete(event) {
-  if (!confirm('Are you sure you want to delete this category?')) {
-      event.preventDefault();
-  }
+function deleteProduct(categoryId) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this category? This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'No, cancel',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Proceed with the delete request
+            fetch(`/admin/category/delete/${categoryId}`, {
+                method: 'DELETE',
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        Swal.fire('Deleted!', 'Category has been deleted successfully.', 'success');
+                        location.reload();
+                    } else {
+                        Swal.fire('Error!', 'Failed to delete the category.', 'error');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error during delete:', error);
+                    Swal.fire('Error!', 'Something went wrong while deleting the category.', 'error');
+                });
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+            Swal.fire('Cancelled', 'Your category is safe :)', 'info');
+        }
+    });
 }
+
 </script>

@@ -91,7 +91,7 @@
           </div>
           <div class="w-100"></div>
           <div class="col-md-12">
-           <%if(product.category.name!=='Juice'){%>
+           <%if(product.category.name!=='Juice'){%>   <!--quantity availabel-->
              <p style="color: #000;"><%=product.quantity%> kg available</p>
               <%}else{%>
               <p style="color: #000;"><%=product.quantity%> bottel available</p>
@@ -100,7 +100,7 @@
              
           </div>
         </div>
-        <%if(product.status==='In-stock'){%>
+        <%if(product.status==='In-stock'){%>  <!--stock notify-->
         <p><a href="cart.html" class="btn btn-black py-3 px-5">Add to Cart</a></p>
         <%}else if(product.status==='Out-of-stock'){%>
           <p><a href="cart.html" class="btn-notify">Notify me</a></p>
@@ -256,7 +256,7 @@
 
 
 
-// zoom script
+// //zoom script
 // $(document).ready(function() {
 //     // Initialize magnify for all zoom images
 //     function initZoom() {
@@ -355,7 +355,7 @@
 // });
 
 
-
+//review code
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('reviewForm');
