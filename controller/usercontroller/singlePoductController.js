@@ -15,18 +15,18 @@ const loadreviews= async (req, res) => {
 }
 
 
-const reviews=async (req, res) => {
+const reviews = async (req, res) => {
   try {
-    console.log('body',req.body)
+    console.log('body', req.body);
     if (!req.user) {
       return res.status(401).json({ message: 'Please login to add a review' });
     }
 
     const { productId, rating, review } = req.body;
-    console.log(req.body)
-     
-    //  validation
-     if (!productId || !rating || !review) {
+    console.log(req.body);
+
+    // Validation
+    if (!productId || !rating || !review) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -34,11 +34,24 @@ const reviews=async (req, res) => {
     if (rating < 1 || rating > 5) {
       return res.status(400).json({ message: 'Rating must be between 1 and 5' });
     }
-    
-    // Check if user has already reviewed this product
+
+    // Check product is purchased
+    const hasPurchased = await orderModel.findOne({
+      userId: req.user._id,
+      'items.productId': productId,
+      status: 'completed', 
+    });
+
+    if (!hasPurchased) {
+      return res.status(403).json({
+        message: 'You can only review products that you have purchased',
+      });
+    }
+
+    // Check if the user has already reviewed this product
     const existingReview = await reviewModel.findOne({
       productId,
-      userId: req.user._id
+      userId: req.user._id,
     });
 
     if (existingReview) {
@@ -49,13 +62,13 @@ const reviews=async (req, res) => {
       productId,
       userId: req.user._id,
       rating,
-      review
+      review,
     });
 
     res.status(201).json({ success: true, review: newReview });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
-}
+};
 
 module.exports={reviews,loadreviews}

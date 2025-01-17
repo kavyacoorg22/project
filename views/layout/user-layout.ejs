@@ -4,6 +4,9 @@
     <title>Vegefoods - Free Bootstrap 4 Template by Colorlib</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <% if(includeCss){%>
+      <link rel="stylesheet" href="/usercss/<%= csspage %>">
+      <%}%>
     
     <link href="https://fonts.googleapis.com/css?family=Poppins:200,300,400,500,600,700,800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i&display=swap" rel="stylesheet">
@@ -28,44 +31,17 @@
     <link rel="stylesheet" href="/css/flaticon.css">
     <link rel="stylesheet" href="/css/icomoon.css">
     <link rel="stylesheet" href="/css/style.css">
+    
+    
     <!-- jQuery first -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
       <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
      <!-- SweetAlert2 -->
      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
 
-<style>
-  .zoom-container {
-    position: relative;
-    overflow: hidden;
-}
 
-.zoom-img {
-    transition: transform .5s ease;
-    cursor: zoom-in;
-}
-
-.magnify-lens {
-    position: absolute;
-    border: 2px solid #ccc;
-    border-radius: 50%;
-    cursor: none;
-    /* Set the background to white to make the zoomed image clearer */
-    background: white;
-}
-
-.magnify-container {
-    position: relative;
-    height: 100%;
-}
-
-/* Hide carousel controls when zooming */
-.zooming .carousel-control-prev,
-.zooming .carousel-control-next {
-    display: none;
-}
-</style>
 
   </head>
 

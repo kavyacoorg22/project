@@ -6,21 +6,21 @@
 }
 
 /* Main Layout Styles */
-.container {
+.addresscontainer {
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
 }
 
 /* Sidebar Styles */
-.sidebar {
+.addresssidebar {
   width: 250px;
   background: white;
   padding: 20px 0;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 }
 
-.sidebar a {
+.addresssidebar a {
   display: flex;
   align-items: center;
   padding: 15px 30px;
@@ -29,20 +29,20 @@
   transition: background 0.3s;
 }
 
-.sidebar a:hover {
+.adddresssidebar a:hover {
   background-color: #f0f0f0;
 }
 
-.sidebar .active {
+.addresssidebar .active {
   background-color: #e8f5e9;
 }
 
-.sidebar a.logout {
+.addresssidebar a.logout {
   color: #ff4444;
 }
 
 /* Main Content Styles */
-.main-content {
+.addressmain-content {
   flex: 1;
   padding: 30px;
 }
@@ -76,7 +76,7 @@
   gap: 15px;
 }
 
-.edit-btn {
+.addressedit-btn {
   color: #ff6b00;
   border: none;
   background: none;
@@ -84,7 +84,7 @@
   font-weight: bold;
 }
 
-.delete-btn {
+.addressdelete-btn {
   color: #666;
   border: none;
   background: none;
@@ -105,7 +105,7 @@
 }
 
 /* Modal Styles */
-.modal {
+.addressmodal {
   display: none;
   position: fixed;
   top: 0;
@@ -116,7 +116,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.addressmodal-content {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -129,7 +129,7 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.close {
+.addressclose {
   position: absolute;
   right: 20px;
   top: 20px;
@@ -138,18 +138,18 @@
   color: #666;
 }
 
-.form-group {
+.addressform-group {
   margin-bottom: 20px;
 }
 
-.form-group label {
+.addressform-group label {
   display: block;
   margin-bottom: 8px;
   color: #666;
 }
 
-.form-group input,
-.form-group textarea {
+.addressform-group input,
+.addressform-group textarea {
   width: 100%;
   padding: 12px;
   border: 1px solid #ddd;
@@ -157,12 +157,12 @@
   font-size: 16px;
 }
 
-.form-group textarea {
+.addressform-group textarea {
   height: 100px;
   resize: vertical;
 }
 
-.modal button[type="submit"] {
+.addressmodal button[type="submit"] {
   background: #4CAF50;
   color: white;
   padding: 12px 24px;
@@ -173,6 +173,6 @@
   font-size: 16px;
 }
 
-.modal button[type="submit"]:hover {
+.addressmodal button[type="submit"]:hover {
   background: #45a049;
 }

@@ -7,6 +7,7 @@ const adminAuth=require('../middleware/adminAuth')
 const upload=require("../utils/multer");
 const validateImg=require('../middleware/validateImage')
 const userController=require('../controller/admincontroller/userController')
+const orderController=require('../controller/admincontroller/orderController')
 
 
 
@@ -37,6 +38,10 @@ router.delete('/product/delete/:id',adminAuth.checkSession,productController.del
 
 router.get('/user',adminAuth.checkSession,userController.loaduser)
 router.post('/updateStatus',adminAuth.checkSession,userController.updateStatus)
+
+
+
+router.get('/order',adminAuth.checkSession,orderController.loadOrder)
 
 router.use((err, req, res, next) => {
   console.error('Route error:', err);

@@ -29,7 +29,7 @@
   margin: 0;
 }
 
-.back-button ,.add-image-button{
+.back-button, .add-image-button {
   background-color: #10B981;
   color: white;
   padding: 8px 16px;
@@ -113,4 +113,117 @@
 
 .save-button:hover {
   background-color: #059669;
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+  .form-container {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .form-container {
+    padding: 16px;
+  }
+
+  .form-row {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .back-button, .add-image-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-group {
+    width: 100%;
+  }
+
+  .content-title {
+    font-size: 18px;
+  }
+
+  .content-subtitle {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .form-container {
+    padding: 12px;
+  }
+
+  .form-file {
+    width: 100%;
+  }
+
+  .content-header {
+    margin-bottom: 24px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 8px;
+    font-size: 13px;
+  }
+
+  .save-button {
+    padding: 10px;
+    font-size: 14px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .back-button,
+  .add-image-button,
+  .save-button,
+  .form-input,
+  .form-select {
+    padding: 12px;
+  }
+
+  .form-file {
+    padding: 10px;
+  }
+
+  /* Increase touch target size for select dropdown arrow */
+  .form-select {
+    background-position: right 15px center;
+  }
+}
+
+/* Ensure proper form display on very small devices */
+@media (max-width: 360px) {
+  .form-container {
+    padding: 8px;
+  }
+
+  .content-title {
+    font-size: 16px;
+  }
+
+  .content-subtitle {
+    font-size: 12px;
+  }
+
+  .form-row {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
 }

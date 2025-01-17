@@ -1,3 +1,6 @@
+<button class="mobile-menu-toggle">
+  <i class="fas fa-bars"></i>
+</button>
 <aside class="sidebar">
   <div class="logo">
       <a href="#" class="logo-text">VEGEFOODS</a>
@@ -127,27 +130,26 @@
 
   // Set active link when the page loads
   window.onload = setActiveLinkOnPageLoad;
+
+
+
+
+  const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+const sidebar = document.querySelector('.sidebar');
+
+mobileMenuToggle.addEventListener('click', () => {
+    sidebar.classList.toggle('active');
+});
+
+// Close sidebar when clicking outside
+document.addEventListener('click', (event) => {
+    if (window.innerWidth <= 768) {
+        if (!sidebar.contains(event.target) && 
+            !mobileMenuToggle.contains(event.target)) {
+            sidebar.classList.remove('active');
+        }
+    }
+});
   </script>
   
 
-<!--   
-  function logout(event) {
-    event.preventDefault();  // Prevent the default button behavior (though button doesn't navigate by default)
-
-    console.log("Logout function triggered");
-
-    fetch('/admin/logout', {
-      method: 'POST',  // Use POST for logout
-      credentials: 'same-origin'  // To include cookies if necessary
-    })
-    .then(response => {
-      if (response.ok) {
-        window.location.href = '/admin/signup';  // Redirect after successful logout
-      } else {
-        alert('Logout failed!');
-      }
-    })
-    .catch(error => {
-      console.error('Error during logout:', error);
-    });
-  } -->

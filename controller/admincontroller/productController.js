@@ -14,7 +14,7 @@ const loadproduct=async(req,res)=>
         const limit = 3; // Products per page
         const skip = (page - 1) * limit;  //1-1*3=0 ,,,2-1*3=3
     
-        // Fetch products with pagination
+        
         const products = await productModel.find({ isDeleted: false })
                                       .skip(skip)
                                       .limit(limit);
@@ -23,7 +23,7 @@ const loadproduct=async(req,res)=>
         const totalProducts = await productModel.countDocuments({ isDeleted: false });
         const totalPages = Math.ceil(totalProducts / limit);
     
-        // Render the products and pagination
+        //
         res.render('admin/product', { products, page, totalPages,title:'product',csspage:"product.css" ,layout: './layout/admin-layout'});
     
     
@@ -37,7 +37,7 @@ const loadAddproduct=async(req,res)=>
 
     {
       try{
-        const categories=await categoryModel.find()
+        const categories=await categoryModel.find({isDeleted:false})
         const product=await productModel.find({})
         res.render('admin/addproducts',{title:"addproduct",csspage:"addproduct.css" ,categories,layout: './layout/admin-layout',product})  //user page
       }catch(err)
@@ -54,7 +54,7 @@ const loadEditproduct=async(req,res)=>
     const {id}=req.params;
     console.log(req.params)
     const product=await productModel.findById(id)
-    const categories=await categoryModel.find({})
+    const categories=await categoryModel.find({isDeleted:false})
     if(!product)
     {
       return res.send("product not found")
@@ -237,7 +237,7 @@ const editproduct = async (req, res) => {
     }
 
     // Update product
-    const updatedProduct = await productModel.findByIdAndUpdate(
+const updatedProduct = await productModel.findByIdAndUpdate(
       id,
       updateData,
       { new: true, runValidators: true }

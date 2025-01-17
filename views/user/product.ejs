@@ -2,7 +2,12 @@
   <div class="container">
     <div class="row no-gutters slider-text align-items-center justify-content-center">
       <div class="col-md-9 ftco-animate text-center">
-        <p class="breadcrumbs"><span class="mr-2"><a href="index.html">Home</a></span> <span class="mr-2"><a href="index.html">Product</a></span> <span>Product Single</span></p>
+        <p class="breadcrumbs">
+          <span class="mr-2"><a href="/user/home">Home</a></span> 
+          <% if(currentPage !== 'Home') { %>
+              <span><%= currentPage %></span>
+          <% } %>
+      </p>
         <h1 class="mb-0 bread">Product Single</h1>
       </div>
     </div>
@@ -51,7 +56,7 @@
       </div>
 
 
-  <!-- product details -->
+   <!-- product details -->
       <div class="col-lg-6 product-details pl-md-5 ftco-animate">
         <h3><%=product.name%></h3>
         <div class="rating d-flex">
@@ -82,7 +87,8 @@
                  <i class="ion-ios-remove"></i>
                 </button>
               </span>
-             <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
+              <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" data-max-quantity="<%=product.quantity%>">
+
              <span class="input-group-btn ml-2">
                 <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
                    <i class="ion-ios-add"></i>
@@ -231,7 +237,8 @@
       // Get the closest quantity input field
       var quantityInput = $(this).closest('.input-group').find('.input-number');
       var quantity = parseInt(quantityInput.val());
-      var maxQuantity = parseInt(quantityInput.attr('<%=product.quantity%>')); // Get the max quantity from the input field
+      var maxQuantity = parseInt(quantityInput.data('max-quantity'));
+      // Get the max quantity from the input field
 
       // If quantity is less than max, increment it
       if (quantity < maxQuantity) {
@@ -254,105 +261,6 @@
     });
   });
 
-
-
-// //zoom script
-// $(document).ready(function() {
-//     // Initialize magnify for all zoom images
-//     function initZoom() {
-//         $('.zoom-img').magnify({
-//             magnifiedWidth: 2000,
-//             magnifiedHeight: 2000,
-//             speed: 100,
-//             // Ensure source image is same as display image for higher quality
-//             src: function() {
-//                 return $(this).data('magnify-src');
-//             }
-//         });
-//     }
-
-//     // Initialize zoom on page load
-//     initZoom();
-
-//     // Handle carousel events
-//     $('#product-slider')
-//         .on('slide.bs.carousel', function() {
-//             // Remove existing magnify instances before slide
-//             $('.zoom-img').magnify('destroy');
-//         })
-//         .on('slid.bs.carousel', function() {
-//             // Reinitialize magnify after slide complete
-//             setTimeout(initZoom, 100);
-//         });
-
-//     // Custom zoom functionality
-//     $('.zoom-container').each(function() {
-//         const $container = $(this);
-//         const $img = $container.find('.zoom-img');
-//         let isZoomed = false;
-
-//         // Handle click to zoom
-//         $container.on('click', function(e) {
-//             if (!isZoomed) {
-//                 // Zoom in
-//                 isZoomed = true;
-//                 $container.addClass('active-zoom');
-//                 $('#product-slider').addClass('zooming');
-//                 $img.css('cursor', 'zoom-out');
-                
-//                 // Calculate zoom position
-//                 const rect = this.getBoundingClientRect();
-//                 const x = (e.clientX - rect.left) / rect.width * 100;
-//                 const y = (e.clientY - rect.top) / rect.height * 100;
-                
-//                 $img.css({
-//                     'transform': 'scale(2.5)',
-//                     'transform-origin': `${x}% ${y}%`
-//                 });
-//             } else {
-//                 // Zoom out
-//                 isZoomed = false;
-//                 $container.removeClass('active-zoom');
-//                 $('#product-slider').removeClass('zooming');
-//                 $img.css({
-//                     'transform': 'scale(1)',
-//                     'transform-origin': 'center',
-//                     'cursor': 'zoom-in'
-//                 });
-//             }
-//         });
-
-//         // Handle mouse move when zoomed
-//         $container.on('mousemove', function(e) {
-//             if (!isZoomed) return;
-            
-//             const rect = this.getBoundingClientRect();
-//             const x = (e.clientX - rect.left) / rect.width * 100;
-//             const y = (e.clientY - rect.top) / rect.height * 100;
-            
-//             $img.css('transform-origin', `${x}% ${y}%`);
-//         });
-
-//         // Reset zoom on mouse leave
-//         $container.on('mouseleave', function() {
-//             if (isZoomed) {
-//                 isZoomed = false;
-//                 $container.removeClass('active-zoom');
-//                 $('#product-slider').removeClass('zooming');
-//                 $img.css({
-//                     'transform': 'scale(1)',
-//                     'transform-origin': 'center',
-//                     'cursor': 'zoom-in'
-//                 });
-//             }
-//         });
-//     });
-
-//     // Prevent default drag behavior on images
-//     $('.zoom-img').on('dragstart', function(e) {
-//         e.preventDefault();
-//     });
-// });
 
 
 //review code
@@ -443,4 +351,30 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+
+// Zoom property
+document.addEventListener('DOMContentLoaded', () => {
+    const zoomContainers = document.querySelectorAll('.zoom-container');
+
+    zoomContainers.forEach(container => {
+      const img = container.querySelector('.zoom-img');
+
+      if (img) {
+        container.addEventListener('mousemove', (e) => {
+          const { left, top, width, height } = container.getBoundingClientRect();
+          const x = ((e.clientX - left) / width) * 100;
+          const y = ((e.clientY - top) / height) * 100;
+
+          img.style.transformOrigin = `${x}% ${y}%`;
+          img.style.transform = 'scale(2)'; // Adjust scale as needed
+        });
+
+        container.addEventListener('mouseleave', () => {
+          img.style.transform = 'scale(1)';
+          img.style.transformOrigin = 'center center';
+        });
+      }
+    });
+  });
 </script>

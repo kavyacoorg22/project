@@ -1,0 +1,67 @@
+<div class="orders-container">
+  <div class="orders-header">
+      <h1 class="orders-title">Orders</h1>
+      <p class="orders-subtitle">Manage all your orders here</p>
+  </div>
+
+  <div class="search-bar">
+      
+      <select class="status-select">
+          <option value="">All status</option>
+          <option value="pending">Pending</option>
+          <option value="processing">Processing</option>
+          <option value="delivered">Delivered</option>
+      </select>
+  </div>
+
+  <div class="orders-table-container">
+      <table class="orders-table">
+          <thead>
+              <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Total</th>
+                  <th>Placed On</th>
+                  <th>Actions</th>
+              </tr>
+          </thead>
+          <tbody>
+              <tr>
+                  <td>#124</td>
+                  <td>Kavya</td>
+                  <td>
+                      <select class="status-dropdown" onchange="updateStatus(this, 124)">
+                          <option value="pending">Pending</option>
+                          <option value="processing">Processing</option>
+                          <option value="delivered" selected>Delivered</option>
+                      </select>
+                  </td>
+                  <td>$77.40</td>
+                  <td>16 Dec 2024</td>
+                  <td>
+                      <div class="action-buttons">
+                          <button class="btn btn-view">View</button>
+                          <button class="btn btn-delete">Delete</button>
+                      </div>
+                  </td>
+              </tr>
+              <!-- Add more order rows as needed -->
+          </tbody>
+      </table>
+  </div>
+
+  <div class="pagination">
+      <button class="page-btn active">1</button>
+      <button class="page-btn">2</button>
+      <button class="page-btn">3</button>
+      <button class="page-btn">></button>
+  </div>
+</div>
+
+<script>
+  function updateStatus(select, orderId) {
+      // Add your status update logic here
+      console.log(`Updating order ${orderId} status to ${select.value}`);
+  }
+</script>

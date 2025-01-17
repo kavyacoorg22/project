@@ -6,8 +6,7 @@ require('dotenv').config();
 const bcrypt=require('bcrypt')
 
 
-// Store OTP and its expiry temporarily (in production, use Redis or similar)
-const otpStore = new Map();
+
 
 // Configure nodemailer
 const transporter = nodemailer.createTransport({
@@ -112,7 +111,7 @@ const login = async (req, res) => {
       });
     }
 
-    // Compare the provided password with the hashed password
+    // Compare the passwords 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
       return res.status(400).json({

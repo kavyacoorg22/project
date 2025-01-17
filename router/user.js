@@ -5,6 +5,9 @@ const validateSignUpData=require('../middleware/signupvalidate')
 const {userAuth}=require('../middleware/userAuth')
 const homeController=require('../controller/usercontroller/homecontroller')
 const reviewController=require('../controller/usercontroller/singlePoductController')
+const addressController=require('../controller/usercontroller/addressController')
+const cartController=require('../controller/usercontroller/cartController')
+const checkoutController=require('../controller/usercontroller/checkoutController')
 const passport = require('passport');
 require('../utils/passport');
 
@@ -20,6 +23,16 @@ router.get('/auth/google/callback',
     successRedirect: '/user/home'
   })
 );
+
+router.use((req, res, next) => {
+  // Get current URL path
+  const currentPath = req.path.split('/').pop() || 'Home';
+  
+  // Make first letter uppercase and replace hyphens with spaces
+  res.locals.currentPage = currentPath.charAt(0).toUpperCase() + 
+                          currentPath.slice(1).replace(/-/g, ' ');
+  next();
+});
 
 
 router.get('/signup',userAuthController.loadsignup)
@@ -47,5 +60,13 @@ router.get('/shop',userAuth,homeController.shop)
 router.get('/product/:id',userAuth,homeController.product)
 router.get('/product/:productId/reviews',userAuth,reviewController.loadreviews)
 router.post('/product/reviews',userAuth,reviewController.reviews)
+
+router.get('/address',userAuth,addressController.loadAddress)
+
+
+router.get('/cart',userAuth,cartController.loadCart)
+
+
+router.get('/checkout',userAuth,checkoutController.loadCheckout)
 
 module.exports=router

@@ -21,28 +21,30 @@ const userAuth = async (req, res, next) => {
     if (!user) {
       return res.status(404).send("User not found");
     }
-
-    // Set cache control headers to prevent back button issues
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate, private',
-      'Pragma': 'no-cache',
-      'Expires': '-1'
-    });
-
+   
+    if(user.status==='inactive')
+    {
+      return res.status(404).send("Access denied. This user is blocked by the admin and can't access the site.")
+    }
+   
     // Attach the user to the request object
     req.user = user;
     next();
   } catch (err) {
-    // Handle different types of errors
+   
     if (err.name === 'JsonWebTokenError') {
       return res.status(401).send("Invalid token");
     } else if (err.name === 'TokenExpiredError') {
       return res.status(401).send("please login to continue");
     }
     
-    // Handle other errors
     return res.status(400).send("Authentication error: " + err.message);
   }
 };
+
+
+
+
+
 
 module.exports={userAuth}
