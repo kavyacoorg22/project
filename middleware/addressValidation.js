@@ -21,7 +21,7 @@ const addressvalidation=async(req,res,next)=>{
     }
    if(address.length<30)
    {
-    return res.status(400).json({ message: "Address should contain atleast 20 charecteres" });
+    return res.status(400).json({ message: "Address should contain atleast 30 charecteres" });
    }
     
     if (!/^\d{6}$/.test(postalCode)) {  

@@ -15,7 +15,6 @@
   </div>
 
 
-
   <div class="main-container">
     <!-- Sidebar -->
     <div class="sidebar">
@@ -53,7 +52,15 @@
                             <p><%= address.email %></p>
                             <p><%= address.mobile %></p>
                             <div class="address-actions">
-                                <button class="edit-btn" onclick="editAddress('<%= address._id %>','<%= JSON.stringify(address) %>')">Edit</button>
+                                <button class="edit-btn" 
+                                    data-id="<%= address._id %>"
+                                    data-firstname="<%= address.firstname %>"
+                                    data-lastname="<%= address.lastname %>"
+                                    data-email="<%= address.email %>"
+                                    data-mobile="<%= address.mobile %>"
+                                    data-postalcode="<%= address.postalCode %>"
+                                    data-address="<%= address.address %>"
+                                    onclick="editAddress(this)">Edit</button>
                                 <button class="delete-btn" onclick="deleteAddress('<%= address._id %>')">🗑️</button>
                             </div>
                         </div>
@@ -142,19 +149,28 @@ function openModal() {
     modal.style.display = 'block';
 }
 
-function editAddress(id, address) {
+function editAddress(button) {
     isEditing = true;
     modalTitle.textContent = 'Edit Address';
     submitBtn.textContent = 'Update Address';
     
+    // Get data from button attributes
+    const id = button.getAttribute('data-id');
+    const firstname = button.getAttribute('data-firstname');
+    const lastname = button.getAttribute('data-lastname');
+    const email = button.getAttribute('data-email');
+    const mobile = button.getAttribute('data-mobile');
+    const postalCode = button.getAttribute('data-postalcode');
+    const address = button.getAttribute('data-address');
+    
     // Fill form with address data
     document.getElementById('addressId').value = id;
-    document.getElementById('firstname').value = address.firstname;
-    document.getElementById('lastname').value = address.lastname;
-    document.getElementById('email').value = address.email;
-    document.getElementById('mobile').value = address.mobile;
-    document.getElementById('postal').value = address.postalCode;
-    document.getElementById('address').value = address.address;
+    document.getElementById('firstname').value = firstname;
+    document.getElementById('lastname').value = lastname;
+    document.getElementById('email').value = email;
+    document.getElementById('mobile').value = mobile;
+    document.getElementById('postal').value = postalCode;
+    document.getElementById('address').value = address;
     
     modal.style.display = 'block';
 }
@@ -242,6 +258,7 @@ async function deleteAddress(id) {
         );
     }
 }
+
 window.onclick = (event) => {
     if (event.target == modal) {
         closeModal();
