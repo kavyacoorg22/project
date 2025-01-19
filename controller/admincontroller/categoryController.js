@@ -55,12 +55,12 @@ const createcat = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
   try {
-    //const categories = await categoryModel.find().sort({ createdAt: -1 });
+   
      const page = parseInt(req.query.page) || 1; // Default to page 1
             const limit = 3; // Products per page
             const skip = (page - 1) * limit;  //1-1*3=0 ,,,2-1*3=3
         
-            // Fetch products with pagination
+   
             const categories= await categoryModel.find({isDeleted:false})
                                           .skip(skip)
                                           .limit(limit);
@@ -139,14 +139,14 @@ const updateCategory = async (req, res) => {
           }
       }
 
-      // Update category
+    
       await categoryModel.findByIdAndUpdate(
           id,
           updateData,
           { new: true, runValidators: true }
       );
 
-      // Redirect on success
+
       return res.redirect('/admin/category');
 
   } catch (error) {

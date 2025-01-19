@@ -13,10 +13,10 @@
       
       <div class="form-row">
           <div class="form-group">
-              <input type="text" class="form-input" name="name" placeholder="Product Name" required>
+              <input type="text" class="form-input" name="name" placeholder="Product Name">
           </div>
           <div class="form-group">
-              <select class="form-select" name="category" required>
+              <select class="form-select" name="category">
                   <option value="">Select Category</option>
                   <% categories.forEach(category => { %>
                       <option value="<%= category.id %>"><%= category.name %></option>
@@ -28,7 +28,7 @@
       <!-- Images -->
       <div class="form-row" id="imageFieldsContainer">
           <div class="form-group">
-              <input type="file" class="form-file" name="images" required accept="image/*">
+              <input type="file" class="form-file" name="images"  accept="image/*">
           </div>
           <button type="button" class="add-image-button" onclick="addImageField()">Add Another Image</button>
       </div>
@@ -36,17 +36,17 @@
       <!-- Description -->
       <div class="form-row">
           <div class="form-group full-width">
-              <textarea name="description" class="form-textarea" placeholder="Description" required></textarea>
+              <textarea name="description" class="form-textarea" placeholder="Description" ></textarea>
           </div>
       </div>
 
       <!-- Price, Quantity and Status -->
       <div class="form-row">
           <div class="form-group">
-              <input type="number" class="form-input" name="price" placeholder="Enter price" required>
+              <input type="number" class="form-input" name="price" placeholder="Enter price" >
           </div>
           <div class="form-group">
-              <input type="number" class="form-input" name="quantity" placeholder="Enter quantity" required>
+              <input type="number" class="form-input" name="quantity" placeholder="Enter quantity" >
           </div>
           <div class="form-group">
               <select name="status" class="form-select">
@@ -129,7 +129,7 @@ function addImageField() {
     const container = document.getElementById('imageFieldsContainer');
     const newField = document.createElement('div');
     newField.className = 'form-group';
-    newField.innerHTML = `<input type="file" class="form-file" name="images" required accept="image/*">`;
+    newField.innerHTML = `<input type="file" class="form-file" name="images"  accept="image/*">`;
     container.appendChild(newField);
 }
 </script>

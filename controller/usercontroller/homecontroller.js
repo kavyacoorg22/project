@@ -2,7 +2,7 @@ const productModel=require("../../model/adminModel/productModel")
 require("dotenv").config()
 const reviewModel=require('../../model/userModel/reviewModel')
 const categoryModel=require('../../model/adminModel/categoryModel')
-const mongoose = require('mongoose');
+
 
 const home = async (req, res) => {
   try {

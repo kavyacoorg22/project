@@ -1,7 +1,13 @@
 
 
 const loadCheckout=async(req,res)=>{
-  res.render('user/checkout',{title:'Checkout',includeCss:false})
+  try{
+    res.render('user/checkout',{title:'Checkout',includeCss:false})
+  }catch(err)
+  {
+    res.status(500).send(err.message)
+  }
+  
 }
 
 module.exports={loadCheckout}

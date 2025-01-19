@@ -8,6 +8,8 @@ const reviewController=require('../controller/usercontroller/singlePoductControl
 const addressController=require('../controller/usercontroller/addressController')
 const cartController=require('../controller/usercontroller/cartController')
 const checkoutController=require('../controller/usercontroller/checkoutController')
+const profileController=require('../controller/usercontroller/profileController')
+const addressvalidation=require('../middleware/addressValidation')
 const passport = require('passport');
 require('../utils/passport');
 
@@ -62,11 +64,15 @@ router.get('/product/:productId/reviews',userAuth,reviewController.loadreviews)
 router.post('/product/reviews',userAuth,reviewController.reviews)
 
 router.get('/address',userAuth,addressController.loadAddress)
-
+router.post('/address/add',addressvalidation,userAuth,addressController.addAddress)
+router.put('/address/edit/:id',addressvalidation,userAuth,addressController.editAddress)
+router.delete('/address/delete/:id',userAuth,addressController.deleteAddress)
 
 router.get('/cart',userAuth,cartController.loadCart)
 
 
 router.get('/checkout',userAuth,checkoutController.loadCheckout)
+
+router.get('/profile',userAuth,profileController.loadProfile)
 
 module.exports=router

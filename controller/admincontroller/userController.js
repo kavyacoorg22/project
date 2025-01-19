@@ -4,12 +4,12 @@ const userModel=require("../../model/userModel/signupModel")
 const loaduser=async(req,res)=>
   {
     try{
-      //const users=await userModel.find({})
+    
        const page = parseInt(req.query.page) || 1; // Default to page 1
               const limit = 4; // user per page
               const skip = (page - 1) * limit;  //1-1*5=0 ,,,2-1*5=5
           
-              // Fetch products with pagination
+            
               const users = await userModel.find({ })
                                             .skip(skip)
                                             .limit(limit);
