@@ -71,7 +71,7 @@ router.delete('/address/delete/:id',userAuth,addressController.deleteAddress)
 router.get('/cart',userAuth,cartController.loadCart)
 router.post('/cart/add',userAuth,cartController.addToCart)
 router.post('/cart/updateQuantity',userAuth,cartController.updateQuantity)
-router.delete('/cart/removeProduct',userAuth,cartController.removeFromCart)
+router.post('/cart/removeProduct',userAuth,cartController.removeFromCart)
 
 
 

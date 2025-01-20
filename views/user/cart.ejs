@@ -139,7 +139,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Utility function to show notifications
   function showNotification(message, type = 'success') {
-    alert(message); // Fallback implementation
+    Swal.fire(message); // Fallback implementation
   }
 
   // Utility function to update cart count in header
@@ -286,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
               row.remove();
               updateCartTotals();
               updateCartCount(data.cartCount || 0);
-              showNotification('Item removed from cart');
+              Swal.fire('Item removed from cart');
 
               // Check if cart is empty and update UI accordingly
               const remainingRows = document.querySelectorAll('tr[data-product-id]');
@@ -297,11 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
               }
             } else {
-              showNotification(data.message || 'Failed to remove item from cart', 'error');
+              Swal.fire(data.message || 'Failed to remove item from cart', 'error');
             }
           } catch (error) {
             console.error('Remove from cart error:', error);
-            showNotification('An error occurred while removing the item from cart', 'error');
+            Swal.fire('An error occurred while removing the item from cart', 'error');
           }
         }
       });
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const data = await response.json();
         if (data.success) {
-          showNotification('Product added to cart');
+          Swal.fire('Product added to cart');
           updateCartCount(data.cartCount);
           
           // Optionally refresh the page or update cart display
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = data.redirect;
           }
         } else {
-          showNotification(data.message || 'Failed to add product to cart', 'error');
+          Swal.fire(data.message || 'Failed to add product to cart', 'error');
         }
       } catch (error) {
         console.error('Add to cart error:', error);
