@@ -74,5 +74,7 @@ router.get('/cart',userAuth,cartController.loadCart)
 router.get('/checkout',userAuth,checkoutController.loadCheckout)
 
 router.get('/profile',userAuth,profileController.loadProfile)
+router.put('/profile/update',userAuth,profileController.updateProfile)
+router.put('/profile/changePassword',userAuth,profileController.changePassword)
 
 module.exports=router

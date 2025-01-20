@@ -14,75 +14,156 @@
   </div>
 </div>
 
-
 <div class="kp-wrapper">
-  <div class="sidebar">
-    <a href="#" class="active"><span>Profile</span></a>
-    <a href="/user/address" ><span>Address</span></a>
-    <a href="#"><span>Order</span></a>
-    <a href="#"><span>Wallet</span></a>
-    <a href="#" class="logout"><span>Logout</span></a>
+    <button class="menu-toggle" onclick="toggleMenu()">☰ Menu</button>
+    
+    <div class="sidebar">
+        <a href="#" class="active"><span>Profile</span></a>
+        <a href="/user/address"><span>Address</span></a>
+        <a href="#"><span>Order</span></a>
+        <a href="#"><span>Wallet</span></a>
+        <a href="#" class="logout"><span>Logout</span></a>
+    </div>
+    
+    <div class="kp-container">
+       <h3>Profile detail</h3>
+        <div class="profile-display">
+            <div class="profile-row">
+                <div class="profile-label">Name : </div>
+                <div class="profile-value"><%=user.firstname%></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Email :</div>
+                <div class="profile-value"><%=user.email%></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Secondary Email :</div>
+                <div class="profile-value"><%=user.secondEmail%></div>
+            </div>
+            <div class="profile-row">
+                <div class="profile-label">Phone :</div>
+                <div class="profile-value"><%=user.number%></div>
+            </div>
+        </div>
+
+        <!-- Edit Profile Section -->
+        <div class="kp-section">
+            <h2 class="kp-section-title">Edit Profile</h2>
+            <div class="kp-form-grid">
+                <div class="kp-form-group">
+                    <label>Full Name</label>
+                    <input type="text" class="kp-form-control" name="firstname" value="<%=user.firstname%>">
+                </div>
+                <div class="kp-form-group">
+                    <label>Email</label>
+                    <input type="email" class="kp-form-control" name="email" value="<%=user.email%>">
+                </div>
+                <div class="kp-form-group">
+                    <label>Secondary Email</label>
+                    <input type="email" class="kp-form-control" name="secondEmail" value="<%=user.secondEmail%>">
+                </div>
+                <div class="kp-form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" class="kp-form-control" name="number" value="<%=user.number%>">
+                </div>
+            </div>
+            <button class="kp-btn">Save Changes</button>
+        </div>
+
+        <!-- Password Section -->
+        <div class="kp-section">
+            <h2 class="kp-section-title">Change Password</h2>
+            <div class="kp-form-grid">
+                <div class="kp-form-group">
+                    <label>Current Password</label>
+                    <input type="password" class="kp-form-control" name="password" placeholder="Enter current password">
+                </div>
+                <div class="kp-form-group">
+                    <!-- <label>New Password</label>
+                    <input type="password" class="kp-form-control" placeholder="Enter new password"> -->
+                </div>
+                <div class="kp-form-group">
+                    <label>New Password</label>
+                    <input type="password" class="kp-form-control" name="newPassword" placeholder="Enter new password">
+                </div>
+                <div class="kp-form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" class="kp-form-control" name="confirmPassword" placeholder="Confirm new password">
+                </div>
+            </div>
+            <button class="kp-btn">Change Password</button>
+        </div>
+    </div>
 </div>
-  <div class="kp-container">
-      <!-- Profile Section -->
-      <div class="kp-profile-section">
-          <div class="kp-profile-header">
-              <div class="kp-avatar">
-                  <svg viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                  </svg>
-              </div>
-              <div class="kp-profile-info">
-                  <h1>Kavya BCR68</h1>
-                  <p>kavyakopatti99@gmail.com</p>
-              </div>
-          </div>
 
-          <div class="kp-form-grid">
-              <div class="kp-form-group">
-                  <label>Full Name</label>
-                  <input type="text" class="kp-form-control" value="Kavya BCR68" disabled>
-              </div>
-              <div class="kp-form-group">
-                  <label>Email</label>
-                  <input type="email" class="kp-form-control" value="kavyakopatti99@gmail.com" disabled>
-              </div>
-              <div class="kp-form-group">
-                  <label>Secondary Email</label>
-                  <input type="email" class="kp-form-control" placeholder="Enter secondary email">
-              </div>
-              <div class="kp-form-group">
-                  <label>Phone Number</label>
-                  <input type="tel" class="kp-form-control" placeholder="Enter phone number">
-              </div>
-          </div>
+<script>
+function toggleMenu() {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('active');
+}
 
-          <div class="kp-button-container">
-              <button class="kp-btn">Edit Account</button>
-          </div>
-      </div>
 
-      <!-- Password Section -->
-      <div class="kp-password-section">
-          <h2 class="kp-section-title">Change password</h2>
-          <div class="kp-form-grid">
-              <div class="kp-form-group">
-                  <label>Current Password</label>
-                  <input type="password" class="kp-form-control" placeholder="Enter current password">
-              </div>
-              <div class="kp-form-group">
-                  <label>New Password</label>
-                  <input type="password" class="kp-form-control" placeholder="Enter new password">
-              </div>
-              <div class="kp-form-group">
-                  <label>Confirm Password</label>
-                  <input type="password" class="kp-form-control" placeholder="Confirm new password">
-              </div>
-          </div>
+document.addEventListener('DOMContentLoaded', () => {
+    // For Profile Update
+    const profileBtn = document.querySelector('.kp-section .kp-btn');
+    profileBtn.addEventListener('click', async () => {
+        // Create plain object with form values
+        const data = {
+            firstname: document.querySelector('input[name="firstname"]').value,
+            email: document.querySelector('input[name="email"]').value,
+            secondEmail: document.querySelector('input[name="secondEmail"]').value,
+            number: document.querySelector('input[name="number"]').value
+        };
 
-          <div class="kp-button-container">
-              <button class="kp-btn">Change Password</button>
-          </div>
-      </div>
-  </div>
-</div>
+        try {
+            const response = await fetch('/user/profile/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            if(response.ok) {
+                Swal.fire('Profile updated successfully');
+                window.location.reload();
+            } else {
+                Swal.fire(result.message || 'Update failed');
+            }
+        } catch(error) {
+            Swal.fire('Error updating profile');
+        }
+    });
+
+    // For Password Change
+    const passwordBtn = document.querySelectorAll('.kp-section')[1].querySelector('.kp-btn');
+    passwordBtn.addEventListener('click', async () => {
+        // Create plain object with form values
+        const data = {
+            password: document.querySelector('input[name="password"]').value,
+            newPassword: document.querySelector('input[name="newPassword"]').value,
+            confirmPassword: document.querySelector('input[name="confirmPassword"]').value
+        };
+
+        try {
+            const response = await fetch('/user/profile/changePassword', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            const result = await response.json();
+            if(response.ok) {
+                Swal.fire('Password changed successfully');
+                // Clear password fields
+                document.querySelector('input[name="password"]').value = '';
+                document.querySelector('input[name="newPassword"]').value = '';
+                document.querySelector('input[name="confirmPassword"]').value = '';
+            } else {
+                Swal.fire(result.message || 'Password change failed');
+            }
+        } catch(error) {
+            Swal.fire('Error changing password');
+        }
+    });
+});
+</script>

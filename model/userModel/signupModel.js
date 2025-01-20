@@ -36,8 +36,16 @@ const signupSchema = new mongoose.Schema({
     enum: ['active', 'inactive'],
     default: 'active'
   },
+  secondEmail:
+  {
+    type:String,
+  },
   googleId: String,
-  picture: String
+  picture: String,
+  address:[{
+     type: mongoose.Schema.Types.ObjectId,
+        ref: 'address',
+  }]
 },{timestamps:true});
 
 module.exports = mongoose.model('signup', signupSchema);
