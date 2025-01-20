@@ -7,6 +7,11 @@ const addressvalidation=async(req,res,next)=>{
     if (!firstname || !lastname || !address || !email || !mobile || !postalCode) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    
+    if (firstname.length > 10 || lastname.length > 10) {
+      return res.status(400).json({ message: "Name characters should be shorter than 10." });
+    }
+    
 
     if (firstname.trim() === '' || lastname.trim() === '' || address.trim() === '') {
       return res.status(400).json({ message: "Fields should not be empty or only spaces" });

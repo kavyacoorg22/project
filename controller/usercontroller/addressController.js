@@ -1,20 +1,43 @@
 const addressModel=require('../../model/userModel/addressModel')
+const signupModel=require('../../model/userModel/signupModel')
 const validator=require('validator')
 
-const loadAddress=async(req,res)=>{
-  try{
-  const addresses=await addressModel.find({})
-  res.render('user/address',{title:"Adrress",includeCss:true,csspage:"address.css",addresses})
+
+
+const loadAddress = async (req, res) => {
+  try {
+      
+      const userId = req.user._id;
+      
+      // Find the user and populate their addresses
+      const user = await signupModel
+          .findById(userId)
+          .populate('address')
+          .exec();
+      
+      if (!user) {
+          return res.status(404).send("User not found");
+      }
+
+      // Send only the user's addresses
+      const addresses = user.address || [];
+      
+      res.render('user/address', {
+          title: "Address",
+          includeCss: true,
+          csspage: "address.css",
+          addresses
+      });
+  } catch (err) {
+      console.error("Error loading addresses:", err);
+      res.status(500).send("Error fetching addresses");
   }
-  catch(err)
-  {
-    res.status(500).send("Error fetching address")
-  }
-}
+};
 
 //add new address
 const addAddress = async (req, res) => {
   try {
+    const userId=req.user._id;
     const { firstname, lastname, address, email, mobile, postalCode } = req.body;
 
 
@@ -30,35 +53,106 @@ const addAddress = async (req, res) => {
 
     // Save the new address to the database
     await newAddress.save();
-
     
-    return res.status(201).json({ message: 'Address added successfully' });
+     // Update user's addresses array
+     await signupModel.findByIdAndUpdate(
+      userId,
+      {
+          $push: { address: newAddress._id }
+      },
+      { new: true }
+  );
+    
+  res.status(200).json({
+    success: true,
+    message: "Address added successfully"
+});
   } catch (error) {
-    console.error(error);  // Log the error for debugging purposes
-    return res.status(500).json({ error: 'Failed to add address' });
+    console.error("Error adding address:", error);
+    res.status(500).json({
+        success: false,
+        message: "Error adding address"
+    });
   }
 };
 
 
 
  // Update address
-const editAddress=async (req, res) => {
+// Backend controller
+const editAddress = async (req, res) => {
   try {
-      await addressModel.findByIdAndUpdate(req.params.id, req.body);
-      res.json({ message: 'Address updated successfully' });
-  } catch (error) {
-      res.status(500).json({ error: 'Failed to update address' });
-  }
-}
+      const addressId = req.params.id;
+      const userId = req.user._id;
 
-const deleteAddress=async (req, res) => {
-  try {
-      await addressModel.findByIdAndDelete(req.params.id);
-      res.json({ message: 'Address deleted successfully' });
+      // Verify this address belongs to the user
+      const user = await signupModel.findById(userId);
+      if (!user.address.includes(addressId)) {
+          return res.status(403).json({ message: 'Not authorized to edit this address' });
+      }
+
+      // Validate input data
+      const { firstname, lastname, address, email, mobile, postalCode } = req.body;
+      
+      
+
+      // Update the address
+      const updatedAddress = await addressModel.findByIdAndUpdate(
+          addressId,
+          {
+              firstname,
+              lastname,
+              address,
+              email,
+              mobile,
+              postalCode
+          },
+          { new: true, runValidators: true }
+      );
+
+      if (!updatedAddress) {
+          return res.status(404).json({ message: 'Address not found' });
+      }
+
+      res.json({ 
+          message: 'Address updated successfully',
+          address: updatedAddress 
+      });
+
   } catch (error) {
-      res.status(500).json({ error: 'Failed to delete address' });
+      console.error('Address update error:', error);
+      res.status(500).json({ message: 'Failed to update address' });
   }
-}
+};
+const deleteAddress = async (req, res) => {
+  try {
+      const userId = req.user._id;
+      const addressId = req.params.id;
+      console.log('user',userId)
+      console.log('addressis',addressId)
+
+      // Remove address from user's addresses array
+      await signupModel.findByIdAndUpdate(
+        userId,
+        { $pull: { address: addressId } },
+        { new: true } 
+      );
+
+      // Delete the address document
+      await addressModel.findByIdAndDelete(addressId);
+
+      res.status(200).json({
+          success: true,
+          message: "Address deleted successfully"
+      });
+  } catch (err) {
+      console.error("Error deleting address:", err);
+      res.status(500).json({
+          success: false,
+          message: "Error deleting address"
+      });
+  }
+};
 
 
 module.exports={loadAddress,addAddress,editAddress,deleteAddress}

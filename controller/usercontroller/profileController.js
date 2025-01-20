@@ -15,75 +15,82 @@ const loadProfile=async(req,res)=>{
 }
 
 
-const updateProfile=async(req,res)=>{
-  try {
-    const { firstname, email, secondEmail, number } = req.body;
-    
-    const userId = req.user._id 
-    if (!firstname || !email || !number ) {
-      return res.status(400).json({ message:  "Name, email, and phone number are required"});
-    }
-    
-     if (!validator.isEmail(email)) {
-          return res.status(400).json({ message:"Enter valid email" });
-    }
-    
-    if (secondEmail && !validator.isEmail(secondEmail)) {
-      return res.status(400).json({ message: "Enter valid secondary email" });
-  }
-
-
-    if(firstname.trim()==='')
-    {
-      return res.status(400).json({ message: "Name fields should not be empty or only spaces" }); 
-    }
-
-    if (!validator.isMobilePhone(number, 'any', { strictMode: false })) {  
-          return res.status(400).json({ message: "Enter valid phone number" });
-        }
-    
-    // Check if email is already taken by another user
-    const existingUser = await signupModel.findOne({ 
-        email, 
-        _id: { $ne: userId } 
-    });
-    
-    if (existingUser) {
-        return res.status(400).json({ 
-            message: 'Email already in use' 
+const updateProfile = async (req, res) => {
+    try {
+      const { firstname, email, secondEmail, number } = req.body;
+      const userId = req.user._id;
+  
+      
+      if (!firstname || !email || !number) {
+        return res.status(400).json({ message: "Name, email, and phone number are required" });
+      }
+  
+      
+      if (!validator.isEmail(email)) {
+        return res.status(400).json({ message: "Enter a valid email" });
+      }
+  
+      
+      if (secondEmail && !validator.isEmail(secondEmail)) {
+        return res.status(400).json({ message: "Enter a valid secondary email" });
+      }
+  
+      
+      if (firstname.trim() === '') {
+        return res.status(400).json({ message: "Name fields should not be empty or only spaces" });
+      }
+  
+     
+      if (!validator.isMobilePhone(number, 'any', { strictMode: false })) {
+        return res.status(400).json({ message: "Enter a valid phone number" });
+      }
+  
+     
+      const conflictingUser = await signupModel.findOne({
+        $or: [
+          { email }, 
+          { secondEmail } 
+        ],
+        _id: { $ne: userId } // Exclude current user
+      });
+  
+      if (conflictingUser) {
+        return res.status(400).json({
+          message: "The entered email or secondary email is already in use",
         });
-    }
-
-    // Update user profile
-    const updatedUser = await signupModel.findByIdAndUpdate(
+      }
+  
+      // Update user profile
+      const updatedUser = await signupModel.findByIdAndUpdate(
         userId,
         {
-            firstname,
-            email,
-            ...(secondEmail && { secondEmail }),
-            number
+          firstname:firstname.trim(),
+          email,
+          ...(secondEmail && { secondEmail }), // Include secondEmail only if provided
+          number,
         },
-        { new: true }
-    );
-
-    if (!updatedUser) {
-        return res.status(404).json({ 
-            message: 'User not found' 
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({
+          message: "User not found",
         });
+      }
+  
+      res.json({
+        message: "Profile updated successfully",
+        user: updatedUser,
+      });
+  
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({
+        message: "Server error while updating profile",
+      });
     }
-
-    res.json({ 
-        message: 'Profile updated successfully', 
-        user: updatedUser 
-    });
-
-} catch (error) {
-    console.error('Profile update error:', error);
-    res.status(500).json({ 
-        message: 'Server error while updating profile' 
-    });
-}
-}
+  };
+  
 
 
 const changePassword = async (req, res) => {
@@ -91,7 +98,6 @@ const changePassword = async (req, res) => {
       const { password, newPassword, confirmPassword } = req.body;
       const userId = req.user._id;
 
-      // Validate inputs
       if (!password || !newPassword || !confirmPassword) {
           return res.status(400).json({ message: "All password fields are required" });
       }
@@ -101,8 +107,8 @@ const changePassword = async (req, res) => {
       }
 
       // Password strength validation
-      if (newPassword.length < 8) {
-          return res.status(400).json({ message: "Password must be at least 8 characters long" });
+      if (!validator.isStrongPassword(password)) {
+          return res.status(400).json({ message: "Please enter a strong password with at least 8 characters, including uppercase, lowercase, numbers, and symbols."  });
       }
 
       // Get user and verify current password
@@ -113,14 +119,16 @@ const changePassword = async (req, res) => {
 
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
-          return res.status(400).json({ message: "Current password is incorrect" });
+          return res.status(400).json({ message: "PAssword do not match"});
       }
 
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
       // Update password
-      await signupModel.findByIdAndUpdate(userId, { password: hashedPassword });
+      await signupModel.findByIdAndUpdate(userId, { password: hashedPassword,
+        confirmPassword
+       });
 
       res.json({ message: "Password updated successfully" });
 
