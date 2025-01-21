@@ -37,16 +37,17 @@
                     <td class="product-remove">
                       <a href="#"><span class="ion-ios-close"></span></a>
                     </td>
-                    
                     <td class="image-prod">
-                      <div class="img" style="background-image:url(/img/productsimg/<%=item.product.images[0]%>);"></div>
+                      <a href="/user/product/<%= item.product._id %>">
+                        <img src="/img/productsimg/<%=item.product.images[0]%>" alt="<%=item.product.name%>" class="img" style="width: 100px; height: 100px; object-fit: cover;">
+                      </a>
                     </td>
-                    
                     <td class="product-name">
-                      <h3><%=item.product.name%></h3>
-                      <p><%=item.product.description%></p>
+                      <a href="/user/product/<%= item.product._id %>" style="text-decoration: none; color: inherit;">
+                        <h3><%=item.product.name%></h3>
+                        <p><%=item.product.description%></p>
+                      </a>
                     </td>
-                    
                     <td class="price">₹<%=item.product.price%></td>
                     
                     <td class="quantity">
@@ -71,7 +72,6 @@
                           </button>
                         </span>
                       </div>
-                      
                     </td>
                     
                     <td class="total">₹<%= (item.product.price * item.quantity).toFixed(2) %></td>
@@ -126,7 +126,7 @@
           </p>
         </div>
         <% if (products && products.length > 0) { %>
-          <p><a href="/checkout" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
+          <p><a href="/user/checkout" class="btn btn-primary py-3 px-4">Proceed to Checkout</a></p>
         <% } %>
       </div>
     </div>

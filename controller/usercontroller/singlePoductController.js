@@ -2,18 +2,20 @@
   
 const reviewModel = require('../../model/userModel/reviewModel');
 
-const loadreviews= async (req, res) => {
+const loadreviews = async (req, res) => {
   try {
     const reviews = await reviewModel.find({ productId: req.params.productId })
       .populate('userId', 'firstname avatar')
       .sort({ createdAt: -1 });
 
-    res.json({ reviews });
+    // Filter out reviews with null userId
+    const validReviews = reviews.filter(review => review.userId != null);
+
+    res.json({ reviews: validReviews });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 }
-
 
 const reviews = async (req, res) => {
   try {

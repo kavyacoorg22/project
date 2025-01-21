@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = await response.json();
 
         if (data.success) {
-          alert('Product added to cart successfully'); // Notify the user
+          Swal.fire('Product added to cart successfully'); // Notify the user
           // Update the cart count, if provided in response
           if (data.cartCount !== undefined) {
             const cartCountElement = document.getElementById('cart-count');
@@ -137,11 +137,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } else {
-          alert(data.message || 'Failed to add product to cart'); // Show backend error message
+          Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
         }
       } catch (error) {
         console.error('Add to cart error:', error);
-        alert('An error occurred while adding the product to the cart');
+        Swal.fire('An error occurred while adding the product to the cart');
       }
     });
   });

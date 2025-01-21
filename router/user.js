@@ -10,6 +10,7 @@ const cartController=require('../controller/usercontroller/cartController')
 const checkoutController=require('../controller/usercontroller/checkoutController')
 const profileController=require('../controller/usercontroller/profileController')
 const addressvalidation=require('../middleware/addressValidation')
+const orderController=require('../controller/usercontroller/orderController')
 const passport = require('passport');
 require('../utils/passport');
 
@@ -77,8 +78,17 @@ router.post('/cart/removeProduct',userAuth,cartController.removeFromCart)
 
 router.get('/checkout',userAuth,checkoutController.loadCheckout)
 
+router.post('/placeOrder',userAuth,checkoutController.placeOrder)
+
 router.get('/profile',userAuth,profileController.loadProfile)
 router.put('/profile/update',userAuth,profileController.updateProfile)
 router.put('/profile/changePassword',userAuth,profileController.changePassword)
+
+
+router.get('/orderHistory',userAuth,orderController.loadOrderHistory)
+router.get('/orderDetails',userAuth,orderController.loadOrderDetails)
+router.get('/orderCancel',userAuth,orderController.loadOrderCancel)
+router.get('/orderReturn',userAuth,orderController.loadOrderReturn)
+
 
 module.exports=router

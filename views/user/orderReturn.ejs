@@ -1,0 +1,43 @@
+<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-9 ftco-animate text-center">
+          <p class="breadcrumbs">
+            <span class="mr-2"><a href="/user/home">Home</a></span> 
+            <% if(currentPage !== 'Home') { %>
+                <span><%= currentPage %></span>
+            <% } %>
+        </p>
+          <h1 class="mb-0 bread">Return Order</h1>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+
+<div class="layout-wrapper">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+      <a href="/user/profile"><span>Profile</span></a>
+      <a href="#"><span>Address</span></a>
+      <a href="#" class="active"><span>Order</span></a>
+      <a href="#"><span>Wallet</span></a>
+      <a href="#" class="logout"><span>Logout</span></a>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+      <div class="return-order-container">
+          <h1 class="return-order-title">ORDER RETURN</h1>
+          <label class="return-reason-label">REASON FOR RETURN</label>
+          <textarea 
+              class="return-reason-textarea" 
+              placeholder="Please provide your reason for return..."
+          ></textarea>
+          <div class="buttons-container">
+              <button class="return-button">RETURN</button>
+          </div>
+      </div>
+  </main>
+</div>

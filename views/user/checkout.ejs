@@ -1,165 +1,308 @@
-<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
-  <div class="container">
-    <div class="row no-gutters slider-text align-items-center justify-content-center">
-      <div class="col-md-9 ftco-animate text-center">
-        <p class="breadcrumbs">
-          <span class="mr-2"><a href="/user/home">Home</a></span> 
-          <% if(currentPage !== 'Home') { %>
-              <span><%= currentPage %></span>
-          <% } %>
-      </p>
-        <h1 class="mb-0 bread">Checkout</h1>
-      </div>
-    </div>
-  </div>
-</div>
 
-<section class="ftco-section">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-xl-7 ftco-animate">
-        <form action="#" class="billing-form">
-          <h3 class="mb-4 billing-heading">Billing Details</h3>
-          <div class="row align-items-end">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="firstname">Firt Name</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="lastname">Last Name</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="w-100"></div>
-            <div class="col-md-12">
-              <div class="form-group">
-                <label for="country">State / Country</label>
-                <div class="select-wrap">
-                  <div class="icon"><span class="ion-ios-arrow-down"></span></div>
-                  <select name="" id="" class="form-control">
-                    <option value="">France</option>
-                    <option value="">Italy</option>
-                    <option value="">Philippines</option>
-                    <option value="">South Korea</option>
-                    <option value="">Hongkong</option>
-                    <option value="">Japan</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div class="w-100"></div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="streetaddress">Street Address</label>
-                <input type="text" class="form-control" placeholder="House number and street name">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Appartment, suite, unit etc: (optional)">
-              </div>
-            </div>
-            <div class="w-100"></div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="towncity">Town / City</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="postcodezip">Postcode / ZIP *</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="w-100"></div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="phone">Phone</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label for="emailaddress">Email Address</label>
-                <input type="text" class="form-control" placeholder="">
-              </div>
-            </div>
-            <div class="w-100"></div>
-            <div class="col-md-12">
-              <div class="form-group mt-4">
-                <div class="radio">
-                  <label class="mr-3"><input type="radio" name="optradio"> Create an Account? </label>
-                  <label><input type="radio" name="optradio"> Ship to different address</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </form><!-- END -->
-      </div>
-      <div class="col-xl-5">
-        <div class="row mt-5 pt-3">
-          <div class="col-md-12 d-flex mb-5">
-            <div class="cart-detail cart-total p-3 p-md-4">
-              <h3 class="billing-heading mb-4">Cart Total</h3>
-              <p class="d-flex">
-                <span>Subtotal</span>
-                <span>$20.60</span>
-              </p>
-              <p class="d-flex">
-                <span>Delivery</span>
-                <span>$0.00</span>
-              </p>
-              <p class="d-flex">
-                <span>Discount</span>
-                <span>$3.00</span>
-              </p>
-              <hr>
-              <p class="d-flex total-price">
-                <span>Total</span>
-                <span>$17.60</span>
-              </p>
-            </div>
-          </div>
-          <div class="col-md-12">
-            <div class="cart-detail p-3 p-md-4">
-              <h3 class="billing-heading mb-4">Payment Method</h3>
-              <div class="form-group">
-                <div class="col-md-12">
-                  <div class="radio">
-                     <label><input type="radio" name="optradio" class="mr-2"> Direct Bank Tranfer</label>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-12">
-                  <div class="radio">
-                     <label><input type="radio" name="optradio" class="mr-2"> Check Payment</label>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-12">
-                  <div class="radio">
-                     <label><input type="radio" name="optradio" class="mr-2"> Paypal</label>
-                  </div>
-                </div>
-              </div>
-              <div class="form-group">
-                <div class="col-md-12">
-                  <div class="checkbox">
-                     <label><input type="checkbox" value="" class="mr-2"> I have read and accept the terms and conditions</label>
-                  </div>
-                </div>
-              </div>
-              <p><a href="#"class="btn btn-primary py-3 px-4">Place an order</a></p>
-            </div>
-          </div>
+<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-9 ftco-animate text-center">
+          <p class="breadcrumbs">
+            <span class="mr-2"><a href="/user/home">Home</a></span> 
+            <% if(currentPage !== 'Home') { %>
+                <span><%= currentPage %></span>
+            <% } %>
+        </p>
+          <h1 class="mb-0 bread">Checkout</h1>
         </div>
-      </div> <!-- .col-md-8 -->
+      </div>
     </div>
   </div>
-</section> <!-- .section -->
+  
+  <section class="ftco-section">
+    <div class="container">
+        <!-- Delivery Address Section -->
+        <div class="delivery-address-section">
+            <h3 class="mb-4 delivery-heading">Delivery Address</h3>
+            <form id="checkoutForm">
+                <div class="saved-address-list">
+                    <% addresses.forEach(function(address) { %>
+                        <div class="saved-address-item">
+                            <div class="address-radio-group">
+                                <input 
+                                    type="radio" 
+                                    name="savedAddress" 
+                                    value="<%= address._id %>" 
+                                    id="address<%= address._id %>"
+                                    required
+                                >
+                                <label for="address<%= address._id %>" class="address-label">
+                                    <div class="address-content">
+                                        <p class="saved-address-details">
+                                            <%= address.firstname %> <%= address.lastname %>, 
+                                            <%= address.address %>, 
+                                            <%= address.postalCode %>, 
+                                            <%= address.email %>
+                                        </p>
+                                        <p class="saved-address-phone">
+                                            <%= address.phone %>
+                                        </p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+
+                <div class="row justify-content-center">
+                    <div class="col-xl-7 ftco-animate">
+                        <!-- Billing Form -->
+                        <div class="billing-form">
+                            <h3 class="mb-4 billing-heading">Billing Details</h3>
+                            <div class="row align-items-end">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="firstname">First Name</label>
+                                        <input type="text" class="form-control" id="firstname" name="firstName" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="lastname">Last Name</label>
+                                        <input type="text" class="form-control" id="lastname" name="lastName" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="emailaddress">Email Address</label>
+                                        <input type="email" class="form-control" id="emailaddress" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="phone">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="mobileNumber" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="streetaddress">Address</label>
+                                        <input type="text" class="form-control" id="streetaddress" name="address" placeholder="Your full address" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="postcodezip">Postal Code</label>
+                                        <input type="text" class="form-control" id="postcodezip" name="postalCode" required>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group mt-4">
+                                        <div class="checkbox">
+                                            <label>
+                                                <input type="checkbox" id="sameAsDelivery" name="sameAsDelivery" class="mr-2">
+                                                Same as delivery address
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cart Total and Payment Section -->
+                    <div class="col-xl-5">
+                        <div class="row mt-5 pt-3">
+                            <div class="col-md-12 d-flex mb-5">
+                                <div class="cart-detail cart-total p-3 p-md-4">
+                                    <h3 class="billing-heading mb-4">Cart Total</h3>
+                                    <p class="d-flex">
+                                        <span>Subtotal</span>
+                                        <span>₹<%= cartTotal.toFixed(2) %></span>
+                                    </p>
+                                    <p class="d-flex">
+                                        <span>Delivery</span>
+                                        <span>₹<%= deliveryCharge.toFixed(2) %></span>
+                                    </p>
+                                    <p class="d-flex">
+                                        <span>Discount</span>
+                                        <span>₹<%= discount.toFixed(2) %></span>
+                                    </p>
+                                    <hr>
+                                    <p class="d-flex total-price">
+                                        <span>Total</span>
+                                        <span>₹<%= finalTotal.toFixed(2) %></span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="cart-detail p-3 p-md-4">
+                                    <h3 class="billing-heading mb-4">Payment Method</h3>
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="payment" value="wallet" class="mr-2" required>
+                                                    Wallet
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="payment" value="cod" class="mr-2" required>
+                                                    Cash on Delivery
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="radio">
+                                                <label>
+                                                    <input type="radio" name="payment" value="razorpay" class="mr-2" required>
+                                                    Razorpay
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-md-12">
+                                            <div class="checkbox">
+                                                <label>
+                                                    <input type="checkbox" id="terms" class="mr-2" required>
+                                                    I have read and accept the terms and conditions
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary py-3 px-4 w-100">Place Order</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkoutForm');
+    const sameAsDeliveryCheckbox = document.getElementById('sameAsDelivery');
+
+    // Function to copy delivery address to billing
+    sameAsDeliveryCheckbox.addEventListener('change', function() {
+        if (!this.checked) return;
+
+        const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
+        if (!selectedAddress) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Select Address',
+                text: 'Please select a delivery address first'
+            });
+            this.checked = false;
+            return;
+        }
+
+        // Get address details from selected address
+        const addressLabel = selectedAddress.nextElementSibling;
+        const addressContent = addressLabel.querySelector('.address-content');
+        const addressDetails = addressContent.querySelector('.saved-address-details').textContent;
+        const phoneNumber = addressContent.querySelector('.saved-address-phone').textContent;
+
+        // Parse address details
+        const [name, streetAddress, postalCode, email] = addressDetails.split(',').map(item => item.trim());
+        const [firstName, lastName] = name.split(' ').map(item => item.trim());
+
+        // Fill billing form
+        document.getElementById('firstname').value = firstName;
+        document.getElementById('lastname').value = lastName;
+        document.getElementById('emailaddress').value = email;
+        document.getElementById('phone').value = phoneNumber;
+        document.getElementById('streetaddress').value = streetAddress;
+        document.getElementById('postcodezip').value = postalCode;
+    });
+
+    // Handle form submission
+    checkoutForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Validate delivery address selection
+        const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
+        if (!selectedAddress) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Select Address',
+                text: 'Please select a delivery address'
+            });
+            return;
+        }
+
+        // Validate payment method
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+        if (!selectedPayment) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Select Payment',
+                text: 'Please select a payment method'
+            });
+            return;
+        }
+
+        // Validate terms acceptance
+        if (!document.getElementById('terms').checked) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Terms & Conditions',
+                text: 'Please accept the terms and conditions'
+            });
+            return;
+        }
+
+        try {
+            const formData = {
+                addressId: selectedAddress.value,
+                paymentMethod: selectedPayment.value,
+                billing: {
+                    firstName: document.getElementById('firstname').value,
+                    lastName: document.getElementById('lastname').value,
+                    email: document.getElementById('emailaddress').value,
+                    phone: document.getElementById('phone').value,
+                    address: document.getElementById('streetaddress').value,
+                    postcode: document.getElementById('postcodezip').value
+                }
+            };
+
+            const response = await fetch('/user/placeOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Order placed successfully',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `/user/orderSuccess/${result.orderId}`;
+                });
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Order Failed',
+                text: error.message || 'Failed to place order. Please try again.'
+            });
+        }
+    });
+});
+</script>

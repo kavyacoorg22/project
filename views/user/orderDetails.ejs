@@ -1,0 +1,107 @@
+<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
+  <div class="container">
+    <div class="row no-gutters slider-text align-items-center justify-content-center">
+      <div class="col-md-9 ftco-animate text-center">
+        <p class="breadcrumbs">
+          <span class="mr-2"><a href="/user/home">Home</a></span> 
+          <% if(currentPage !== 'Home') { %>
+              <span><%= currentPage %></span>
+          <% } %>
+      </p>
+        <h1 class="mb-0 bread">Order Details</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="layout-wrapper">
+  <aside class="sidebar">
+      <a href="/user/profile"><span>Profile</span></a>
+      <a href="#"><span>Address</span></a>
+      <a href="#" class="active"><span>Order</span></a>
+      <a href="#"><span>Wallet</span></a>
+      <a href="#" class="logout"><span>Logout</span></a>
+  </aside>
+
+  <div class="od-container">
+      <div class="od-thank-you">
+          <h1 class="od-thank-you-title">Thank You for Your Purchase!</h1>
+          <p class="od-order-status">Your order is pending. Order ID: <span class="od-order-id">ORD173737536713</span></p>
+      </div>
+
+      <div class="od-grid">
+          <div class="od-info-section">
+              <h2 class="od-info-title">Order Details</h2>
+              <div class="od-info-grid">
+                  <span class="od-label">Customer:</span>
+                  <span class="od-value">kavya</span>
+                  
+                  <span class="od-label">Order Date:</span>
+                  <span class="od-value">1/20/2025, 12:16:08 PM</span>
+                  
+                  <span class="od-label">Phone:</span>
+                  <span class="od-value">6363045986</span>
+                  
+                  <span class="od-label">Payment Method:</span>
+                  <span class="od-value">UPI</span>
+              </div>
+          </div>
+
+          <div class="od-info-section">
+              <h2 class="od-info-title">Address Information</h2>
+              <div class="od-info-grid">
+                  <span class="od-label">Billing Address:</span>
+                  <span class="od-value">202 dayana house, cherambane, pin 574142, kodagu, Karnataka, India</span>
+                  
+                  <span class="od-label">Delivery Address:</span>
+                  <span class="od-value">202 dayana house, cherambane, pin 574142, kodagu, Karnataka, India</span>
+              </div>
+          </div>
+      </div>
+
+      <div class="od-items-section">
+          <h2 class="od-items-title">Order Items</h2>
+          <table class="od-table">
+              <thead>
+                  <tr>
+                      <th>Image</th>
+                      <th>Product</th>
+                      <th>Status</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                      <th>Action</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td><img src="/api/placeholder/80/80" alt="iMac" class="od-product-img"></td>
+                      <td>iMac</td>
+                      <td><span class="od-status-pending">Payment Pending</span></td>
+                      <td>1</td>
+                      <td>₹14,719</td>
+                      <td>₹14,719</td>
+                      <td><button class="od-repayment-btn">Re-Payment</button></td>
+                  </tr>
+              </tbody>
+          </table>
+      </div>
+
+      <div class="od-summary-section">
+          <h2 class="od-info-title">Order Summary</h2>
+          <div class="od-summary-grid">
+              <span class="od-label">Subtotal:</span>
+              <span class="od-value">₹15,999</span>
+              
+              <span class="od-label">Discount:</span>
+              <span class="od-value">-₹1,280</span>
+              
+              <span class="od-label">Shipping:</span>
+              <span class="od-value">₹0</span>
+              
+              <div class="od-label od-summary-total">Total:</div>
+              <div class="od-value od-summary-total">₹14,719</div>
+          </div>
+      </div>
+  </div>
+</div>

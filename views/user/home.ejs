@@ -160,10 +160,8 @@
 										</div>
 										<div class="bottom-area d-flex px-3">
 											<div class="m-auto d-flex">
-												<a href="#" class="add-to-cart d-flex justify-content-center align-items-center text-center">
-													<span><i class="ion-ios-menu"></i></span>
-												</a>
-												<a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1">
+												
+												<a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
 													<span><i class="ion-ios-cart"></i></span>
 												</a>
 												<a href="#" class="heart d-flex justify-content-center align-items-center ">
@@ -207,6 +205,54 @@
 			// Disable browser cache for this page
 			window.onunload = function() {};
 		})();
+
+		//add product to the cart
+document.addEventListener('DOMContentLoaded', () => {
+  // Event listener for the buy-now button
+  const buyNowButtons = document.querySelectorAll('.buy-now');
+
+  buyNowButtons.forEach(button => {
+    button.addEventListener('click', async (event) => {
+      event.preventDefault(); // Prevent default anchor behavior
+
+      const productId = button.getAttribute('data-product-id'); // Fetch product ID
+
+      if (!productId) {
+        alert('Invalid product selected'); // Handle missing product ID
+        return;
+      }
+
+      try {
+        const response = await fetch('/user/cart/add', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productId, quantity: 1 }), // Default quantity is 1
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Swal.fire('Product added to cart successfully'); // Notify the user
+          // Update the cart count, if provided in response
+          if (data.cartCount !== undefined) {
+            const cartCountElement = document.getElementById('cart-count');
+            if (cartCountElement) {
+              cartCountElement.textContent = data.cartCount;
+            }
+          }
+        } else {
+          Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
+        }
+      } catch (error) {
+        console.error('Add to cart error:', error);
+        Swal.fire('An error occurred while adding the product to the cart');
+      }
+    });
+  });
+});
+
 	</script>
     
         
