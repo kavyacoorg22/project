@@ -78,7 +78,7 @@ router.post('/cart/removeProduct',userAuth,cartController.removeFromCart)
 
 router.get('/checkout',userAuth,checkoutController.loadCheckout)
 
-router.post('/placeOrder',userAuth,checkoutController.placeOrder)
+router.post('/placeOrder',addressvalidation,userAuth,checkoutController.placeOrder)
 
 router.get('/profile',userAuth,profileController.loadProfile)
 router.put('/profile/update',userAuth,profileController.updateProfile)

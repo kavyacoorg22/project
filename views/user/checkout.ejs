@@ -41,13 +41,13 @@
                                             <%= address.email %>
                                         </p>
                                         <p class="saved-address-phone">
-                                            <%= address.phone %>
+                                            <%= address.mobile %>
                                         </p>
                                     </div>
                                 </label>
                             </div>
                         </div>
-                    <% }); %>
+                    <% }); console.log(addresses) %>
                 </div>
 
                 <div class="row justify-content-center">
@@ -70,26 +70,26 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="emailaddress">Email Address</label>
-                                        <input type="email" class="form-control" id="emailaddress" name="email" required>
+                                        <label for="email">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="phone">Mobile Number</label>
-                                        <input type="tel" class="form-control" id="phone" name="mobileNumber" required>
+                                        <label for="mobile">Mobile Number</label>
+                                        <input type="tel" class="form-control" id="mobile" name="mobileNumber" required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="streetaddress">Address</label>
-                                        <input type="text" class="form-control" id="streetaddress" name="address" placeholder="Your full address" required>
+                                        <label for="address">Address</label>
+                                        <input type="text" class="form-control" id="address" name="address" placeholder="Your full address" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="postcodezip">Postal Code</label>
-                                        <input type="text" class="form-control" id="postcodezip" name="postalCode" required>
+                                        <label for="postalCode">Postal Code</label>
+                                        <input type="text" class="form-control" id="postalCode" name="postalCode" required>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -184,14 +184,18 @@
         </div>
     </div>
 </section>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+ document.addEventListener('DOMContentLoaded', function() {
     const checkoutForm = document.getElementById('checkoutForm');
     const sameAsDeliveryCheckbox = document.getElementById('sameAsDelivery');
 
     // Function to copy delivery address to billing
-    sameAsDeliveryCheckbox.addEventListener('change', function() {
-        if (!this.checked) return;
+    sameAsDeliveryCheckbox.addEventListener('change', async function() {
+        if (!this.checked) {
+            clearBillingForm();
+            return;
+        }
 
         const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
         if (!selectedAddress) {
@@ -204,30 +208,71 @@
             return;
         }
 
-        // Get address details from selected address
-        const addressLabel = selectedAddress.nextElementSibling;
-        const addressContent = addressLabel.querySelector('.address-content');
-        const addressDetails = addressContent.querySelector('.saved-address-details').textContent;
-        const phoneNumber = addressContent.querySelector('.saved-address-phone').textContent;
+        try {
+            // Add data attributes to the radio input in your EJS template
+            const addressDiv = selectedAddress.closest('.saved-address-item');
+            const details = addressDiv.querySelector('.saved-address-details').textContent;
+            const phone = addressDiv.querySelector('.saved-address-phone').textContent;
 
-        // Parse address details
-        const [name, streetAddress, postalCode, email] = addressDetails.split(',').map(item => item.trim());
-        const [firstName, lastName] = name.split(' ').map(item => item.trim());
+            // Log the raw data for debugging
+            console.log('Raw details:', details);
+            console.log('Raw phone:', phone);
 
-        // Fill billing form
-        document.getElementById('firstname').value = firstName;
-        document.getElementById('lastname').value = lastName;
-        document.getElementById('emailaddress').value = email;
-        document.getElementById('phone').value = phoneNumber;
-        document.getElementById('streetaddress').value = streetAddress;
-        document.getElementById('postcodezip').value = postalCode;
+            // Split the details string and clean up each part
+            const parts = details.split(',').map(part => part.trim());
+            console.log('Split parts:', parts);
+
+            // Extract the values
+            const firstLastName = parts[0].split(' ').map(part => part.trim());
+            const firstName = firstLastName[0];
+            const lastName = firstLastName[1];
+            const streetAddress = parts[1];
+            const postalCode = parts[2];
+            const email =parts[3] ;
+
+            // Log the parsed values
+            console.log('Parsed values:', {
+                firstName,
+                lastName,
+                streetAddress,
+                postalCode,
+                email,
+                phone
+            });
+
+            // Fill the billing form
+            document.getElementById('firstname').value = firstName;
+            document.getElementById('lastname').value = lastName;
+            document.getElementById('email').value = email;
+            document.getElementById('mobile').value = phone;
+            document.getElementById('address').value = streetAddress;
+            document.getElementById('postalCode').value = postalCode;
+
+        } catch (error) {
+            console.error('Error copying address:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to copy address details. Please fill in manually.'
+            });
+            this.checked = false;
+            clearBillingForm();
+        }
     });
 
-    // Handle form submission
+    function clearBillingForm() {
+        document.getElementById('firstname').value = '';
+        document.getElementById('lastname').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('mobile').value = '';
+        document.getElementById('address').value = '';
+        document.getElementById('postalCode').value = '';
+    }
+    // Handle form submission with proper validation order
     checkoutForm.addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        // Validate delivery address selection
+        // Validate delivery address selection first
         const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
         if (!selectedAddress) {
             Swal.fire({
@@ -236,6 +281,20 @@
                 text: 'Please select a delivery address'
             });
             return;
+        }
+
+        // Validate billing details
+        const requiredFields = ['firstname', 'lastname', 'email', 'mobile', 'address', 'postalCode'];
+        for (const field of requiredFields) {
+            const input = document.getElementById(field);
+            if (!input.value.trim()) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Missing Information',
+                    text: `Please fill in all billing details`
+                });
+                return;
+            }
         }
 
         // Validate payment method
@@ -266,10 +325,10 @@
                 billing: {
                     firstName: document.getElementById('firstname').value,
                     lastName: document.getElementById('lastname').value,
-                    email: document.getElementById('emailaddress').value,
-                    phone: document.getElementById('phone').value,
-                    address: document.getElementById('streetaddress').value,
-                    postcode: document.getElementById('postcodezip').value
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('mobile').value,
+                    address: document.getElementById('address').value,
+                    postcode: document.getElementById('postalCode').value
                 }
             };
 

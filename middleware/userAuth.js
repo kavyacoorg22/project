@@ -19,12 +19,12 @@ const userAuth = async (req, res, next) => {
     // Find the user by ID
     const user = await signupModel.findById(_id);
     if (!user) {
-      return res.status(404).send("User not found");
+      return res.status(404).json({message:"User not found"});
     }
    
     if(user.status==='inactive')
     {
-      return res.status(404).send("Access denied. This user is blocked by the admin and can't access the site.")
+      return res.redirect(`/user/login?error=Access denied. This user is blocked by the admin and can't access the site.`);
     }
    
     // Attach the user to the request object

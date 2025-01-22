@@ -29,7 +29,11 @@
   </div>
   
   <script>
-      
+      const urlParams = new URLSearchParams(window.location.search);
+const errorMessage = urlParams.get('error');
+if (errorMessage) {
+  Swal.fire(errorMessage); // Or display the message in an error alert on the page
+}
       document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('loginform').addEventListener('submit', async (event) => {
               event.preventDefault(); // Prevent the default form submission

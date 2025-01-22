@@ -5,53 +5,64 @@ const fs = require('fs').promises;
 
 const createcat = async (req, res) => {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { name, description } = req.body;
 
+    
     if (!name || !description) {
       return res.status(400).json({
-        sucess:false,
-        message:"Should enter name and description"
-      })
+        success: false,
+        message: "Should enter name and description",
+      });
     }
 
-   if(name.trim()===''||description.trim()==='')
-   {
-     return res.status(400).json({
-      success:false,
-      message:"Name and Description should not be empty or black space"
-     })
-   }
+    
+    if (name.trim() === '' || description.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Name and Description should not be empty or blank space",
+      });
+    }
 
 
+    const existingCategory = await categoryModel.findOne({ name: name.trim() });
+    if (existingCategory) {
+      return res.status(400).json({
+        success: false,
+        message: "Category already exists. Please add a different category.",
+      });
+    }
+
+    // Handle file upload and image processing
     let imageUrl = null;
     if (req.file) {
       const filename = await processImage(req.file.buffer, req.file.originalname);
       imageUrl = `/img/categories/${filename}`;
-  } else {
+    } else {
       console.log('No file uploaded');
-  }
-  
+    }
 
-    const category = new categoryModel({ name, description, image: imageUrl });
-    console.log("data",category)
+  
+    const category = new categoryModel({ name: name.trim(), description: description.trim(), image: imageUrl });
+    console.log("data", category);
     await category.save();
+
     res.json({
       success: true,
-      message: 'Product added successfully'
-  });
-
+      message: 'Category added successfully',
+    });
   } catch (error) {
     console.error('Error creating category:', error);
     res.render('admin/createcategory', {
       error: 'Error creating category',
       values: req.body,
-      title:"createcategory",
-      csspage:"createcategory.css",
-      layout: './layout/admin-layout'
+      title: "createcategory",
+      csspage: "createcategory.css",
+      layout: './layout/admin-layout',
     });
   }
 };
+
 
 const getAllCategories = async (req, res) => {
   try {
