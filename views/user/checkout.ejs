@@ -47,7 +47,7 @@
                                 </label>
                             </div>
                         </div>
-                    <% }); console.log(addresses) %>
+                    <% });%>
                 </div>
 
                 <div class="row justify-content-center">
@@ -138,7 +138,7 @@
                                         <div class="col-md-12">
                                             <div class="radio">
                                                 <label>
-                                                    <input type="radio" name="payment" value="wallet" class="mr-2" required>
+                                                    <input type="radio" name="payment" value="wallet" class="mr-2" >
                                                     Wallet
                                                 </label>
                                             </div>
@@ -148,7 +148,7 @@
                                         <div class="col-md-12">
                                             <div class="radio">
                                                 <label>
-                                                    <input type="radio" name="payment" value="cod" class="mr-2" required>
+                                                    <input type="radio" name="payment" value="cod" class="mr-2" >
                                                     Cash on Delivery
                                                 </label>
                                             </div>
@@ -158,7 +158,7 @@
                                         <div class="col-md-12">
                                             <div class="radio">
                                                 <label>
-                                                    <input type="radio" name="payment" value="razorpay" class="mr-2" required>
+                                                    <input type="radio" name="payment" value="razorpay" class="mr-2" >
                                                     Razorpay
                                                 </label>
                                             </div>
@@ -168,7 +168,7 @@
                                         <div class="col-md-12">
                                             <div class="checkbox">
                                                 <label>
-                                                    <input type="checkbox" id="terms" class="mr-2" required>
+                                                    <input type="checkbox" id="terms" class="mr-2" >
                                                     I have read and accept the terms and conditions
                                                 </label>
                                             </div>
@@ -186,7 +186,9 @@
 </section>
 
 <script>
- document.addEventListener('DOMContentLoaded', function() {
+
+document.addEventListener('DOMContentLoaded', function() {
+   
     const checkoutForm = document.getElementById('checkoutForm');
     const sameAsDeliveryCheckbox = document.getElementById('sameAsDelivery');
 
@@ -209,42 +211,24 @@
         }
 
         try {
-            // Add data attributes to the radio input in your EJS template
             const addressDiv = selectedAddress.closest('.saved-address-item');
             const details = addressDiv.querySelector('.saved-address-details').textContent;
             const phone = addressDiv.querySelector('.saved-address-phone').textContent;
 
-            // Log the raw data for debugging
-            console.log('Raw details:', details);
-            console.log('Raw phone:', phone);
-
             // Split the details string and clean up each part
             const parts = details.split(',').map(part => part.trim());
-            console.log('Split parts:', parts);
-
-            // Extract the values
             const firstLastName = parts[0].split(' ').map(part => part.trim());
             const firstName = firstLastName[0];
             const lastName = firstLastName[1];
             const streetAddress = parts[1];
             const postalCode = parts[2];
-            const email =parts[3] ;
-
-            // Log the parsed values
-            console.log('Parsed values:', {
-                firstName,
-                lastName,
-                streetAddress,
-                postalCode,
-                email,
-                phone
-            });
+            const email = parts[3];
 
             // Fill the billing form
             document.getElementById('firstname').value = firstName;
             document.getElementById('lastname').value = lastName;
             document.getElementById('email').value = email;
-            document.getElementById('mobile').value = phone;
+            document.getElementById('mobile').value = phone.trim();
             document.getElementById('address').value = streetAddress;
             document.getElementById('postalCode').value = postalCode;
 
@@ -268,11 +252,13 @@
         document.getElementById('address').value = '';
         document.getElementById('postalCode').value = '';
     }
-    // Handle form submission with proper validation order
+
+    // Handle form submission with proper validation
     checkoutForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log('Form submission started'); // Debug log
 
-        // Validate delivery address selection first
+        // Validate delivery address selection
         const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
         if (!selectedAddress) {
             Swal.fire({
@@ -283,27 +269,40 @@
             return;
         }
 
-        // Validate billing details
-        const requiredFields = ['firstname', 'lastname', 'email', 'mobile', 'address', 'postalCode'];
-        for (const field of requiredFields) {
-            const input = document.getElementById(field);
-            if (!input.value.trim()) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Missing Information',
-                    text: `Please fill in all billing details`
-                });
-                return;
-            }
+        // Get all form values and log them
+        const formValues = {
+            firstname: document.getElementById('firstname').value,
+            lastname: document.getElementById('lastname').value,
+            email: document.getElementById('email').value,
+            mobile: document.getElementById('mobile').value,
+            address: document.getElementById('address').value,
+            postalCode: document.getElementById('postalCode').value
+        };
+
+        console.log('Form values:', formValues); // Debug log
+
+        // Check for empty fields
+        const emptyFields = Object.entries(formValues)
+            .filter(([key, value]) => !value.trim())
+            .map(([key]) => key);
+
+        if (emptyFields.length > 0) {
+            console.log('Empty fields:', emptyFields); // Debug log
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Information',
+                text: `Please fill in all required fields`
+            });
+            return;
         }
 
         // Validate payment method
         const selectedPayment = document.querySelector('input[name="payment"]:checked');
-        if (!selectedPayment) {
+        if (!selectedPayment || selectedPayment.value !== 'cod') {
             Swal.fire({
                 icon: 'warning',
-                title: 'Select Payment',
-                text: 'Please select a payment method'
+                title: 'Payment Method',
+                text: 'Currently only Cash on Delivery (COD) is available'
             });
             return;
         }
@@ -323,14 +322,16 @@
                 addressId: selectedAddress.value,
                 paymentMethod: selectedPayment.value,
                 billing: {
-                    firstName: document.getElementById('firstname').value,
-                    lastName: document.getElementById('lastname').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('mobile').value,
-                    address: document.getElementById('address').value,
-                    postcode: document.getElementById('postalCode').value
+                    firstName: formValues.firstname,
+                    lastName: formValues.lastname,
+                    email: formValues.email,
+                    phone: formValues.mobile,
+                    address: formValues.address,
+                    postcode: formValues.postalCode
                 }
             };
+
+            console.log('Submitting form data:', formData); // Debug log
 
             const response = await fetch('/user/placeOrder', {
                 method: 'POST',
@@ -340,6 +341,9 @@
                 body: JSON.stringify(formData)
             });
 
+            if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
             const result = await response.json();
 
             if (result.success) {
@@ -353,9 +357,10 @@
                     window.location.href = `/user/orderSuccess/${result.orderId}`;
                 });
             } else {
-                throw new Error(result.message);
+                throw new Error(result.message || 'Failed to place order');
             }
         } catch (error) {
+            console.error('Order submission error:', error); 
             Swal.fire({
                 icon: 'error',
                 title: 'Order Failed',
@@ -364,4 +369,5 @@
         }
     });
 });
+
 </script>

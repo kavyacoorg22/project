@@ -70,99 +70,118 @@ const loadCheckout = async (req, res) => {
 };
 
 const placeOrder = async (req, res) => {
-    let session;
     try {
         const { addressId, paymentMethod, billing } = req.body;
         const userId = req.user._id;
-        session = await mongoose.startSession();
-        
-        await session.withTransaction(async () => {
-            if (!addressId || !billing) {
-                throw new Error('Missing required fields');
-            }
 
-            const user = await signupModel.findById(userId);
-                
-            if (!user || !user.address.includes(addressId)) {
-                throw new Error('Invalid delivery address');
-            }
+        // Validate required fields
+        if (!addressId || !billing) {
+            throw new Error('Missing required fields');
+        }
 
-            const cart = await cartModel
-                .findOne({ user: userId })
-                .populate('product.product');
-
-            if (!cart || !cart.product.length) {
-                throw new Error('Cart is empty');
-            }
-
-            const validProducts = [];
-            let cartTotal = 0;
-
-            for (const item of cart.product) {
-                if (!item.product || item.quantity > item.product.quantity) {
-                    throw new Error(`Insufficient stock for ${item.product?.name || 'a product'}`);
-                }
-                validProducts.push({
-                    product: item.product._id,
-                    quantity: item.quantity,
-                    price: item.product.price
-                });
-                cartTotal += item.product.price * item.quantity;
-            }
-
-            const deliveryCharge = cartTotal > 1000 ? 0 : 40;
-            const discount = 0;
-            const finalAmount = cartTotal + deliveryCharge - discount;
-
-            const order = await orderModel.create([{
-                user: userId,
-                deliveryAddress: addressId,
-                billingDetails: billing,
-                products: validProducts,
-                totalAmount: finalAmount,
-                deliveryCharge,
-                discount,
-                paymentMethod: paymentMethod || 'cod',
-                status: 'Pending',
-                orderDate: new Date()
-            }], { session });
-
-            await Promise.all(validProducts.map(item =>
-                productModel.findByIdAndUpdate(
-                    item.product,
-                    { $inc: { quantity: -item.quantity } },
-                    { session }
-                )
-            ));
-
-            await cartModel.findOneAndDelete({ user: userId }, { session });
-
-            await session.commitTransaction();
+        const user = await signupModel.findById(userId);
             
-            res.json({ 
-                success: true, 
-                orderId: order[0]._id,
-                message: 'Order placed successfully' 
+        if (!user || !user.address.includes(addressId)) {
+            throw new Error('Invalid delivery address');
+        }
+
+        const cart = await cartModel
+            .findOne({ user: userId })
+            .populate('product.product');
+
+        if (!cart || !cart.product.length) {
+            throw new Error('Cart is empty');
+        }
+
+        const validProducts = [];
+        let cartTotal = 0;
+
+        for (const item of cart.product) {
+            if (!item.product || item.quantity > item.product.quantity) {
+                throw new Error(`Insufficient stock for ${item.product?.name || 'a product'}`);
+            }
+            validProducts.push({
+                product: item.product._id,
+                quantity: item.quantity,
+                price: item.product.price
             });
+            cartTotal += item.product.price * item.quantity;
+        }
+
+        const deliveryCharge = cartTotal > 1000 ? 0 : 40;
+        const discount = 0;
+        const finalAmount = cartTotal + deliveryCharge - discount;
+
+        // Create order
+        const order = await orderModel.create({
+            user: userId,
+            deliveryAddress: addressId,
+            billingDetails: billing,
+            products: validProducts,
+            totalAmount: finalAmount,
+            deliveryCharge,
+            discount,
+            paymentMethod: paymentMethod || 'cod',
+            status: 'pending',
+            orderDate: new Date()
+        });
+
+        // Update product quantities
+        await Promise.all(validProducts.map(item =>
+            productModel.findByIdAndUpdate(
+                item.product,
+                { $inc: { quantity: -item.quantity } }
+            )
+        ));
+
+        // Clear cart
+        await cartModel.findOneAndDelete({ user: userId });
+
+        res.json({ 
+            success: true, 
+            orderId: order._id,
+            message: 'Order placed successfully' 
         });
 
     } catch (error) {
-        if (session) {
-            await session.abortTransaction();
-        }
         console.error('Error placing order:', error);
         res.status(400).json({ 
             success: false, 
             message: error.message || 'Error placing order. Please try again.' 
         });
-    } finally {
-        if (session) {
-            await session.endSession();
+    }
+};
+
+
+
+const loadSuccessPage = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        
+        // Fetch order details
+        const orderDetails = await orderModel.findById(orderId)
+            .populate('deliveryAddress')
+            .populate('products.product');
+
+        if (!orderDetails) {
+            return res.redirect('/user/orders');
         }
+
+        res.render('user/orderSuccess', {
+            title: 'Order Success',
+            includeCss: true,
+            csspage: 'orderSuccess.css',
+            order: orderDetails
+        });
+
+    } catch (err) {
+        console.error('Error loading success page:', err);
+        res.redirect('/user/orders');
     }
 };
 
 module.exports = {
     loadCheckout,
-    placeOrder
+    placeOrder,
+    loadSuccessPage
 };

@@ -1,0 +1,69 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.success-container {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin: 0 auto;
+  width: 90%;
+  max-width: 400px;
+}
+
+/* Checkmark icon container */
+.check-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #4CAF50;
+  border-radius: 50%;
+  position: relative;
+  margin: 0 auto 30px;
+}
+
+/* Checkmark */
+.check-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: 8px;
+  height: 16px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.success-title {
+  color: #4CAF50;
+  font-size: clamp(20px, 5vw, 24px);
+  margin-bottom: 15px;
+  font-weight: normal;
+  text-align: center;
+}
+
+.success-message {
+  color: #333333;
+  font-size: clamp(14px, 4vw, 16px);
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .check-icon {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 25px;
+  }
+  
+  .check-icon::before {
+    width: 6px;
+    height: 12px;
+  }
+}
