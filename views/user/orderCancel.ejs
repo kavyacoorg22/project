@@ -35,8 +35,79 @@
               placeholder="Please provide your reason for cancellation..."
           ></textarea>
           <div class="buttons-container">
-              <button class="cancel-button">CANCEL</button>
+              <button class="cancel-button"  data-productid="<%= productId %>" 
+                data-orderid="<%= orderID %>">CANCEL</button>
           </div>
       </div>
   </main>
 </div>
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cancelProductButtons = document.querySelectorAll('.cancel-button');
+
+    cancelProductButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const textarea = document.querySelector('.cancel-reason-textarea');
+        const cancelReason = textarea.value.trim();
+
+        // Check if textarea is empty
+        if (!cancelReason) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Validation Error',
+            text: 'Please provide a reason for cancellation'
+          });
+          return;
+        }
+
+        const productId = e.target.dataset.productid;
+        const orderID = e.target.dataset.orderid;
+       
+        if (!productId || !orderID) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Missing product or order ID'
+          });
+          return;
+        }
+
+        try {
+          const response = await fetch(`/user/cancelOrder/${orderID}/${productId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ cancelReason })
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Product Cancellation',
+              text: 'Product cancellation request submitted'
+            }).then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Cancellation Failed',
+              text: result.message
+            });
+          }
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred'
+          });
+        }
+      });
+    });
+  });
+</script>

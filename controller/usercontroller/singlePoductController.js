@@ -1,5 +1,5 @@
 
-  
+const orderModel=require('../../model/userModel/orderModel')
 const reviewModel = require('../../model/userModel/reviewModel');
 
 const loadreviews = async (req, res) => {
@@ -41,7 +41,7 @@ const reviews = async (req, res) => {
     const hasPurchased = await orderModel.findOne({
       userId: req.user._id,
       'items.productId': productId,
-      status: 'completed', 
+      status: 'delivered', 
     });
 
     if (!hasPurchased) {

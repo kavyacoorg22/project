@@ -164,7 +164,7 @@ body {
   font-weight: 600;
 }
 
-.od-repayment-btn {
+.od-btn {
   background: rgb(123, 181, 81);
   color: white;
   padding: 8px 16px;
@@ -174,8 +174,25 @@ body {
   font-weight: 500;
   transition: background-color 0.3s;
 }
-
-.od-repayment-btn:hover {
+.od-btns {
+  background: rgb(177, 25, 25);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  cursor: not-allowed;
+}
+.od-btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #cccccc;
+  color: #666666;
+  pointer-events: none;
+}
+.od-btn:hover {
   background: rgb(123, 181, 81);
 }
 

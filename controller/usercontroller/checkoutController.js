@@ -28,7 +28,7 @@ const loadCheckout = async (req, res) => {
             });
 
         if (!cart || !cart.product || cart.product.length === 0) {
-            req.flash('error', 'Your cart is empty');
+           
             return res.redirect('/user/cart');
         }
 
@@ -92,17 +92,20 @@ const placeOrder = async (req, res) => {
             throw new Error('Cart is empty');
         }
 
-        const validProducts = [];
+        const orderedItem = [];
         let cartTotal = 0;
 
         for (const item of cart.product) {
             if (!item.product || item.quantity > item.product.quantity) {
                 throw new Error(`Insufficient stock for ${item.product?.name || 'a product'}`);
             }
-            validProducts.push({
+            orderedItem.push({
                 product: item.product._id,
                 quantity: item.quantity,
-                price: item.product.price
+                price: item.product.price,
+                name: item.product.name,
+                firstImage: item.product.images[0],
+                status: 'processing'
             });
             cartTotal += item.product.price * item.quantity;
         }
@@ -118,16 +121,16 @@ const placeOrder = async (req, res) => {
             user: userId,
             deliveryAddress: addressId,
             billingDetails: billing,
-            products: validProducts,
+            orderedItem,
             totalAmount: finalAmount,
             deliveryCharge,
             discount,
             paymentMethod: paymentMethod || 'cod',
-            status: 'pending',
+            status: 'processing',
             orderDate: new Date()
         });
 
-        await Promise.all(validProducts.map(item =>
+        await Promise.all(orderedItem.map(item =>
             productModel.findByIdAndUpdate(
                 item.product,
                 { $inc: { quantity: -item.quantity } }
@@ -156,20 +159,21 @@ const loadSuccessPage = async (req, res) => {
     try {
         const orderId = req.params.id;
         
+        
         // Fetch order details
         const orderDetails = await orderModel.findById(orderId)
-            .populate('deliveryAddress')
-            .populate('products.product');
+
+            
 
         if (!orderDetails) {
-            return res.redirect('/user/orders');
+            return res.redirect('/user/order');
         }
 
         res.render('user/orderSuccess', {
             title: 'Order Success',
             includeCss: true,
             csspage: 'orderSuccess.css',
-            order: orderDetails
+            
         });
 
     } catch (err) {

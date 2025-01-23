@@ -3,18 +3,13 @@ const orderModel=require('../../model/userModel/orderModel')
 
 const loadOrderHistory = async (req, res) => {
   try {
-      // Get user ID from the session/request
       const userId = req.user._id;
 
-      // Fetch all orders for the user
       const orders = await orderModel.find({ user: userId })
-          .populate('products.product')  // Populate product details
-          .sort({ orderDate: -1 })      // Sort by newest first
-          .lean();  
+          .sort({ orderDate: -1 });
 
-      // Process orders to match the template format
       const processedOrders = orders.map(order => ({
-          productCount: order.products.length,
+          productCount: order.orderedItem.length,
           orderId: order.orderID,
           date: new Date(order.orderDate).toLocaleString(),
           total: order.totalAmount,
@@ -22,13 +17,12 @@ const loadOrderHistory = async (req, res) => {
           status: order.status
       }));
 
-      // Separate orders by status
       const failedOrders = processedOrders.filter(order => 
-          ['cancel', 'returned','Payment Pending'].includes(order.status)
+          ['canceled', 'returned', 'Payment Pending'].includes(order.status)
       );
 
       const placedOrders = processedOrders.filter(order => 
-          !['cancel', 'returned','Payment Pending'].includes(order.status)
+          !['canceled', 'returned', 'Payment Pending'].includes(order.status)
       );
 
       res.render('user/orderHistory', {
@@ -50,13 +44,12 @@ const loadOrderHistory = async (req, res) => {
 
 const loadOrderDetails = async (req, res) => {
   try {
-    console.log(req.params.id)
+   
     const orderId = req.params.id;
     const orders = await orderModel.findOne({ orderID: orderId })
-      .populate('products.product')
-      .populate('deliveryAddress', 'firstname lastname address postalCode mobile email') 
-      .populate('user','firstname lastname number')
-      
+      .populate('deliveryAddress')
+      .populate('user','firstname number ')
+      .populate('billingDetails')
       
     if (!orders) {
       return res.status(404).send('Order not found');
@@ -73,16 +66,67 @@ const loadOrderDetails = async (req, res) => {
   }
 };
 
-const loadOrderCancel=async(req,res)=>{
-  try{
-    res.render('user/orderCancel',{title:'cancelOrder',includeCss:true,csspage:'orderCancel.css'})
-  }catch(err)
-  {
-    res.status(500).send(err.message)
+const loadOrderCancel = async (req, res) => {
+  try {
+    const { orderID, productId } = req.params;
+    res.render('user/orderCancel', {
+      title: 'cancelOrder', 
+      includeCss: true, 
+      csspage: 'orderCancel.css', 
+      orderID, 
+      productId
+    });
+  } catch(err) {
+    res.status(500).send(err.message);
   }
-  
-}
+};
 
+const cancelOrder = async (req, res) => {
+  try {
+    const { orderID, productId } = req.params;
+    const { cancelReason } = req.body;
+
+    if (!orderID || !productId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid order or product ID' 
+      });
+    }
+
+    const order = await orderModel.findOneAndUpdate(
+      { 
+        orderID: orderID,
+        'orderedItem.product': productId
+      },
+      { 
+        $set: { 
+          'orderedItem.$.status': 'cancel request',
+          'orderedItem.$.cancelReason': cancelReason,
+          
+        }
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Product cannot be cancelled at this stage' 
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      message: 'Product cancellation request submitted' 
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error during product cancellation' 
+    });
+  }
+};
 
 const loadOrderReturn=async(req,res)=>{
   try{
@@ -94,5 +138,32 @@ const loadOrderReturn=async(req,res)=>{
   
 }
 
+const returnOrder = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { reason } = req.body;
 
-module.exports={loadOrderDetails,loadOrderHistory,loadOrderReturn,loadOrderCancel}
+    const order = await orderModel.findOneAndUpdate(
+      { orderID: orderId },
+      { 
+        status: 'Return Request',
+        returnReason: reason 
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Order not found' });
+    }
+
+    res.json({ success: true, message: 'Return request submitted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+
+
+module.exports={loadOrderDetails,loadOrderHistory,loadOrderReturn,loadOrderCancel,cancelOrder,returnOrder}

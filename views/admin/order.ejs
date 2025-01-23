@@ -1,67 +1,151 @@
 <div class="orders-container">
-  <div class="orders-header">
-      <h1 class="orders-title">Orders</h1>
-      <p class="orders-subtitle">Manage all your orders here</p>
-  </div>
-
-  <div class="search-bar">
-      
-      <select class="status-select">
-          <option value="">All status</option>
-          <option value="pending">Pending</option>
-          <option value="processing">Processing</option>
-          <option value="delivered">Delivered</option>
-      </select>
-  </div>
-
-  <div class="orders-table-container">
-      <table class="orders-table">
-          <thead>
-              <tr>
-                  <th>Order ID</th>
-                  <th>Customer</th>
-                  <th>Status</th>
-                  <th>Total</th>
-                  <th>Placed On</th>
-                  <th>Actions</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-                  <td>#124</td>
-                  <td>Kavya</td>
-                  <td>
-                      <select class="status-dropdown" onchange="updateStatus(this, 124)">
-                          <option value="pending">Pending</option>
-                          <option value="processing">Processing</option>
-                          <option value="delivered" selected>Delivered</option>
-                      </select>
-                  </td>
-                  <td>$77.40</td>
-                  <td>16 Dec 2024</td>
-                  <td>
-                      <div class="action-buttons">
-                          <button class="btn btn-view">View</button>
-                          <button class="btn btn-delete">Delete</button>
-                      </div>
-                  </td>
-              </tr>
-              <!-- Add more order rows as needed -->
-          </tbody>
-      </table>
-  </div>
-
-  <div class="pagination">
-      <button class="page-btn active">1</button>
-      <button class="page-btn">2</button>
-      <button class="page-btn">3</button>
-      <button class="page-btn">></button>
-  </div>
+    <div class="orders-header">
+        <h1 class="orders-title">Orders</h1>
+        <p class="orders-subtitle">Manage all your orders here</p>
+    </div>
+  
+    <div class="search-bar">
+        <select id="status-filter" class="status-select">
+            <option value="">All status</option>
+            <% const statuses = ["Payment Pending", "processing", "shipped", "delivered", "canceled", "returned", "return request", "cancel request"] %>
+            <% statuses.forEach(function(status) { %>
+                <option value="<%= status %>">
+                    <%= status.charAt(0).toUpperCase() + status.slice(1) %>
+                </option>
+            <% }); %>
+        </select>
+    </div>
+  
+    <div class="orders-table-container">
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Total</th>
+                    <th>Placed On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="orders-tbody">
+                <% orders.forEach(function(order) { %>
+                    <tr data-status="<%= order.status %>">
+                        <td><%= order.orderID %></td>
+                        <td><%= order.user.firstname %></td>
+                        <td>
+                            <div class="product-status-container">
+                                <% order.orderedItem.forEach(function(item) { %>
+                                    <div class="product-status-row">
+                                        <span class="product-name"><%= item.name %></span>
+                                        <select class="status-dropdown" onchange="updateStatus(this, '<%= order.orderID %>')">
+                                            <% const allStatuses = ["Payment Pending", "processing", "shipped", "delivered", "canceled", "returned", "return request", "cancel request"] %>
+                                            <% allStatuses.forEach(function(status) { %>
+                                                <option value="<%= status %>" 
+                                                        data-item-id="<%= item._id %>" 
+                                                        <%= item.status === status ? 'selected' : '' %>>
+                                                    <%= status.charAt(0).toUpperCase() + status.slice(1) %>
+                                                </option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                <% }); %>
+                            </div>
+                        </td>
+                        <td>₹<%= order.totalAmount %></td>
+                        <td><%= order.orderDate.toLocaleDateString() %></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="/admin/order/<%= order.orderID %>" class="btn btn-view">View</a>
+                            </div>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+  
+    <div class="pagination">
+        <% if (page > 1) { %>
+            <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+        <% } %>
+    
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+                <%= i %>
+            </a>
+        <% } %>
+    
+        <% if (page < totalPages) { %>
+            <a href="?page=<%= page + 1 %>" class="page-link">></a>
+        <% } %>
+      </div>
 </div>
-
+  
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function updateStatus(select, orderId) {
-      // Add your status update logic here
-      console.log(`Updating order ${orderId} status to ${select.value}`);
-  }
+document.getElementById('status-filter').addEventListener('change', function() {
+    const status = this.value;
+    const rows = document.querySelectorAll('#orders-tbody tr');
+    
+    rows.forEach(row => {
+        if (status === '' || row.dataset.status === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+function updateStatus(select, orderId) {
+    const selectedOption = select.options[select.selectedIndex];
+    const itemId = selectedOption.getAttribute('data-item-id');
+    
+    Swal.fire({
+        title: 'Update Order Status',
+        text: `Change status to ${select.value}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/admin/order/updateStatus/${orderId}/${itemId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status: select.value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        'Updated!',
+                        'Order status has been updated.',
+                        'success'
+                    );
+                    select.closest('tr').dataset.status = select.value;
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        'Failed to update status.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                Swal.fire(
+                    'Error!',
+                    'An error occurred.',
+                    'error'
+                );
+            });
+        }
+    });
+}
+
+
+
 </script>

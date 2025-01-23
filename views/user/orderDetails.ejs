@@ -26,7 +26,7 @@
   <div class="od-container">
       <div class="od-thank-you">
           <h1 class="od-thank-you-title">Thank You for Your Purchase!</h1>
-          <p class="od-order-status">Your order is pending. Order ID: <span class="od-order-id"><%=orders.orderID%></span></p>
+          <p class="od-order-status">Your order is <%=orders.status%>. Order ID: <span class="od-order-id"><%=orders.orderID%></span></p>
       </div>
    
       <div class="od-grid">
@@ -37,7 +37,7 @@
                   <span class="od-value"><%=orders.user.firstname%></span>
                   
                   <span class="od-label">Order Date:</span>
-                  <span class="od-value"><%=orders.date%></span>
+                  <span class="od-value"><%=orders.orderDate.toLocaleString()%></span>
                   
                   <span class="od-label">Phone:</span>
                   <span class="od-value"><%=orders.user.number%></span>
@@ -51,13 +51,15 @@
               <h2 class="od-info-title">Address Information</h2>
               <div class="od-info-grid">
                   <span class="od-label">Billing Address:</span>
-                  <span class="od-value"><%=orders.deliveryAddress.firstname%><%=orders.deliveryAddress.lastname%>
-                    <%=orders.deliveryAddress.address%><%=orders.deliveryAddress.postalCode%><%=orders.deliveryAddress.mobile%>
-                    <%=orders.deliveryAddress.email%>
-                </span>
+                  <span class="od-value"><%=orders.billingDetails.firstName%><%=orders.billingDetails.lastName%>
+                    <%=orders.billingDetails.address%><%=orders.billingDetails.postalCode%><%=orders.billingDetails.mobile%>
+                    <%=orders.billingDetails.email%>
+                  </span>
                   
                   <span class="od-label">Delivery Address:</span>
-                  <span class="od-value"><%=orders. billingDetails%></span>
+                  <span class="od-value"><%=orders.deliveryAddress.firstname%><%=orders.deliveryAddress.lastname%>
+                    <%=orders.deliveryAddress.address%><%=orders.deliveryAddress.postalCode%><%=orders.deliveryAddress.mobile%>
+                    <%=orders.deliveryAddress.email%></span>
               </div>
           </div>
       </div>
@@ -77,25 +79,29 @@
                   </tr>
               </thead>
               <tbody>
-                <% orders.products.forEach(function(item) { %>
+                <% orders.orderedItem.forEach(function(item) { %>
                   <tr onclick="window.location.href='/user/product/<%= item.product._id %>'" style="cursor: pointer;">
-                    <td><img src="/img/productsimg/<%=item.product.images[0]%>" alt="<%=item.product.name%>" class="od-product-img"></td>
-                    <td><%=item.product.name%></td>
-                    <td><span class="od-status-<%=orders.status.toLowerCase()%>"><%=orders.status%></span></td>
+                    <td><img src="/img/productsimg/<%=item.firstImage%>" alt="<%=item.name%>" class="od-product-img"></td>
+                    <td><%=item.name%></td>
+                    <td><span class="od-status-<%=orders.status.toLowerCase()%>"><%=item.status%></span></td>
                     <td><%=item.quantity%></td>
-                    <td>₹<%=item.product.price%></td>
-                    <td>₹<%=item.product.price * item.quantity%></td>
+                    <td>₹<%=item.price%></td>
+                    <td>₹<%=item.price * item.quantity%></td>
                     <td>
-                      <% if (orders.status === 'Pending') { %>
-                        <button class="od-cancel-btn">Cancel Order</button>
-                      <% } else if (orders.status === 'Shipping') { %>
-                        <span class="od-shipping-text">Cancellation of this order is not possible once it has been shipped.</span>
-                      <% } else if (orders.status === 'Delivered') { %>
-                        <button class="od-return-btn">Return</button>
-                      <% } else if (orders.status === 'Payment Pending') { %>
-                        <button class="od-repayment-btn">Re-Payment</button>
-                      <% } %>
-                    </td>
+                      <% if (item.status === 'processing') { %>
+                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/cancelOrder/<%=orders.orderID%>/<%=item.product%>'">Cancel Order</button>
+                      <% } else if (item.status === 'shipped') { %>
+                          <span class="od-btn od-btn-disabled">Cancellation not possible after shipping</span>
+                      <% } else if (item.status === 'delivered') { %>
+                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/returnOrder/<%=orders.orderID%>'">Return</button>
+                      <% } else if (item.status === 'Payment Pending') { %>
+                          <button class="od-btn">Re-Payment</button>
+                      <% } else if (item.status === 'cancel request') { %>
+                          <button class="od-btn od-btn-disabled" disabled>Cancel Request Pending</button>
+                      <% }else if (item.status === 'canceled') { %>
+                        <button class="od-btns">Cancelled</button>
+                        <%}%>
+                  </td>
                   </tr>
                 <% }); %>
               </tbody>
@@ -106,10 +112,10 @@
           <h2 class="od-info-title">Order Summary</h2>
           <div class="od-summary-grid">
               <span class="od-label">Subtotal:</span>
-              <span class="od-value"><%=orders.product.price%></span>
+              <span class="od-value">₹<%= orders.orderedItem.reduce((total, item) => total + (item.price * item.quantity), 0) %></span>
               
               <span class="od-label">Discount:</span>
-              <span class="od-value">-<%=orders.discount%></span>
+              <span class="od-value">₹-<%=orders.discount%></span>
               
               <span class="od-label">Shipping:</span>
               <span class="od-value">₹<%=orders.deliveryCharge%></span>

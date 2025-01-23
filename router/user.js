@@ -81,6 +81,7 @@ router.get('/checkout',userAuth,checkoutController.loadCheckout)
 router.post('/placeOrder',userAuth,checkoutController.placeOrder)
 router.get('/orderSuccess/:id',userAuth,checkoutController.loadSuccessPage)
 
+
 router.get('/profile',userAuth,profileController.loadProfile)
 router.put('/profile/update',userAuth,profileController.updateProfile)
 router.put('/profile/changePassword',userAuth,profileController.changePassword)
@@ -88,8 +89,9 @@ router.put('/profile/changePassword',userAuth,profileController.changePassword)
 
 router.get('/orderHistory',userAuth,orderController.loadOrderHistory)
 router.get('/orderDetails/:id',userAuth,orderController.loadOrderDetails)
-router.get('/orderCancel',userAuth,orderController.loadOrderCancel)
-router.get('/orderReturn/:id',userAuth,orderController.loadOrderReturn)
-
+router.get('/cancelOrder/:orderID/:productId',userAuth,orderController.loadOrderCancel)
+router.get('/returnOrder/:id',userAuth,orderController.loadOrderReturn)
+router.post('/cancelOrder/:orderID/:productId',userAuth,orderController.cancelOrder)
+router.post('/returnOrder/:id',userAuth,orderController.returnOrder)
 
 module.exports=router

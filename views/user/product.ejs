@@ -140,7 +140,7 @@
           <label for="star1">★</label>
         </div>
       </div>
-      <textarea name="review" placeholder="Write your review here..." required></textarea>
+      <textarea name="review" placeholder="Write your review here..." ></textarea>
       <button type="submit" class="submit-review">Submit Review</button>
     </form>
   </div>
@@ -226,45 +226,38 @@
     </div>
   </div>
 </section>
+
+
 <script>
 
-  // quantity increment and decrement
-  $(document).ready(function() {
-    // Quantity increment
-    $('.quantity-right-plus').click(function(e) {
-      e.preventDefault();
-      
-      // Get the closest quantity input field
-      var quantityInput = $(this).closest('.input-group').find('.input-number');
-      var quantity = parseInt(quantityInput.val());
-      var maxQuantity = parseInt(quantityInput.data('max-quantity'));
-      // Get the max quantity from the input field
+$(document).ready(function() {
+  // Quantity increment
+  $('.quantity-right-plus').click(function(e) {
+    e.preventDefault();
+    
+    var quantityInput = $(this).closest('.input-group').find('.input-number');
+    var quantity = parseInt(quantityInput.val());
+    var maxQuantity = parseInt(quantityInput.data('max-quantity'));
 
-      // If quantity is less than max, increment it
-      if (quantity < maxQuantity) {
-        quantityInput.val(quantity + 1);
-      }
-    });
-
-    // Quantity decrement
-    $('.quantity-left-minus').click(function(e) {
-      e.preventDefault();
-      
-      // Get the closest quantity input field
-      var quantityInput = $(this).closest('.input-group').find('.input-number');
-      var quantity = parseInt(quantityInput.val());
-      
-      // If quantity is greater than 1, decrement it
-      if (quantity > 1) {
-        quantityInput.val(quantity - 1);
-      }
-    });
+    if (quantity < maxQuantity) {
+      quantityInput.val(quantity + 1);
+    }
   });
 
+  // Quantity decrement
+  $('.quantity-left-minus').click(function(e) {
+    e.preventDefault();
+    
+    var quantityInput = $(this).closest('.input-group').find('.input-number');
+    var quantity = parseInt(quantityInput.val());
+    
+    if (quantity > 1) {
+      quantityInput.val(quantity - 1);
+    }
+  });
+});
 
-
-//review code
-
+// Review Submission
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('reviewForm');
   
@@ -279,32 +272,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const formData = new FormData(e.target);
     const productId = form.dataset.productId;
     const rating = formData.get('rating');
-     const review = formData.get('review');
+    const review = formData.get('review');
     
-     console.log('Form Data:', {
-    productId,
-    rating: formData.get('rating'),
-    review: formData.get('review')
-  });
+    if (!rating) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please select a rating!'
+      });
+      return;
+    }
 
-     if (!rating) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Please select a rating!'
-    });
-    return;
-  }
-
-  if (!review.trim()) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Oops...',
-      text: 'Please write a review!'
-    });
-    return;
-  }
-
+    if (!review.trim()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Please write a review!'
+      });
+      return;
+    }
 
     if (!productId) {
       console.error('Product ID not found');
@@ -351,47 +337,43 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-
-
-// Zoom property
+// Image Zoom
 document.addEventListener('DOMContentLoaded', () => {
-    const zoomContainers = document.querySelectorAll('.zoom-container');
+  const zoomContainers = document.querySelectorAll('.zoom-container');
 
-    zoomContainers.forEach(container => {
-      const img = container.querySelector('.zoom-img');
+  zoomContainers.forEach(container => {
+    const img = container.querySelector('.zoom-img');
 
-      if (img) {
-        container.addEventListener('mousemove', (e) => {
-          const { left, top, width, height } = container.getBoundingClientRect();
-          const x = ((e.clientX - left) / width) * 100;
-          const y = ((e.clientY - top) / height) * 100;
+    if (img) {
+      container.addEventListener('mousemove', (e) => {
+        const { left, top, width, height } = container.getBoundingClientRect();
+        const x = ((e.clientX - left) / width) * 100;
+        const y = ((e.clientY - top) / height) * 100;
 
-          img.style.transformOrigin = `${x}% ${y}%`;
-          img.style.transform = 'scale(2)'; // Adjust scale as needed
-        });
+        img.style.transformOrigin = `${x}% ${y}%`;
+        img.style.transform = 'scale(2)';
+      });
 
-        container.addEventListener('mouseleave', () => {
-          img.style.transform = 'scale(1)';
-          img.style.transformOrigin = 'center center';
-        });
-      }
-    });
+      container.addEventListener('mouseleave', () => {
+        img.style.transform = 'scale(1)';
+        img.style.transformOrigin = 'center center';
+      });
+    }
   });
+});
 
-
-//add related product to the cart
+// Add to Cart for Related Products
 document.addEventListener('DOMContentLoaded', () => {
-  // Event listener for the buy-now button
-  const buyNowButtons = document.querySelectorAll('.buy-now');
+  const relatedProductButtons = document.querySelectorAll('.buy-now');
 
-  buyNowButtons.forEach(button => {
+  relatedProductButtons.forEach(button => {
     button.addEventListener('click', async (event) => {
-      event.preventDefault(); // Prevent default anchor behavior
+      event.preventDefault();
 
-      const productId = button.getAttribute('data-product-id'); // Fetch product ID
+      const productId = button.getAttribute('data-product-id');
 
       if (!productId) {
-        alert('Invalid product selected'); // Handle missing product ID
+        Swal.fire('Invalid product selected');
         return;
       }
 
@@ -401,14 +383,14 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ productId, quantity: 1 }), // Default quantity is 1
+          body: JSON.stringify({ productId, quantity: 1 }),
         });
 
         const data = await response.json();
 
         if (data.success) {
-          Swal.fire('Product added to cart successfully'); // Notify the user
-          // Update the cart count, if provided in response
+          Swal.fire('Product added to cart successfully');
+          
           if (data.cartCount !== undefined) {
             const cartCountElement = document.getElementById('cart-count');
             if (cartCountElement) {
@@ -416,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } else {
-          Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
+          Swal.fire(data.message || 'Failed to add product to cart');
         }
       } catch (error) {
         console.error('Add to cart error:', error);
@@ -426,18 +408,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+// Add to Cart for Main Product
 document.addEventListener('DOMContentLoaded', () => {
-  // Event listener for the buy-now button
-  const buyNowButtons = document.querySelectorAll('.btn');
+  const mainProductButton = document.querySelector('.btn-black[data-product-id]');
 
-  buyNowButtons.forEach(button => {
-    button.addEventListener('click', async (event) => {
-      event.preventDefault(); // Prevent default anchor behavior
+  if (mainProductButton) {
+    mainProductButton.addEventListener('click', async (event) => {
+      event.preventDefault();
 
-      const productId = button.getAttribute('data-product-id'); // Fetch product ID
+      const productId = mainProductButton.getAttribute('data-product-id');
+      const quantity = parseInt(document.getElementById('quantity').value) || 1;
 
       if (!productId) {
-        alert('Invalid product selected'); // Handle missing product ID
+        Swal.fire('Invalid product selected');
         return;
       }
 
@@ -447,14 +430,14 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ productId, quantity: 1 }), // Default quantity is 1
+          body: JSON.stringify({ productId, quantity }),
         });
 
         const data = await response.json();
 
         if (data.success) {
-          Swal.fire('Product added to cart successfully'); // Notify the user
-          // Update the cart count, if provided in response
+          Swal.fire('Product added to cart successfully');
+          
           if (data.cartCount !== undefined) {
             const cartCountElement = document.getElementById('cart-count');
             if (cartCountElement) {
@@ -462,13 +445,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           }
         } else {
-          Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
+          Swal.fire(data.message || 'Failed to add product to cart');
         }
       } catch (error) {
         console.error('Add to cart error:', error);
         Swal.fire('An error occurred while adding the product to the cart');
       }
     });
-  });
+  }
 });
+
 </script>

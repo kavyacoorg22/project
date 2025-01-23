@@ -41,3 +41,62 @@
       </div>
   </main>
 </div>
+
+<script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const returnButton = document.querySelector('.return-button');
+  const reasonTextarea = document.querySelector('.return-reason-textarea');
+
+  if (returnButton && returnReasonTextarea) {
+    returnButton.addEventListener('click', async () => {
+      const returnReason = returnReasonTextarea.value.trim();
+
+      if (!returnReason) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops...',
+          text: 'Please provide a reason for return'
+        });
+        return;
+      }
+
+      try {
+        const response = await fetch(`/user/returnOrder/${orderID}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ 
+            reason: returnReason 
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Return Request',
+            text: 'Your return request has been submitted'
+          }).then(() => {
+            window.location.href = '/user/orders';
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Return Failed',
+            text: result.message || 'Unable to process return'
+          });
+        }
+      } catch (error) {
+        console.error('Return error:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while processing your request'
+        });
+      }
+    });
+  }});
+</script>
