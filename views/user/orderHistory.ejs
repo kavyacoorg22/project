@@ -19,7 +19,7 @@
   <div class="layout-wrapper">
     <aside class="sidebar">
       <a href="/user/profile"><span>Profile</span></a>
-      <a href="#" ><span>Address</span></a>
+      <a href="/user/address" ><span>Address</span></a>
       <a href="#"class="active"><span>Order</span></a>
       <a href="#"><span>Wallet</span></a>
       <a href="#" class="logout"><span>Logout</span></a>
@@ -29,57 +29,77 @@
       <div class="oh-container">
         <h1 class="oh-main-title">Order History</h1>
   
-  <div class="oh-section oh-failed-section">
-    <h2 class="oh-section-title oh-failed-title">Failed Order</h2>
-    <div class="oh-table-wrapper">
-      <table class="oh-table">
-        <thead>
-          <tr>
-            <th>PRODUCT COUNT</th>
-            <th>ORDERID</th>
-            <th>DATE</th>
-            <th>TOTAL</th>
-            <th>DISCOUNT</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="oh-product-count">1 Product</td>
-            <td class="oh-order-id">ORD173737536713</td>
-            <td class="oh-date">1/20/2025, 12:16:08 PM</td>
-            <td class="oh-total">₹14,719</td>
-            <td class="oh-discount">1,280</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="oh-section oh-placed-section">
-    <h2 class="oh-section-title oh-placed-title">Placed Order</h2>
-    <div class="oh-table-wrapper">
-      <table class="oh-table">
-        <thead>
-          <tr>
-            <th>PRODUCT COUNT</th>
-            <th>ORDERID</th>
-            <th>DATE</th>
-            <th>TOTAL</th>
-            <th>DISCOUNT</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td class="oh-product-count">1 Product</td>
-            <td class="oh-order-id">ORD173721740702</td>
-            <td class="oh-date">1/18/2025, 4:32:20 PM</td>
-            <td class="oh-total">₹46,999</td>
-            <td class="oh-discount">13,000</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        <div class="oh-section oh-failed-section">
+          <h2 class="oh-section-title oh-failed-title">Failed Order</h2>
+          <div class="oh-table-wrapper">
+              <table class="oh-table">
+                  <thead>
+                      <tr>
+                          <th>PRODUCT COUNT</th>
+                          <th>ORDERID</th>
+                          <th>DATE</th>
+                          <th>TOTAL</th>
+                          <th>DISCOUNT</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <% if (failedOrders && failedOrders.length > 0) { %>
+                          <% failedOrders.forEach(order => { %>
+                            
+                              <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
+                                  <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
+                                  <td class="oh-order-id"><%= order.orderId %></td>
+                                  <td class="oh-date"><%= order.date %></td>
+                                  <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
+                                  <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
+                              </tr>
+                          <% }); %>
+                      <% } else { %>
+                          <tr>
+                              <td colspan="5" class="no-orders">No failed orders</td>
+                          </tr>
+                        <
+                      <% } %>
+                  </tbody>
+              </table>
+          </div>
+      </div>
+      
+      <div class="oh-section oh-placed-section">
+          <h2 class="oh-section-title oh-placed-title">Placed Order</h2>
+          <div class="oh-table-wrapper">
+              <table class="oh-table">
+                  <thead>
+                      <tr>
+                          <th>PRODUCT COUNT</th>
+                          <th>ORDERID</th>
+                          <th>DATE</th>
+                          <th>TOTAL</th>
+                          <th>DISCOUNT</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      <% if (placedOrders && placedOrders.length > 0) { %>
+                          <% placedOrders.forEach(order => { %>
+                          
+                              <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
+                                  <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
+                                  <td class="oh-order-id"><%= order.orderId %></td>
+                                  <td class="oh-date"><%= order.date %></td>
+                                  <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
+                                  <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
+                              </tr>
+                          <% }); %>
+                      <% } else { %>
+                          <tr>
+                              <td colspan="5" class="no-orders">No placed orders</td>
+                          </tr>
+                        
+                      <% } %>
+                  </tbody>
+              </table>
+          </div>
+      </div>
 </div>
 </main>
 </div>

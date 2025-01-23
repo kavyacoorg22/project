@@ -87,7 +87,7 @@ router.put('/profile/changePassword',userAuth,profileController.changePassword)
 
 
 router.get('/orderHistory',userAuth,orderController.loadOrderHistory)
-router.get('/orderDetails',userAuth,orderController.loadOrderDetails)
+router.get('/orderDetails/:id',userAuth,orderController.loadOrderDetails)
 router.get('/orderCancel',userAuth,orderController.loadOrderCancel)
 router.get('/orderReturn/:id',userAuth,orderController.loadOrderReturn)
 

@@ -17,7 +17,7 @@
 <div class="layout-wrapper">
   <aside class="sidebar">
       <a href="/user/profile"><span>Profile</span></a>
-      <a href="#"><span>Address</span></a>
+      <a href="/user/address"><span>Address</span></a>
       <a href="#" class="active"><span>Order</span></a>
       <a href="#"><span>Wallet</span></a>
       <a href="#" class="logout"><span>Logout</span></a>
@@ -26,24 +26,24 @@
   <div class="od-container">
       <div class="od-thank-you">
           <h1 class="od-thank-you-title">Thank You for Your Purchase!</h1>
-          <p class="od-order-status">Your order is pending. Order ID: <span class="od-order-id">ORD173737536713</span></p>
+          <p class="od-order-status">Your order is pending. Order ID: <span class="od-order-id"><%=orders.orderID%></span></p>
       </div>
-
+   
       <div class="od-grid">
           <div class="od-info-section">
               <h2 class="od-info-title">Order Details</h2>
               <div class="od-info-grid">
                   <span class="od-label">Customer:</span>
-                  <span class="od-value">kavya</span>
+                  <span class="od-value"><%=orders.user.firstname%></span>
                   
                   <span class="od-label">Order Date:</span>
-                  <span class="od-value">1/20/2025, 12:16:08 PM</span>
+                  <span class="od-value"><%=orders.date%></span>
                   
                   <span class="od-label">Phone:</span>
-                  <span class="od-value">6363045986</span>
+                  <span class="od-value"><%=orders.user.number%></span>
                   
                   <span class="od-label">Payment Method:</span>
-                  <span class="od-value">UPI</span>
+                  <span class="od-value"><%=orders.paymentMethod%></span>
               </div>
           </div>
 
@@ -51,10 +51,13 @@
               <h2 class="od-info-title">Address Information</h2>
               <div class="od-info-grid">
                   <span class="od-label">Billing Address:</span>
-                  <span class="od-value">202 dayana house, cherambane, pin 574142, kodagu, Karnataka, India</span>
+                  <span class="od-value"><%=orders.deliveryAddress.firstname%><%=orders.deliveryAddress.lastname%>
+                    <%=orders.deliveryAddress.address%><%=orders.deliveryAddress.postalCode%><%=orders.deliveryAddress.mobile%>
+                    <%=orders.deliveryAddress.email%>
+                </span>
                   
                   <span class="od-label">Delivery Address:</span>
-                  <span class="od-value">202 dayana house, cherambane, pin 574142, kodagu, Karnataka, India</span>
+                  <span class="od-value"><%=orders. billingDetails%></span>
               </div>
           </div>
       </div>
@@ -74,15 +77,27 @@
                   </tr>
               </thead>
               <tbody>
-                  <tr>
-                      <td><img src="/api/placeholder/80/80" alt="iMac" class="od-product-img"></td>
-                      <td>iMac</td>
-                      <td><span class="od-status-pending">Payment Pending</span></td>
-                      <td>1</td>
-                      <td>₹14,719</td>
-                      <td>₹14,719</td>
-                      <td><button class="od-repayment-btn">Re-Payment</button></td>
+                <% orders.products.forEach(function(item) { %>
+                  <tr onclick="window.location.href='/user/product/<%= item.product._id %>'" style="cursor: pointer;">
+                    <td><img src="/img/productsimg/<%=item.product.images[0]%>" alt="<%=item.product.name%>" class="od-product-img"></td>
+                    <td><%=item.product.name%></td>
+                    <td><span class="od-status-<%=orders.status.toLowerCase()%>"><%=orders.status%></span></td>
+                    <td><%=item.quantity%></td>
+                    <td>₹<%=item.product.price%></td>
+                    <td>₹<%=item.product.price * item.quantity%></td>
+                    <td>
+                      <% if (orders.status === 'Pending') { %>
+                        <button class="od-cancel-btn">Cancel Order</button>
+                      <% } else if (orders.status === 'Shipping') { %>
+                        <span class="od-shipping-text">Cancellation of this order is not possible once it has been shipped.</span>
+                      <% } else if (orders.status === 'Delivered') { %>
+                        <button class="od-return-btn">Return</button>
+                      <% } else if (orders.status === 'Payment Pending') { %>
+                        <button class="od-repayment-btn">Re-Payment</button>
+                      <% } %>
+                    </td>
                   </tr>
+                <% }); %>
               </tbody>
           </table>
       </div>
@@ -91,16 +106,16 @@
           <h2 class="od-info-title">Order Summary</h2>
           <div class="od-summary-grid">
               <span class="od-label">Subtotal:</span>
-              <span class="od-value">₹15,999</span>
+              <span class="od-value"><%=orders.product.price%></span>
               
               <span class="od-label">Discount:</span>
-              <span class="od-value">-₹1,280</span>
+              <span class="od-value">-<%=orders.discount%></span>
               
               <span class="od-label">Shipping:</span>
-              <span class="od-value">₹0</span>
+              <span class="od-value">₹<%=orders.deliveryCharge%></span>
               
               <div class="od-label od-summary-total">Total:</div>
-              <div class="od-value od-summary-total">₹14,719</div>
+              <div class="od-value od-summary-total">₹<%=orders.totalAmount%></div>
           </div>
       </div>
   </div>

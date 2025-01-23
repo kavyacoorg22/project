@@ -74,7 +74,6 @@ const placeOrder = async (req, res) => {
         const { addressId, paymentMethod, billing } = req.body;
         const userId = req.user._id;
 
-        // Validate required fields
         if (!addressId || !billing) {
             throw new Error('Missing required fields');
         }
@@ -112,8 +111,10 @@ const placeOrder = async (req, res) => {
         const discount = 0;
         const finalAmount = cartTotal + deliveryCharge - discount;
 
-        // Create order
+        const orderID = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
+       
         const order = await orderModel.create({
+            orderID,
             user: userId,
             deliveryAddress: addressId,
             billingDetails: billing,
@@ -126,7 +127,6 @@ const placeOrder = async (req, res) => {
             orderDate: new Date()
         });
 
-        // Update product quantities
         await Promise.all(validProducts.map(item =>
             productModel.findByIdAndUpdate(
                 item.product,
@@ -134,7 +134,6 @@ const placeOrder = async (req, res) => {
             )
         ));
 
-        // Clear cart
         await cartModel.findOneAndDelete({ user: userId });
 
         res.json({ 
@@ -151,7 +150,6 @@ const placeOrder = async (req, res) => {
         });
     }
 };
-
 
 
 const loadSuccessPage = async (req, res) => {
