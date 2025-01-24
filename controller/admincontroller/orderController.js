@@ -1,4 +1,5 @@
 const orderModel = require('../../model/userModel/orderModel')
+const productModel=require('../../model/adminModel/productModel')
 
 const loadOrder = async (req, res) => {
   try {
@@ -56,10 +57,41 @@ const updateStatus = async (req, res) => {
         message: 'Order or Item not found' 
       });
     }
-
+//find perticular product
     const updatedItem = updatedOrder.orderedItem.find(
       item => item._id.toString() === itemId
     );
+
+    if (status === 'canceled') {
+      
+    await productModel.findOneAndUpdate(
+        { _id: updatedItem.productId },
+        { 
+          $inc: { quantity: updatedItem.quantity },
+          $set: { stock: updatedItem.quantity }
+        },
+        { new: true }
+      );
+    }
+
+     // Check if all items are canceled or returned
+     const allItemsCanceledOrReturned = updatedOrder.orderedItem.every(
+      item => item.status === 'canceled' || item.status === 'returned'
+    );
+
+    // Update order status if all items are canceled/returned
+    if (allItemsCanceledOrReturned) {
+      const newOrderStatus = updatedOrder.orderedItem.some(
+        item => item.status === 'canceled'
+      ) ? 'canceled' : 'returned';
+
+      await orderModel.findOneAndUpdate(
+        { orderID: orderId },
+        { $set: { status: newOrderStatus } }
+      );
+    }
+
+  
 
     res.json({ 
       success: true, 
@@ -75,30 +107,14 @@ const updateStatus = async (req, res) => {
   }
 }
 
-const deleteOrder = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    
-    const deletedOrder = await orderModel.findOneAndDelete({ orderID: orderId });
-
-    if (!deletedOrder) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Order not found' 
-      });
-    }
-
-    res.json({ 
-      success: true, 
-      message: 'Order deleted successfully' 
-    });
-  } catch (error) {
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error deleting order', 
-      error: error.message 
-    });
+const viewOrder=async(req,res)=>{
+  try{
+    re.render('admin/viewOrder',{title:"ViewOrder",csspage:"viewOrder.css"})
+  }catch(err)
+  {
+    console.log(err)
   }
 }
 
-module.exports = { loadOrder, updateStatus, deleteOrder }
+
+module.exports = { loadOrder, updateStatus, viewOrder }

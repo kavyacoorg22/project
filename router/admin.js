@@ -42,8 +42,8 @@ router.post('/updateStatus',adminAuth.checkSession,userController.updateStatus)
 
 
 router.get('/order',adminAuth.checkSession,orderController.loadOrder)
-router.post('/order/updateStatus/:orderId/:itemId', orderController.updateStatus);
-router.delete('/delete/:orderId', orderController.deleteOrder);
+router.post('/order/updateStatus/:orderId/:itemId',adminAuth.checkSession, orderController.updateStatus);
+router.get('/order/viewOrder/:orderId', adminAuth.checkSession,orderController.viewOrder);
 
 router.use((err, req, res, next) => {
   console.error('Route error:', err);

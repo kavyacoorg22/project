@@ -4,6 +4,48 @@
  * Copyright 2011-2018 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
+
+ .filter-section {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.filter-group {
+  margin-bottom: 15px;
+}
+
+.filter-group h6 {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color:rgba(118, 175, 11, 0.897);
+}
+
+.filter-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.filter-group input {
+  margin-right: 8px;
+}
+
+/* Ensure proper alignment */
+.row {
+  margin-left: -15px;
+  margin-right: -15px;
+}
+
+.col-lg-3,
+.col-lg-9 {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
 :root {
   --blue: #007bff;
   --indigo: #6610f2;

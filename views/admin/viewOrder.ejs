@@ -1,0 +1,93 @@
+
+<div class="layout-wrapper">
+
+
+  <div class="od-container">
+      <div class="od-thank-you">
+          <h1 class="od-thank-you-title">Thank You for Your Purchase!</h1>
+          <p class="od-order-status">Your order is <%=orders.status%>. Order ID: <span class="od-order-id"><%=orders.orderID%></span></p>
+      </div>
+   
+      <div class="od-grid">
+          <div class="od-info-section">
+              <h2 class="od-info-title">Order Details</h2>
+              <div class="od-info-grid">
+                  <span class="od-label">Customer:</span>
+                  <span class="od-value"><%=orders.user.firstname%></span>
+                  
+                  <span class="od-label">Order Date:</span>
+                  <span class="od-value"><%=orders.orderDate.toLocaleString()%></span>
+                  
+                  <span class="od-label">Phone:</span>
+                  <span class="od-value"><%=orders.user.number%></span>
+                  
+                  <span class="od-label">Payment Method:</span>
+                  <span class="od-value"><%=orders.paymentMethod%></span>
+              </div>
+          </div>
+
+          <div class="od-info-section">
+              <h2 class="od-info-title">Address Information</h2>
+              <div class="od-info-grid">
+                  <span class="od-label">Billing Address:</span>
+                  <span class="od-value"><%=orders.billingDetails.firstName%><%=orders.billingDetails.lastName%>
+                    <%=orders.billingDetails.address%><%=orders.billingDetails.postalCode%><%=orders.billingDetails.mobile%>
+                    <%=orders.billingDetails.email%>
+                  </span>
+                  
+                  <span class="od-label">Delivery Address:</span>
+                  <span class="od-value"><%=orders.deliveryAddress.firstname%><%=orders.deliveryAddress.lastname%>
+                    <%=orders.deliveryAddress.address%><%=orders.deliveryAddress.postalCode%><%=orders.deliveryAddress.mobile%>
+                    <%=orders.deliveryAddress.email%></span>
+              </div>
+          </div>
+      </div>
+
+      <div class="od-items-section">
+          <h2 class="od-items-title">Order Items</h2>
+          <table class="od-table">
+              <thead>
+                  <tr>
+                      <th>Image</th>
+                      <th>Product</th>
+                      <th>Status</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
+                      <th>Total</th>
+                     
+                  </tr>
+              </thead>
+              <tbody>
+                <% orders.orderedItem.forEach(function(item) { %>
+                  <tr onclick="window.location.href='/user/product/<%= item.product._id %>'" style="cursor: pointer;">
+                    <td><img src="/img/productsimg/<%=item.firstImage%>" alt="<%=item.name%>" class="od-product-img"></td>
+                    <td><%=item.name%></td>
+                    <td><span class="od-status-<%=orders.status.toLowerCase()%>"><%=item.status%></span></td>
+                    <td><%=item.quantity%></td>
+                    <td>₹<%=item.price%></td>
+                    <td>₹<%=item.price * item.quantity%></td>
+                    
+                  </tr>
+                <% }); %>
+              </tbody>
+          </table>
+      </div>
+
+      <div class="od-summary-section">
+          <h2 class="od-info-title">Order Summary</h2>
+          <div class="od-summary-grid">
+              <span class="od-label">Subtotal:</span>
+              <span class="od-value">₹<%= orders.orderedItem.reduce((total, item) => total + (item.price * item.quantity), 0) %></span>
+              
+              <span class="od-label">Discount:</span>
+              <span class="od-value">₹-<%=orders.discount%></span>
+              
+              <span class="od-label">Shipping:</span>
+              <span class="od-value">₹<%=orders.deliveryCharge%></span>
+              
+              <div class="od-label od-summary-total">Total:</div>
+              <div class="od-value od-summary-total">₹<%=orders.totalAmount%></div>
+          </div>
+      </div>
+  </div>
+</div>

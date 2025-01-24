@@ -119,7 +119,8 @@ const loadEditproduct=async(req,res)=>
           price,
           quantity,
           status,
-          images
+          images,
+          stoke:quantity,
       });
 
       await product.save();
@@ -195,7 +196,9 @@ const editproduct = async (req, res) => {
       category,
       price: Number(price),
       quantity: Number(quantity),
-      status
+      status,
+      stock:Number(quantity),
+      
     };
 
     // Handle image upload

@@ -23,14 +23,13 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-6 mb-5 ftco-animate">
-        <!-- Product Image Slider -->
         <div id="product-slider" class="carousel slide" data-ride="carousel">
           <ol class="carousel-indicators">
             <% product.images.forEach((image, index) => { %>
               <li data-target="#product-slider" data-slide-to="<%= index %>" class="<%= index === 0 ? 'active' : '' %>"></li>
             <% }) %>
           </ol>
-
+ 
           <div class="carousel-inner">
             <% product.images.forEach((image, index) => { %>
               <div class="carousel-item <%= index === 0 ? 'active' : '' %>">
@@ -43,7 +42,7 @@
               </div>
             <% }) %>
           </div>
-
+ 
           <a class="carousel-control-prev" href="#product-slider" role="button" data-slide="prev">
             <span class="carousel-control-prev-icon" aria-hidden="true"></span>
             <span class="sr-only">Previous</span>
@@ -54,11 +53,16 @@
           </a>
         </div>
       </div>
-
-
-   <!-- product details -->
+ 
       <div class="col-lg-6 product-details pl-md-5 ftco-animate">
         <h3><%=product.name%></h3>
+        <% if(product.stock <= 10) { %>
+          <span class="stock-badge product-stock-badge product-low-stock">Low Stock: <%=product.stock%></span>
+        <% } else if(product.stock > 10 && product.stock<= 50) { %>
+          <span class="stock-badge product-stock-badge product-medium-stock">Stock: <%=product.stock%></span>
+        <% } else { %>
+          <span class="stock-badge product-stock-badge product-high-stock">In Stock: <%=product.stock%></span>
+        <% } %>
         <div class="rating d-flex">
           <p class="text-left mr-4">
             <a href="#" class="mr-2">5.0</a>
@@ -68,18 +72,23 @@
             <a href="#"><span class="ion-ios-star-outline"></span></a>
             <a href="#"><span class="ion-ios-star-outline"></span></a>
           </p>
-         </div>
+          
+        </div>
         <div>
           <%if(product.category.name!=='Juice'){%>
-          <p class="price" style="color: #000;"><span>₹<%=product.price%> / KG</span></p>
+          <p class="price" style="color: #000; display: flex; align-items: center;">
+            <span>₹<%=product.price%> / KG</span>
+            
+          </p>
           <%}else{%>
-            <p class="price"style="color: #000;"><span>₹<%=product.price%> / Bottel</span></p>
-            <%}%>
+          <p class="price" style="color: #000; display: flex; align-items: center;">
+            <span>₹<%=product.price%> / Bottel</span>
+            
+          </p>
+          <%}%>
         </div>
-        <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Text should turn around and return to its own, safe country. But nothing the copy said could convince her and so it didn’t take long until.
-        </p>
+        <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Text should turn around and return to its own, safe country. But nothing the copy said could convince her and so it didn't take long until.</p>
         <div class="row mt-4">
-          
           <div class="w-100"></div>
           <div class="input-group col-md-6 d-flex mb-3">
              <span class="input-group-btn mr-2">
@@ -88,7 +97,6 @@
                 </button>
               </span>
               <input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" data-max-quantity="<%=product.quantity%>">
-
              <span class="input-group-btn ml-2">
                 <button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
                    <i class="ion-ios-add"></i>
@@ -97,26 +105,25 @@
           </div>
           <div class="w-100"></div>
           <div class="col-md-12">
-           <%if(product.category.name!=='Juice'){%>   <!--quantity availabel-->
+           <%if(product.category.name!=='Juice'){%>
              <p style="color: #000;"><%=product.quantity%> kg available</p>
+           
               <%}else{%>
               <p style="color: #000;"><%=product.quantity%> bottel available</p>
+              
             <%}%>
-             
-             
           </div>
         </div>
-        <%if(product.status==='In-stock'){%>  <!--stock notify-->
+        <%if(product.status==='In-stock'){%>
         <p><a href="/user/cart" class="btn btn-black py-3 px-5" data-product-id="<%= product._id %>">Add to Cart</a></p>
         <%}else if(product.status==='Out-of-stock'){%>
           <p><a href="cart.html" class="btn-notify">Notify me</a></p>
           <%}%>
       </div>
-        
-      </div>
     </div>
   </div>
-</section>
+ </section>
+ 
 
 <!-- review section -->
 <section>

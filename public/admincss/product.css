@@ -6,6 +6,21 @@
 /* .main-content {
 } */
 
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.status-select {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  min-width: 150px;
+}
+
 .content-header {
   display: flex;
   justify-content: space-between;

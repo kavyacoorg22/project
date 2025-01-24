@@ -41,7 +41,19 @@ status: {
   enum: ['In-stock', 'Out-of-stock'], 
   default: 'In-stock' 
 },
+stock:{
+  type:Number,
+  
+},
 isDeleted: { type: Boolean, default: false },
 },{timestamps:true})
+
+productShema.pre("save", function (next) {
+  if (this.stock !== undefined) {
+    this.status = this.stock > 0 ? "In-stock" : "Out-of-stock";
+  }
+  next();
+});
+
 
 module.exports=mongoose.model('product',productShema)

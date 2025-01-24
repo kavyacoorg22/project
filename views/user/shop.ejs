@@ -1,149 +1,288 @@
 <div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
-  <div class="container">
-    <div class="row no-gutters slider-text align-items-center justify-content-center">
-      <div class="col-md-9 ftco-animate text-center">
-        <p class="breadcrumbs">
-          <span class="mr-2"><a href="/user/home">Home</a></span> 
-          <% if(currentPage !== 'Home') { %>
-              <span><%= currentPage %></span>
-          <% } %>
-      </p>
-        <h1 class="mb-0 bread">Products</h1>
+    <div class="container">
+      <div class="row no-gutters slider-text align-items-center justify-content-center">
+        <div class="col-md-9 ftco-animate text-center">
+          <p class="breadcrumbs">
+            <span class="mr-2"><a href="/user/home">Home</a></span> 
+            <% if(currentPage !== 'Home') { %>
+                <span><%= currentPage %></span>
+            <% } %>
+        </p>
+          <h1 class="mb-0 bread">Products</h1>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-
-
-<section class="ftco-section">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-10 mb-5 text-center">
-        <ul class="product-category">
-          <li><a href="/user/shop" class="<%= !selectedCategory ? 'active' : '' %>">All</a></li>
-          <%categories.forEach(category=>{%>
-          <li><a href="/user/shop?category=<%=category._id%>" class="<%= selectedCategory === category._id.toString() ? 'active' : '' %>"><%=category.name%></a></li>
-          <%})%>
-        </ul>
-      </div>
-    </div>
-    
-   <div class="row">
-      <% if (products.length === 0) { %>
-        <div class="col-12 text-center">
-          <p>No products found in this category.</p>
+  
+  
+  <section class="ftco-section">
+    <div class="container">
+      <div class="row">
+        <!-- Filter Section -->
+        <div class="col-lg-3 col-md-4 filter-section">
+          <h5>Filters</h5>
+          <hr>
+          <!-- Stock Filter -->
+          <div class="filter-group">
+            <h6>Stock</h6>
+            <label>
+              <input type="checkbox" id="stock-in" value="in-stock"> In Stock
+            </label>
+            <label>
+              <input type="checkbox" id="stock-out" value="out-of-stock"> Out of Stock
+            </label>
+          </div>
+          <!-- Price Filter -->
+          <div class="filter-group">
+            <h6>Price</h6>
+            <label>
+              <input type="radio" name="price-sort" value="low-to-high"> Price: Low to High
+            </label>
+            <label>
+              <input type="radio" name="price-sort" value="high-to-low"> Price: High to Low
+            </label>
+          </div>
+          <!-- New Arrivals -->
+          <div class="filter-group">
+            <h6>New Arrivals</h6>
+            <label>
+              <input type="radio" name="sort" value="new-arrivals"> New Arrivals
+            </label>
+          </div>
+          <!-- Alphabetical Sorting -->
+          <div class="filter-group">
+            <h6>Alphabetical</h6>
+            <label>
+              <input type="radio" name="alphabetical" value="a-to-z"> A - Z
+            </label>
+            <label>
+              <input type="radio" name="alphabetical" value="z-to-a"> Z - A
+            </label>
+          </div>
+          <!-- Average Ratings -->
+          <div class="filter-group">
+            <h6>Average Ratings</h6>
+            <label>
+              <input type="radio" name="ratings" value="high-to-low"> High to Low
+            </label>
+            <label>
+              <input type="radio" name="ratings" value="low-to-high"> Low to High
+            </label>
+          </div>
         </div>
-      <% } %>
-      <% products.forEach(product => { %>
-        <div class="col-md-6 col-lg-3 ftco-animate">
-          <div class="product">
-            <a href="/user/product/<%= product._id %>" class="img-prod">
-              <img 
-                class="img-fluid" 
-                src="/img/productsimg/<%= product.images[0] %>" 
-                alt="<%= product.name %>"
-                onerror="this.onerror=null; this.src='/public/images/placeholder.jpg';"
-              >
-              <div class="overlay"></div>
-            </a>
-            <div class="text py-3 pb-4 px-3 text-center">
-              <h3><a href="/user/product/<%= product._id %>"><%= product.name %></a></h3>
-              <div class="d-flex">
-                <div class="pricing">
-                  <p class="price">
-                    <% if (product.price) { %>
-                      <span class="price-sale">₹<%= product.price %></span>
-                    <% } %>
-                  </p>
+  
+        <!-- Product Section -->
+        <div class="col-lg-9 col-md-8">
+          <div class="row justify-content-center">
+            <div class="col-md-10 mb-5 text-center">
+              <ul class="product-category">
+                <li><a href="/user/shop" class="<%= !selectedCategory ? 'active' : '' %>">All</a></li>
+                <% categories.forEach(category => { %>
+                <li>
+                  <a href="/user/shop?category=<%= category._id %>" 
+                     class="<%= selectedCategory === category._id.toString() ? 'active' : '' %>">
+                    <%= category.name %>
+                  </a>
+                </li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
+  
+          <div class="row">
+            <% if (products.length === 0) { %>
+              <div class="col-12 text-center">
+                <p>No products found in this category.</p>
+              </div>
+            <% } %>
+            <% products.forEach(product => { %>
+              <div class="col-md-6 col-lg-3 ftco-animate">
+                <div class="product">
+                  <a href="/user/product/<%= product._id %>" class="img-prod">
+                    <img 
+                      class="img-fluid" 
+                      src="/img/productsimg/<%= product.images[0] %>" 
+                      alt="<%= product.name %>"
+                      onerror="this.onerror=null; this.src='/public/images/placeholder.jpg';"
+                    >
+                    <div class="overlay"></div>
+                  </a>
+                  <div class="text py-3 pb-4 px-3 text-center">
+                    <h3><a href="/user/product/<%= product._id %>"><%= product.name %></a></h3>
+                    <div class="d-flex">
+                      <div class="pricing">
+                        <p class="price">
+                          <% if (product.price) { %>
+                            <span class="price-sale">₹<%= product.price %></span>
+                          <% } %>
+                        </p>
+                      </div>
+                    </div>
+                    <div class="bottom-area d-flex px-3">
+                      <div class="m-auto d-flex">
+                        <a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
+                          <span><i class="ion-ios-cart"></i></span>
+                        </a>
+                        <a href="#" class="heart d-flex justify-content-center align-items-center">
+                          <span><i class="ion-ios-heart"></i></span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="bottom-area d-flex px-3">
-                <div class="m-auto d-flex">
-                  <!-- <a href="/user/product/<%= product._id %>" class="add-to-cart d-flex justify-content-center align-items-center text-center">
-                    <span><i class="ion-ios-menu"></i></span>
-                  </a> -->
-                  <a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
-                    <span><i class="ion-ios-cart"></i></span>
-                  </a>
-                  <a href="#" class="heart d-flex justify-content-center align-items-center">
-                    <span><i class="ion-ios-heart"></i></span>
-                  </a>
-                </div>
+            <% }) %>
+          </div>
+  
+          <div class="row mt-5">
+            <div class="col text-center">
+              <div class="block-27">
+                <ul>
+                  <% if (page > 1) { %>
+                    <li>
+                      <a href="/user/shop?page=<%= page - 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">&lt;</a>
+                    </li>
+                  <% } %>
+                  <% for (let i = 1; i <= totalPages; i++) { %>
+                    <li class="<%= i === page ? 'active' : '' %>">
+                      <a href="/user/shop?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">
+                        <%= i %>
+                      </a>
+                    </li>
+                  <% } %>
+                  <% if (page < totalPages) { %>
+                    <li>
+                      <a href="/user/shop?page=<%= page + 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">&gt;</a>
+                    </li>
+                  <% } %>
+                </ul>
               </div>
             </div>
           </div>
         </div>
-      <% }) %>
-    </div>
-
-    <div class="row mt-5">
-      <div class="col text-center">
-        <div class="block-27">
-          <ul>
-            <% if (page > 1) { %>
-              <li><a href="/user/shop?page=<%= page - 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">&lt;</a></li>
-            <% } %>
-    
-            <% for (let i = 1; i <= totalPages; i++) { %>
-              <li class="<%= i === page ? 'active' : '' %>">
-                <a href="/user/shop?page=<%= i %><%= selectedCategory ? '&category=' + selectedCategory : '' %>"><%= i %></a>
-              </li>
-            <% } %>
-    
-            <% if (page < totalPages) { %>
-              <li><a href="/user/shop?page=<%= page + 1 %><%= selectedCategory ? '&category=' + selectedCategory : '' %>">&gt;</a></li>
-            <% } %>
-          </ul>
-        </div>
       </div>
     </div>
-  </div>
-</section>
-<script>
+  </section>
+  
+  <script>
+
 document.addEventListener('DOMContentLoaded', () => {
-  // Event listener for the buy-now button
-  const buyNowButtons = document.querySelectorAll('.buy-now');
+  const productsContainer = document.getElementById('products-container');
+  const stockInCheckbox = document.getElementById('stock-in');
+  const stockOutCheckbox = document.getElementById('stock-out');
+  const priceSortRadios = document.querySelectorAll('input[name="price-sort"]');
+  const sortRadios = document.querySelectorAll('input[name="sort"]');
+  const alphabeticalRadios = document.querySelectorAll('input[name="alphabetical"]');
+  const ratingsRadios = document.querySelectorAll('input[name="ratings"]');
 
-  buyNowButtons.forEach(button => {
-    button.addEventListener('click', async (event) => {
-      event.preventDefault(); // Prevent default anchor behavior
+  function applyFilters() {
+    const products = Array.from(document.querySelectorAll('.product'));
+    let filteredProducts = products;
 
-      const productId = button.getAttribute('data-product-id'); // Fetch product ID
+    // Stock Filter
+    if (stockInCheckbox.checked || stockOutCheckbox.checked) {
+      filteredProducts = filteredProducts.filter(product => {
+        const status = product.getAttribute('data-status');
+        return (stockInCheckbox.checked && status === 'In-stock') ||
+               (stockOutCheckbox.checked && status === 'Out-of-stock');
+      });
+    }
 
-      if (!productId) {
-        alert('Invalid product selected'); // Handle missing product ID
-        return;
-      }
+    // Price Sorting
+    const selectedPriceSort = Array.from(priceSortRadios).find(radio => radio.checked)?.value;
+    if (selectedPriceSort) {
+      filteredProducts.sort((a, b) => {
+        const priceA = parseFloat(a.getAttribute('data-price')) || 0;
+        const priceB = parseFloat(b.getAttribute('data-price')) || 0;
+        return selectedPriceSort === 'low-to-high' ? priceA - priceB : priceB - priceA;
+      });
+    }
 
-      try {
-        const response = await fetch('/user/cart/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productId, quantity: 1 }), // Default quantity is 1
-        });
+    // New Arrivals
+    const selectedSort = Array.from(sortRadios).find(radio => radio.checked)?.value;
+    if (selectedSort === 'new-arrivals') {
+      filteredProducts.sort((a, b) => {
+        const dateA = new Date(a.getAttribute('data-createdAt'));
+        const dateB = new Date(b.getAttribute('data-createdAt'));
+        return dateB - dateA; // Newest first
+      });
+    }
 
-        const data = await response.json();
+    // Alphabetical Sorting
+    const selectedAlphabetical = Array.from(alphabeticalRadios).find(radio => radio.checked)?.value;
+    if (selectedAlphabetical) {
+      filteredProducts.sort((a, b) => {
+        const nameA = a.querySelector('h3 a').textContent.trim().toLowerCase();
+        const nameB = b.querySelector('h3 a').textContent.trim().toLowerCase();
+        return selectedAlphabetical === 'a-to-z' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+      });
+    }
 
-        if (data.success) {
-          Swal.fire('Product added to cart successfully'); // Notify the user
-          // Update the cart count, if provided in response
-          if (data.cartCount !== undefined) {
-            const cartCountElement = document.getElementById('cart-count');
-            if (cartCountElement) {
-              cartCountElement.textContent = data.cartCount;
-            }
-          }
-        } else {
-          Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
+    // Ratings Sorting
+    const selectedRatings = Array.from(ratingsRadios).find(radio => radio.checked)?.value;
+    if (selectedRatings) {
+      filteredProducts.sort((a, b) => {
+        const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
+        const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
+        return selectedRatings === 'high-to-low' ? ratingB - ratingA : ratingA - ratingB;
+      });
+    }
+
+    // Update product display
+    products.forEach(product => product.style.display = 'none'); // Hide all products
+    filteredProducts.forEach(product => product.style.display = 'block'); // Show filtered products
+  }
+
+  // Attach event listeners
+  [stockInCheckbox, stockOutCheckbox, ...priceSortRadios, ...sortRadios, ...alphabeticalRadios, ...ratingsRadios]
+    .forEach(input => input.addEventListener('change', applyFilters));
+});
+
+
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Event listener for the buy-now button
+    const buyNowButtons = document.querySelectorAll('.buy-now');
+  
+    buyNowButtons.forEach(button => {
+      button.addEventListener('click', async (event) => {
+        event.preventDefault(); // Prevent default anchor behavior
+  
+        const productId = button.getAttribute('data-product-id'); // Fetch product ID
+  
+        if (!productId) {
+          alert('Invalid product selected'); // Handle missing product ID
+          return;
         }
-      } catch (error) {
-        console.error('Add to cart error:', error);
-        Swal.fire('An error occurred while adding the product to the cart');
-      }
+  
+        try {
+          const response = await fetch('/user/cart/add', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ productId, quantity: 1 }), // Default quantity is 1
+          });
+  
+          const data = await response.json();
+  
+          if (data.success) {
+            Swal.fire('Product added to cart successfully'); // Notify the user
+            // Update the cart count, if provided in response
+            if (data.cartCount !== undefined) {
+              const cartCountElement = document.getElementById('cart-count');
+              if (cartCountElement) {
+                cartCountElement.textContent = data.cartCount;
+              }
+            }
+          } else {
+            Swal.fire(data.message || 'Failed to add product to cart'); // Show backend error message
+          }
+        } catch (error) {
+          console.error('Add to cart error:', error);
+          Swal.fire('An error occurred while adding the product to the cart');
+        }
+      });
     });
   });
-});
-</script>
+  </script>
