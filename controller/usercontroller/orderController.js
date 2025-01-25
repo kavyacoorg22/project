@@ -85,6 +85,7 @@ const cancelOrder = async (req, res) => {
   try {
     const { orderID, productId } = req.params;
     const { cancelReason } = req.body;
+    console.log(req.body)
 
     if (!orderID || !productId) {
       return res.status(400).json({ 
@@ -96,7 +97,9 @@ const cancelOrder = async (req, res) => {
     const order = await orderModel.findOneAndUpdate(
       { 
         orderID: orderID,
-        'orderedItem.product': productId
+        'orderedItem.product': productId,
+      
+        
       },
       { 
         $set: { 

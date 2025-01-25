@@ -16,7 +16,7 @@ const loadOrder = async (req, res) => {
                                               .limit(limit);
             
                 // Total products for pagination
-                const totalorder = await orderModel.countDocuments({isDeleted:false});
+                const totalorder = await orderModel.countDocuments({});
                 const totalPages = Math.ceil(totalorder / limit);
     
     
@@ -61,19 +61,8 @@ const updateStatus = async (req, res) => {
     const updatedItem = updatedOrder.orderedItem.find(
       item => item._id.toString() === itemId
     );
-
-    if (status === 'canceled') {
-      
-    await productModel.findOneAndUpdate(
-        { _id: updatedItem.productId },
-        { 
-          $inc: { quantity: updatedItem.quantity },
-          $set: { stock: updatedItem.quantity }
-        },
-        { new: true }
-      );
-    }
-
+    
+   
      // Check if all items are canceled or returned
      const allItemsCanceledOrReturned = updatedOrder.orderedItem.every(
       item => item.status === 'canceled' || item.status === 'returned'
@@ -98,6 +87,21 @@ const updateStatus = async (req, res) => {
       message: 'Item status updated', 
       item: updatedItem 
     });
+
+
+    if (status === 'canceled') {
+     
+      await productModel.findOneAndUpdate(
+          { _id: updatedItem.productId },
+          { 
+            $inc: { quantity: updatedItem.quantity },
+            $inc:{stock:updatedItem.quantity}
+          },
+          { new: true }
+        );
+      }
+  
+
   } catch (error) {
     res.status(500).json({ 
       success: false, 
@@ -108,12 +112,23 @@ const updateStatus = async (req, res) => {
 }
 
 const viewOrder=async(req,res)=>{
-  try{
-    re.render('admin/viewOrder',{title:"ViewOrder",csspage:"viewOrder.css"})
-  }catch(err)
-  {
-    console.log(err)
-  }
+  
+   try {
+     
+      const orderId = req.params.orderId;
+      const orders = await orderModel.findOne({ orderID: orderId })
+        .populate('deliveryAddress')
+        .populate('user','firstname number ')
+        .populate('billingDetails')
+        
+      if (!orders) {
+        return res.status(404).send('Order not found');
+      }
+      
+      res.render('admin/viewOrder',{title:"ViewOrder",csspage:"viewOrder.css",orders,layout: './layout/admin-layout',})
+    } catch (err) {
+      res.status(500).send(err.message);
+    }
 }
 
 

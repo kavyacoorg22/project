@@ -26,10 +26,10 @@
           <div class="filter-group">
             <h6>Stock</h6>
             <label>
-              <input type="checkbox" id="stock-in" value="in-stock"> In Stock
+              <input type="checkbox" id="stock-in" value="In-stock"> In-stock
             </label>
             <label>
-              <input type="checkbox" id="stock-out" value="out-of-stock"> Out of Stock
+              <input type="checkbox" id="stock-out" value="Out-of-stock"> Out-of-stock
             </label>
           </div>
           <!-- Price Filter -->
@@ -165,80 +165,6 @@
   </section>
   
   <script>
-
-document.addEventListener('DOMContentLoaded', () => {
-  const productsContainer = document.getElementById('products-container');
-  const stockInCheckbox = document.getElementById('stock-in');
-  const stockOutCheckbox = document.getElementById('stock-out');
-  const priceSortRadios = document.querySelectorAll('input[name="price-sort"]');
-  const sortRadios = document.querySelectorAll('input[name="sort"]');
-  const alphabeticalRadios = document.querySelectorAll('input[name="alphabetical"]');
-  const ratingsRadios = document.querySelectorAll('input[name="ratings"]');
-
-  function applyFilters() {
-    const products = Array.from(document.querySelectorAll('.product'));
-    let filteredProducts = products;
-
-    // Stock Filter
-    if (stockInCheckbox.checked || stockOutCheckbox.checked) {
-      filteredProducts = filteredProducts.filter(product => {
-        const status = product.getAttribute('data-status');
-        return (stockInCheckbox.checked && status === 'In-stock') ||
-               (stockOutCheckbox.checked && status === 'Out-of-stock');
-      });
-    }
-
-    // Price Sorting
-    const selectedPriceSort = Array.from(priceSortRadios).find(radio => radio.checked)?.value;
-    if (selectedPriceSort) {
-      filteredProducts.sort((a, b) => {
-        const priceA = parseFloat(a.getAttribute('data-price')) || 0;
-        const priceB = parseFloat(b.getAttribute('data-price')) || 0;
-        return selectedPriceSort === 'low-to-high' ? priceA - priceB : priceB - priceA;
-      });
-    }
-
-    // New Arrivals
-    const selectedSort = Array.from(sortRadios).find(radio => radio.checked)?.value;
-    if (selectedSort === 'new-arrivals') {
-      filteredProducts.sort((a, b) => {
-        const dateA = new Date(a.getAttribute('data-createdAt'));
-        const dateB = new Date(b.getAttribute('data-createdAt'));
-        return dateB - dateA; // Newest first
-      });
-    }
-
-    // Alphabetical Sorting
-    const selectedAlphabetical = Array.from(alphabeticalRadios).find(radio => radio.checked)?.value;
-    if (selectedAlphabetical) {
-      filteredProducts.sort((a, b) => {
-        const nameA = a.querySelector('h3 a').textContent.trim().toLowerCase();
-        const nameB = b.querySelector('h3 a').textContent.trim().toLowerCase();
-        return selectedAlphabetical === 'a-to-z' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-      });
-    }
-
-    // Ratings Sorting
-    const selectedRatings = Array.from(ratingsRadios).find(radio => radio.checked)?.value;
-    if (selectedRatings) {
-      filteredProducts.sort((a, b) => {
-        const ratingA = parseFloat(a.getAttribute('data-rating')) || 0;
-        const ratingB = parseFloat(b.getAttribute('data-rating')) || 0;
-        return selectedRatings === 'high-to-low' ? ratingB - ratingA : ratingA - ratingB;
-      });
-    }
-
-    // Update product display
-    products.forEach(product => product.style.display = 'none'); // Hide all products
-    filteredProducts.forEach(product => product.style.display = 'block'); // Show filtered products
-  }
-
-  // Attach event listeners
-  [stockInCheckbox, stockOutCheckbox, ...priceSortRadios, ...sortRadios, ...alphabeticalRadios, ...ratingsRadios]
-    .forEach(input => input.addEventListener('change', applyFilters));
-});
-
-
 
   document.addEventListener('DOMContentLoaded', () => {
     // Event listener for the buy-now button

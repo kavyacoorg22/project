@@ -130,12 +130,24 @@ const placeOrder = async (req, res) => {
             orderDate: new Date()
         });
 
-        await Promise.all(orderedItem.map(item =>
-            productModel.findByIdAndUpdate(
+        await Promise.all(
+            orderedItem.map(async (item) => {
+             
+              const updatedProduct = await productModel.findByIdAndUpdate(
                 item.product,
-                { $inc: { quantity: -item.quantity } }
-            )
-        ));
+                { $inc: { quantity: -item.quantity } }, // Decrement quantity
+                { new: true } 
+              );
+          
+             
+              return productModel.findByIdAndUpdate(
+                item.product,
+                { $set: { stock: updatedProduct.quantity } }, // Set stock to new quantity
+                { new: true } 
+              );
+            })
+          );
+          
 
         await cartModel.findOneAndDelete({ user: userId });
 
