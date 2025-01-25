@@ -13,44 +13,57 @@ const home = async (req, res) => {
   }
 };
 
+
 const shop = async (req, res) => {
   try {
-    // pagination
     const page = parseInt(req.query.page) || 1;
     const limit = 8;
     const skip = (page - 1) * limit;
 
-    // Get category from URL if any
-    const selectedCategory = req.query.category;
+    const selectedCategory = req.query.category || null;
 
-  
-    let productQuery = { isDeleted: false }; // This will only get active products
+    let productQuery = { isDeleted: false };
+
     if (selectedCategory) {
       productQuery.category = selectedCategory;
     }
 
-  
+    // Stock Filter
+    if (req.query.stock === 'in-stock') {
+      productQuery.status = 'In-stock';
+    } else if (req.query.stock === 'out-of-stock') {
+      productQuery.status = 'Out-of-stock';
+    }
+
+    // Sorting
+    const sortOptions = {
+      'price-low-to-high': { price: 1 },
+      'price-high-to-low': { price: -1 },
+      'a-to-z': { name: 1 },
+      'z-to-a': { name: -1 },
+      'new-arrivals': { createdAt: -1 }
+    };
+
+    const sort = sortOptions[req.query.sort] || { createdAt: -1 };
+
     const products = await productModel.find(productQuery)
+      .sort(sort)
       .skip(skip)
       .limit(limit)
-      .populate('category'); // Populate category information
+      .populate('category');
 
-  
     const totalProducts = await productModel.countDocuments(productQuery);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // 6. Get only active categories
     const categories = await categoryModel.find({ isDeleted: false });
 
-    // 7. Render the page
     res.render('user/shop', {
-      title: "shop",
       products,
       page,
       totalPages,
       categories,
       selectedCategory,
-      includeCss: false
+      includeCss:false
     });
 
   } catch (err) {

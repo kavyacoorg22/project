@@ -27,12 +27,12 @@ const reviews = async (req, res) => {
     const { productId, rating, review } = req.body;
     console.log(req.body);
 
-    // Validation
+    
     if (!productId || !rating || !review) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Validate rating is within acceptable range (e.g., 1-5)
+
     if (rating < 1 || rating > 5) {
       return res.status(400).json({ message: 'Rating must be between 1 and 5' });
     }

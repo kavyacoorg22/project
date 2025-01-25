@@ -165,9 +165,58 @@
   </section>
   
   <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const filterSection = document.querySelector('.filter-section');
+  
+  
+  filterSection.addEventListener('change', async (e) => {
+    
+    e.preventDefault();
+
+    
+    const queryParams = new URLSearchParams();
+    
+    // Stock Filters
+    const stockInputs = document.querySelectorAll('input[id^="stock-"]:checked');
+    stockInputs.forEach(stockInput => {
+      queryParams.append('stock', stockInput.value.toLowerCase().replace(' ', '-'));
+    });
+
+    
+    const priceSort = document.querySelector('input[name="price-sort"]:checked');
+    if (priceSort) {
+      queryParams.append('sort', `price-${priceSort.value}`);
+    }
+
+    
+    const alphabetSort = document.querySelector('input[name="alphabetical"]:checked');
+    if (alphabetSort) {
+      queryParams.append('sort', alphabetSort.value);
+    }
+
+  
+    const newArrivals = document.querySelector('input[name="sort"]:checked');
+    if (newArrivals) {
+      queryParams.append('sort', newArrivals.value);
+    }
+
+    
+    const ratingsSort = document.querySelector('input[name="ratings"]:checked');
+    if (ratingsSort) {
+      queryParams.append('sort', `ratings-${ratingsSort.value}`);
+    }
+
+    
+    const url = `/user/shop?${queryParams.toString()}`;
+
+    
+    window.location.href = url;
+  });
+});
+
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Event listener for the buy-now button
+  
     const buyNowButtons = document.querySelectorAll('.buy-now');
   
     buyNowButtons.forEach(button => {
@@ -177,7 +226,7 @@
         const productId = button.getAttribute('data-product-id'); // Fetch product ID
   
         if (!productId) {
-          alert('Invalid product selected'); // Handle missing product ID
+          Swal.fire('Invalid product selected'); // Handle missing product ID
           return;
         }
   
