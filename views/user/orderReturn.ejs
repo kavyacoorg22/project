@@ -36,67 +36,94 @@
               placeholder="Please provide your reason for return..."
           ></textarea>
           <div class="buttons-container">
-              <button class="return-button">RETURN</button>
+            <button class="return-button" 
+            data-productid="<%= productId %>" 
+            data-orderid="<%= orderID %>">
+        RETURN
+    </button>
           </div>
       </div>
   </main>
 </div>
 
 <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const cancelProductButtons = document.querySelectorAll('.return-button');
 
-document.addEventListener('DOMContentLoaded', () => {
-  const returnButton = document.querySelector('.return-button');
-  const reasonTextarea = document.querySelector('.return-reason-textarea');
+    cancelProductButtons.forEach(button => {
+      button.addEventListener('click', async (e) => {
+        const textarea = document.querySelector('.return-reason-textarea');
+        const returnReason = textarea.value.trim();  // Changed variable name to match backend
 
-  if (returnButton && returnReasonTextarea) {
-    returnButton.addEventListener('click', async () => {
-      const returnReason = returnReasonTextarea.value.trim();
-
-      if (!returnReason) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Please provide a reason for return'
-        });
-        return;
-      }
-
-      try {
-        const response = await fetch(`/user/returnOrder/${orderID}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ 
-            reason: returnReason 
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          Swal.fire({
-            icon: 'success',
-            title: 'Return Request',
-            text: 'Your return request has been submitted'
-          }).then(() => {
-            window.location.href = '/user/orders';
-          });
-        } else {
+        // Check if textarea is empty
+        if (!returnReason) {
           Swal.fire({
             icon: 'error',
-            title: 'Return Failed',
-            text: result.message || 'Unable to process return'
+            title: 'Validation Error',
+            text: 'Please provide a reason for return'
+          });
+          return;
+        }
+
+        // Let's add some console.logs to debug
+        console.log('Button clicked');
+        console.log('Product ID:', e.target.dataset.productid);
+        console.log('Order ID:', e.target.dataset.orderid);
+
+        const productId = e.target.dataset.productid;
+        const orderID = e.target.dataset.orderid;
+       
+        if (!productId || !orderID) {
+          console.log('Missing IDs:', { productId, orderID });
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Missing product or order ID'
+          });
+          return;
+        }
+
+        try {
+          console.log('Sending request with:', {
+            url: `/user/returnOrder/${orderID}/${productId}`,
+            returnReason
+          });
+
+          const response = await fetch(`/user/returnOrder/${orderID}/${productId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ returnReason })  // Match the variable name we changed above
+          });
+
+          const result = await response.json();
+          console.log('Response:', result);
+
+          if (result.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Product Return',
+              text: 'Product return request submitted'
+            }).then(() => {
+              window.location.href = `/user/orderHistory`;
+            });
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Return Failed',
+              text: result.message
+            });
+          }
+        } catch (error) {
+          console.error('Error details:', error);  // Added detailed error logging
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred'
           });
         }
-      } catch (error) {
-        console.error('Return error:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'An error occurred while processing your request'
-        });
-      }
+      });
     });
-  }});
+  });
 </script>

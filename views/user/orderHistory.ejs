@@ -29,41 +29,6 @@
       <div class="oh-container">
         <h1 class="oh-main-title">Order History</h1>
   
-        <div class="oh-section oh-failed-section">
-          <h2 class="oh-section-title oh-failed-title">Failed Order</h2>
-          <div class="oh-table-wrapper">
-              <table class="oh-table">
-                  <thead>
-                      <tr>
-                          <th>PRODUCT COUNT</th>
-                          <th>ORDERID</th>
-                          <th>DATE</th>
-                          <th>TOTAL</th>
-                          <th>DISCOUNT</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      <% if (failedOrders && failedOrders.length > 0) { %>
-                          <% failedOrders.forEach(order => { %>
-                            
-                              <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
-                                  <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
-                                  <td class="oh-order-id"><%= order.orderId %></td>
-                                  <td class="oh-date"><%= order.date %></td>
-                                  <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
-                                  <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
-                              </tr>
-                          <% }); %>
-                      <% } else { %>
-                          <tr>
-                              <td colspan="5" class="no-orders">No failed orders</td>
-                          </tr>
-                        <
-                      <% } %>
-                  </tbody>
-              </table>
-          </div>
-      </div>
       
       <div class="oh-section oh-placed-section">
           <h2 class="oh-section-title oh-placed-title">Placed Order</h2>
@@ -100,6 +65,43 @@
               </table>
           </div>
       </div>
+
+      
+      <div class="oh-section oh-failed-section">
+        <h2 class="oh-section-title oh-failed-title">Failed Order</h2>
+        <div class="oh-table-wrapper">
+            <table class="oh-table">
+                <thead>
+                    <tr>
+                        <th>PRODUCT COUNT</th>
+                        <th>ORDERID</th>
+                        <th>DATE</th>
+                        <th>TOTAL</th>
+                        <th>DISCOUNT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (failedOrders && failedOrders.length > 0) { %>
+                        <% failedOrders.forEach(order => { %>
+                          
+                            <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
+                                <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
+                                <td class="oh-order-id"><%= order.orderId %></td>
+                                <td class="oh-date"><%= order.date %></td>
+                                <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
+                                <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="5" class="no-orders">No failed orders</td>
+                        </tr>
+                      <
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 </main>
 </div>

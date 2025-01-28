@@ -25,4 +25,13 @@ const loadeditOffer=async(req,res)=>{
     res.send(err)
   }
 }
-module.exports={loadAddOffer,loadOffer,loadeditOffer}
+
+const offer=async(req,res)=>{
+  try{
+
+  }catch(err)
+  {
+
+  }
+}
+module.exports={loadAddOffer,loadOffer,loadeditOffer,offer}

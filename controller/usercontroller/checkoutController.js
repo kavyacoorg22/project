@@ -72,6 +72,7 @@ const loadCheckout = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod, billing } = req.body;
+        console.log(req.user._id)
         const userId = req.user._id;
 
         if (!addressId || !billing) {

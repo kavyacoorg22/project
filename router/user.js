@@ -91,8 +91,8 @@ router.post('/logout',profileController.logout)
 router.get('/orderHistory',userAuth,orderController.loadOrderHistory)
 router.get('/orderDetails/:id',userAuth,orderController.loadOrderDetails)
 router.get('/cancelOrder/:orderID/:productId',userAuth,orderController.loadOrderCancel)
-router.get('/returnOrder/:id',userAuth,orderController.loadOrderReturn)
+router.get('/returnOrder/:orderID/:productId',userAuth,orderController.loadOrderReturn)
 router.post('/cancelOrder/:orderID/:productId',userAuth,orderController.cancelOrder)
-router.post('/returnOrder/:id',userAuth,orderController.returnOrder)
+router.post('/returnOrder/:orderID/:productId',userAuth,orderController.returnOrder)
 
 module.exports=router

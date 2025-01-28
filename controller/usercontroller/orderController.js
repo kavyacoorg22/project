@@ -83,6 +83,7 @@ const loadOrderCancel = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
+    console.log("returm",req.params)
     const { orderID, productId } = req.params;
     const { cancelReason } = req.body;
     console.log(req.body)
@@ -133,7 +134,10 @@ const cancelOrder = async (req, res) => {
 
 const loadOrderReturn=async(req,res)=>{
   try{
-    res.render('user/orderReturn',{title:'ReturnOrder',includeCss:true,csspage:'orderReturn.css'})
+  
+    const { orderID, productId } = req.params;
+    res.render('user/orderReturn',{title:'ReturnOrder',includeCss:true,csspage:'orderReturn.css',orderID, 
+      productId})
   }catch(err)
   {
     res.status(500).send(err.message)
@@ -143,23 +147,47 @@ const loadOrderReturn=async(req,res)=>{
 
 const returnOrder = async (req, res) => {
   try {
-    const orderId = req.params.id;
-    const { reason } = req.body;
+    
+    const { orderID, productId } = req.params;
+    const { returnReason } = req.body;
+  
+    
+
+    if (!orderID || !productId) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Invalid order or product ID' 
+      });
+    }
 
     const order = await orderModel.findOneAndUpdate(
-      { orderID: orderId },
       { 
-        status: 'Return Request',
-        returnReason: reason 
+        orderID: orderID,
+        'orderedItem.product': productId,
+      
+        
+      },
+      { 
+        $set: { 
+          'orderedItem.$.status': 'Return Request',
+          'orderedItem.$.returnReason': returnReason,
+          
+        }
       },
       { new: true }
     );
 
     if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Product cannot be retured' 
+      });
     }
 
-    res.json({ success: true, message: 'Return request submitted' });
+    res.json({ 
+      success: true, 
+      message: 'Product return request submitted' 
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: 'Server error' });

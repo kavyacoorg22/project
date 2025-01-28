@@ -3,36 +3,50 @@ const productModel=require('../../model/adminModel/productModel')
 
 const loadOrder = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 2;
+    const skip = (page - 1) * limit;
 
-     const page = parseInt(req.query.page) || 1; // Default to page 1
-                const limit = 2; // Products per page
-                const skip = (page - 1) * limit;  //1-1*3=0 ,,,2-1*3=3
-            
-       
-                const orders = await orderModel.find({})
-                                             .populate('user', 'firstname')
-                                              .sort({ orderDate: -1 })
-                                              .skip(skip)
-                                              .limit(limit);
-            
-                // Total products for pagination
-                const totalorder = await orderModel.countDocuments({});
-                const totalPages = Math.ceil(totalorder / limit);
     
-    
+    const orders = await orderModel.find({})
+      .populate({
+        path: 'user',
+        select: 'firstname', 
+        options: { lean: true } 
+      })
+      .populate({
+        path: 'orderedItem.product',
+        select: 'name firstImage', 
+      })
+      .sort({ orderDate: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(); // Use lean to get plain JavaScript objects
+
+
+    const processedOrders = orders.map(order => ({
+      ...order,
+      userId: {
+        firstname: order.userId?.firstname || 'Unknown User' 
+      }
+    }));
+
+    const totalorder = await orderModel.countDocuments({});
+    const totalPages = Math.ceil(totalorder / limit);
+
     res.render('admin/order', {
-      title: "Orders", 
-      csspage: "order.css", 
-      layout: './layout/admin-layout', 
-      orders,
+      title: "Orders",
+      csspage: "order.css",
+      layout: './layout/admin-layout',
+      orders: processedOrders,
       totalPages,
       page
     });
   } catch (err) {
-    res.status(500).send(err.message)
+    console.error('Error loading orders:', err);
+    res.status(500).send('Error loading orders. Please try again.');
   }
-}
-
+};
 const updateStatus = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;

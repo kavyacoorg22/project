@@ -10,7 +10,7 @@ const loadAddCoupon=async(req,res)=>{
 
 const addCoupon=async(req,res)=>{
   try{
-    console.log(req.body)
+    
    const {name,couponCode,description,discount,minimumPurchase,startDate,endDate}=req.body;
   
    if(!name||!couponCode||!description||!discount||!minimumPurchase||!startDate||!endDate)
@@ -69,7 +69,7 @@ const addCoupon=async(req,res)=>{
 const loadCoupon=async(req,res)=>{
   try{
      const coupons=await couponModel.find({})
-    res.render('admin/coupon',{ title:'editCffer',csspage:'coupon.css',layout:'./layout/admin-layout.ejs',coupons});
+    res.render('admin/coupon',{ title:'coupon',csspage:'coupon.css',layout:'./layout/admin-layout.ejs',coupons});
   }catch(err)
   {
     res.send(err)
