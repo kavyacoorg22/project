@@ -9,7 +9,7 @@ const reviewSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'signup',
+    ref: 'user',
     required: true
   },
   rating: {

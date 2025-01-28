@@ -17,7 +17,7 @@ const home = async (req, res) => {
 const shop = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 8;
+    const limit = 3;
     const skip = (page - 1) * limit;
 
     const selectedCategory = req.query.category || null;

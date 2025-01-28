@@ -138,4 +138,19 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports={loadProfile,updateProfile,changePassword}
+
+
+
+const logout = (req, res) => {
+
+
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Failed to destroy session:', err);
+      return res.status(500).send('Failed to log out');
+    }
+
+    
+  });
+}
+module.exports={loadProfile,updateProfile,changePassword,logout}

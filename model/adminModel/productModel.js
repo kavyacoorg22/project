@@ -24,7 +24,7 @@ const productShema=new mongoose.Schema({
   },
   createdBy:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'signin',
+    ref:'admin',
   
   },
   offers: [{

@@ -8,7 +8,8 @@ const upload=require("../utils/multer");
 const validateImg=require('../middleware/validateImage')
 const userController=require('../controller/admincontroller/userController')
 const orderController=require('../controller/admincontroller/orderController')
-
+const offerController=require('../controller/admincontroller/offerController')
+const couponController=require('../controller/admincontroller/couponController')
 
 
 
@@ -44,6 +45,18 @@ router.post('/updateStatus',adminAuth.checkSession,userController.updateStatus)
 router.get('/order',adminAuth.checkSession,orderController.loadOrder)
 router.post('/order/updateStatus/:orderId/:itemId',adminAuth.checkSession, orderController.updateStatus);
 router.get('/order/viewOrder/:orderId', adminAuth.checkSession,orderController.viewOrder);
+
+router.get('/offer/add',adminAuth.checkSession,offerController.loadAddOffer)
+router.get('/offer',adminAuth.checkSession,offerController.loadOffer)
+router.get('/offer/edit',adminAuth.checkSession,offerController.loadeditOffer)
+
+
+router.get('/coupon/add',adminAuth.checkSession,couponController.loadAddCoupon)
+router.get('/coupon',adminAuth.checkSession,couponController.loadCoupon)
+router.post('/coupon/add',adminAuth.checkSession,couponController.addCoupon)
+router.patch('/coupon/updateStatus/:couponId',adminAuth.checkSession,couponController.changeStatus)
+router.delete('/coupon/:couponId',adminAuth.checkSession,couponController.deleteCoupon)
+
 
 router.use((err, req, res, next) => {
   console.error('Route error:', err);

@@ -1,0 +1,128 @@
+<div class="coupon-management">
+    <h1>Coupon Management</h1>
+    <div class="add-coupon-btn-container">
+      <button class="add-coupon-btn" onclick="location.href='/admin/coupon/add'">+ Add Coupon</button>
+    </div>
+    <table class="coupon-table">
+      <thead>
+        <tr>
+          <th>Coupon Code</th>
+          <th>Discount</th>
+          <th>Min Purchase</th>
+          <th>Start</th>
+          <th>Expiry</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (coupons && coupons.length > 0) { %>
+          <% coupons.forEach(coupon => { %>
+            <tr>
+              <td><%= coupon.couponCode %></td>
+              <td><%= coupon.discount %>%</td>
+              <td>₹<%= coupon.minimumPurchase.toLocaleString() %></td>
+              <td><%= new Date(coupon.startDate).toLocaleDateString() %></td>
+              <td><%= new Date(coupon.endDate).toLocaleDateString() %></td>
+              <td>
+                <select class="status-dropdown" 
+                        onchange="updateStatus('<%= coupon._id %>', this.value)" 
+                        data-coupon-id="<%= coupon._id %>">
+                  <option value="Active" <%= coupon.status === 'Active' ? 'selected' : '' %>>Active</option>
+                  <option value="Inactive" <%= coupon.status === 'Inactive' ? 'selected' : '' %>>Inactive</option>
+                </select>
+              </td>
+              <td>
+                <button class="delete-btn" 
+                        onclick="deleteCoupon('<%= coupon._id %>')" 
+                        data-coupon-id="<%= coupon._id %>">
+                  Delete
+                </button>
+              </td>
+            </tr>
+          <% }); %>
+        <% } else { %>
+          <tr>
+            <td colspan="7" class="no-coupons">No coupons found</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+  
+  <script>
+   // Function to delete a coupon
+async function deleteCoupon(couponId) {
+  // Show confirmation dialog
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'This action will delete the coupon permanently.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+  });
+
+  // If user confirms, proceed with deletion
+  if (result.isConfirmed) {
+    try {
+      const response = await fetch(`/admin/coupon/${couponId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.ok) {
+        // Remove the coupon row
+        document.querySelector(`[data-coupon-id="${couponId}"]`).closest('tr').remove();
+
+        // Check if the table is empty and show a message
+        const tbody = document.querySelector('.coupon-table tbody');
+        if (!tbody.querySelector('tr')) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="7" class="no-coupons">No coupons found</td>
+            </tr>
+          `;
+        }
+
+        // Show success alert
+        Swal.fire('Deleted!', 'The coupon has been deleted.', 'success');
+      } else {
+        // Show failure alert
+        Swal.fire('Error!', 'Failed to delete the coupon.', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      // Show error alert
+      Swal.fire('Error!', 'Something went wrong. Please try again.', 'error');
+    }
+  }
+}
+
+  
+    // Function to update the status of a coupon
+    async function updateStatus(couponId, newStatus) {
+      try {
+        const response = await fetch(`/admin/coupon/updateStatus/${couponId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ status: newStatus }),
+        });
+  
+        if (!response.ok) {
+          Swal.fire('Failed to update status');
+          // Optionally revert the dropdown to the original value
+          const dropdown = document.querySelector(`[data-coupon-id="${couponId}"]`);
+          dropdown.value = dropdown.dataset.originalStatus;
+        } else {
+          Swal.fire('Status updated successfully');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        Swal.fire('An error occurred while updating the status');
+      }
+    }
+  </script>
+  

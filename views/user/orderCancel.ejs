@@ -91,7 +91,7 @@
               title: 'Product Cancellation',
               text: 'Product cancellation request submitted'
             }).then(() => {
-              location.reload();
+              window.location.href = '/user/orderDetails';
             });
           } else {
             Swal.fire({

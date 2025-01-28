@@ -1,0 +1,102 @@
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .coupon-add-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            
+        }
+
+         h1 {
+            font-size: 26px;
+            margin-bottom: 20px;
+            color: #249309;
+            text-align: left;
+        }
+
+        .coupon-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        .form-group textarea {
+            resize: none;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-actions .btn-secondary {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        .form-actions .btn-primary {
+            background-color: #4caf50;
+            color: #fff;
+        }
+
+        .form-actions .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .form-actions .btn-secondary:hover {
+            background-color: #b3b3b3;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .grid .form-group {
+            margin: 0;
+        }
+
+        .full-width {
+            grid-column: span 2;
+        }

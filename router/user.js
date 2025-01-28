@@ -85,6 +85,7 @@ router.get('/orderSuccess/:id',userAuth,checkoutController.loadSuccessPage)
 router.get('/profile',userAuth,profileController.loadProfile)
 router.put('/profile/update',userAuth,profileController.updateProfile)
 router.put('/profile/changePassword',userAuth,profileController.changePassword)
+router.post('/logout',profileController.logout)
 
 
 router.get('/orderHistory',userAuth,orderController.loadOrderHistory)

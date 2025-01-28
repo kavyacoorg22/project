@@ -1,0 +1,39 @@
+<div class="offer-management-container">
+  <h1 class="offer-management-title">Offer Management</h1>
+  <div class="add-offer-btn-container">
+    <button class="btn btn-primary" onclick='window.location.href="/admin/offer/add"'>+ Add Offers</button>
+  </div>
+  <table class="offer-table">
+    <thead>
+      <tr>
+        <th>Applicable Item</th>
+        <th>Product/Category</th>
+        <th>Title</th>
+        <th>Offer</th>
+        <th>Start</th>
+        <th>Expiry</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>product</td>
+        <td>MacBook Air</td>
+        <td>offer</td>
+        <td>15</td>
+        <td>1/8/2025</td>
+        <td>1/18/2025</td>
+        <td>
+          <select class="form-control">
+            <option value="Active" selected>Active</option>
+          </select>
+        </td>
+        <td><button class="btn btn-primary" onclick='window.location.href="/admin/offer/edit/"'>Edit</button></td>
+      </tr>
+      
+    </tbody>
+  </table>
+
+ 
+</div>

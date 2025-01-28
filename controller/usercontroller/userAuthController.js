@@ -374,24 +374,7 @@ const password=async(req,res)=>{
     res.send(err.message)
   }
 }
-// const resetPassword= async (req, res) => {
-//   try {
-//     const { email, newPassword } = req.body;
 
-//     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-//     await signupModel.findOneAndUpdate(
-//       { email },
-//       { password: hashedPassword }
-//     );
-
-//     otpStore.delete(email);
-
-//     res.json({ message: 'Password reset successful' });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// }
 const resetPassword = async (req, res) => {
   console.log('Password reset request received');
   console.log('Request body:', req.body);

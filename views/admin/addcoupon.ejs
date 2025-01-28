@@ -1,0 +1,105 @@
+<h1>Coupon</h1>
+
+<div class="coupon-add-container">
+   
+
+    <form class="coupon-form" id="couponForm">
+        <div class="grid">
+            <div class="form-group">
+                <label for="coupon-name">Coupon Name</label>
+                <input type="text" id="coupon-name" name="name" placeholder="Enter coupon name">
+            </div>
+            <div class="form-group">
+                <label for="coupon-code">Coupon Code</label>
+                <input type="text" id="coupon-code" name="couponCode" placeholder="Enter coupon code">
+            </div>
+            <div class="form-group full-width">
+                <label for="coupon-description">Description</label>
+                <textarea id="coupon-description" rows="3" name="description" placeholder="Enter description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="discount-percentage">Discount (percentage%)</label>
+                <input type="number" id="discount-percentage" name="discount" placeholder="Enter discount percentage">
+            </div>
+           
+            <div class="form-group">
+                <label for="min-purchase">Minimum Purchase</label>
+                <input type="number" id="min-purchase" name="minimumPurchase" placeholder="Enter min value">
+            </div>
+            <div class="form-group">
+                <label for="start-date">Start Date</label>
+                <input type="date" name="startDate" id="start-date">
+            </div>
+            <div class="form-group">
+                <label for="end-date">End Date</label>
+                <input type="date" name="endDate" id="end-date">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="button" class="btn btn-secondary">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Coupon</button>
+        </div>
+    </form>
+</div>
+
+<script>
+   document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('couponForm');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault(); 
+
+        try {
+            const formData = new FormData(this);
+            const formDataJson = {};
+
+            // Convert FormData into a JSON object
+            formData.forEach((value, key) => {
+                formDataJson[key] = value;
+            });
+
+            const response = await fetch('/admin/coupon/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formDataJson), // Send JSON payload
+            });
+
+            const data = await response.json();
+
+            if (!data.success) {
+                // Show error message
+                await Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: data.error || data.message || 'Something went wrong!',
+                    confirmButtonColor: '#d33',
+                });
+                return;
+            }
+
+            // Success case
+            await Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Coupon added successfully!',
+                confirmButtonColor: '#3085d6',
+            });
+
+            // Redirect after success
+            window.location.href = '/admin/coupon';
+        } catch (error) {
+            console.error('Error:', error);
+            await Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Something went wrong. Please try again.',
+                confirmButtonColor: '#d33',
+            });
+        }
+    });
+});
+
+ </script>

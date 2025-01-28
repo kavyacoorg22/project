@@ -12,4 +12,4 @@ const signinSchema=new mongoose.Schema({
   },
 });
 
-module.exports=mongoose.model('signin',signinSchema)
+module.exports=mongoose.model('admin',signinSchema)

@@ -23,9 +23,11 @@ const createcat = async (req, res) => {
         message: "Name and Description should not be empty or blank space",
       });
     }
+    const formattedName = name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
 
-
-    const existingCategory = await categoryModel.findOne({ name: name.trim() });
+    const existingCategory = await categoryModel.findOne({ name: formattedName });
+    
+    
     if (existingCategory) {
       return res.status(400).json({
         success: false,
@@ -44,7 +46,7 @@ const createcat = async (req, res) => {
 
   
     const category = new categoryModel({ name: name.trim(), description: description.trim(), image: imageUrl });
-    console.log("data", category);
+  
     await category.save();
 
     res.json({

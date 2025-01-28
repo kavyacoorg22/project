@@ -16,7 +16,7 @@ const categorySchema=new mongoose.Schema({
   },
   createdBy:{
     type:mongoose.Schema.Types.ObjectId,
-    ref:'signin'
+    ref:'admin'
   },
   isDeleted:{
     type:Boolean,
