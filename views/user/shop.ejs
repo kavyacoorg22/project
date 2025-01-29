@@ -123,7 +123,7 @@
                         <a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
                           <span><i class="ion-ios-cart"></i></span>
                         </a>
-                        <a href="#" class="heart d-flex justify-content-center align-items-center">
+                        <a href="#" class="heart d-flex justify-content-center align-items-center" data-product-id="<%= product._id %>">
                           <span><i class="ion-ios-heart"></i></span>
                         </a>
                       </div>
@@ -260,4 +260,36 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     });
   });
+
+
+  // Handle "Add to Wishlist" functionality
+
+document.querySelectorAll('.heart').forEach(button => {
+  button.addEventListener('click', async (e) => {
+    e.preventDefault();
+    const productId = button.dataset.productId;
+    
+    try {
+      const response = await fetch(`/user/wishlist/add/${productId}`, { // Changed URL format
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        Swal.fire('Product added to wishlist');
+        // Update heart icon to active state
+        button.querySelector('.ion-ios-heart').classList.add('active');
+      } else {
+        Swal.fire(data.message || 'Failed to add product to wishlist', 'error');
+      }
+    } catch (error) {
+      console.error('Add to wishlist error:', error);
+      Swal.fire('Failed to add product to wishlist', 'error');
+    }
+  });
+});
+
   </script>

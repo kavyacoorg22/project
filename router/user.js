@@ -11,6 +11,7 @@ const checkoutController=require('../controller/usercontroller/checkoutControlle
 const profileController=require('../controller/usercontroller/profileController')
 const addressvalidation=require('../middleware/addressValidation')
 const orderController=require('../controller/usercontroller/orderController')
+const wishlistController=require('../controller/usercontroller/wishlistController')
 const passport = require('passport');
 require('../utils/passport');
 
@@ -94,5 +95,10 @@ router.get('/cancelOrder/:orderID/:productId',userAuth,orderController.loadOrder
 router.get('/returnOrder/:orderID/:productId',userAuth,orderController.loadOrderReturn)
 router.post('/cancelOrder/:orderID/:productId',userAuth,orderController.cancelOrder)
 router.post('/returnOrder/:orderID/:productId',userAuth,orderController.returnOrder)
+
+
+router.get('/wishlist',userAuth,wishlistController.loadWishlist)
+router.post('/wishlist/add/:productId',userAuth,wishlistController.addWishlist)
+router.delete('/wishlist/remove/:productId',userAuth,wishlistController.removeFromWishlist)
 
 module.exports=router
