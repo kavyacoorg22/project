@@ -127,7 +127,7 @@ const changePassword = async (req, res) => {
 
       // Update password
       await signupModel.findByIdAndUpdate(userId, { password: hashedPassword,
-        confirmPassword
+     
        });
 
       res.json({ message: "Password updated successfully" });

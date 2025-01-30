@@ -1,46 +1,57 @@
 const cartModel = require('../../model/userModel/cartModel');
 const productModel = require('../../model/adminModel/productModel');
+const couponModel=require('../../model/adminModel/couponModel')
 
 const loadCart = async (req, res) => {
   try {
-    const userId = req.user._id;
-
-    // Find the user's cart and populate the product details
-    const cart = await cartModel
-      .findOne({ user: userId })
-      .populate({
-        path: 'product.product',
-        select: 'name description price images quantity' // Only select needed fields
+      const userId = req.user._id;
+      const coupons = await couponModel.find({
+          status: "Active",
+          endDate: { $gt: new Date() }
       });
 
-    if (!cart) {
-      return res.render('user/cart', {
-        title: 'Cart',
-        includeCss: false,
-        products: [],
-        totalPrice: 0
+      const cart = await cartModel
+          .findOne({ user: userId })
+          .populate({
+              path: 'product.product',
+              select: 'name description price images quantity'
+          })
+          .populate('appliedCoupon');
+
+      if (!cart) {
+          return res.render('user/cart', {
+              title: 'Cart',
+              includeCss: true,
+              csspage: "coupon.css",
+              products: [],
+              totalPrice: 0,
+              discountAmount: 0,
+              finalAmount: 0,
+              coupons
+          });
+      }
+
+      const validProducts = cart.product.filter(item => item.product != null);
+      
+      if (validProducts.length !== cart.product.length) {
+          cart.product = validProducts;
+          cart.totalPrice = await calculateTotalPrice(validProducts);
+          await cart.save();
+      }
+
+      res.render('user/cart', {
+          title: 'Cart',
+          includeCss: false,
+          products: validProducts,
+          totalPrice: cart.totalPrice,
+          discountAmount: cart.discountAmount || 0,
+          finalAmount: cart.finalAmount || cart.totalPrice,
+          appliedCoupon: cart.appliedCoupon,
+          coupons,
       });
-    }
-
-    // Filter out any products that might have been deleted
-    const validProducts = cart.product.filter(item => item.product != null);
-    
-    // Update cart if there were any invalid products
-    if (validProducts.length !== cart.product.length) {
-      cart.product = validProducts;
-      cart.totalPrice = await calculateTotalPrice(validProducts);
-      await cart.save();
-    }
-
-    res.render('user/cart', {
-      title: 'Cart',
-      includeCss: false,
-      products: validProducts,
-      totalPrice: cart.totalPrice
-    });
   } catch (err) {
-    console.error('Error loading cart:', err);
-    res.status(500).render('error', { message: 'Error loading cart' });
+      console.error('Error loading cart:', err);
+      res.status(500).render('error', { message: 'Error loading cart' });
   }
 };
 
@@ -262,9 +273,70 @@ async function calculateTotalPrice(products) {
   }
 }
 
+const applyCoupon = async (req, res) => {
+  try {
+      const { couponCode, cartTotal } = req.body;
+      const userId = req.user._id;
+
+      // Find the coupon
+      const coupon = await couponModel.findOne({
+          couponCode: couponCode,
+          status: "Active",
+          startDate: { $lte: new Date() },
+          endDate: { $gt: new Date() }
+      });
+
+      // Validate coupon
+      if (!coupon) {
+          return res.json({
+              success: false,
+              message: 'Invalid or expired coupon'
+          });
+      }
+
+      // Check minimum purchase
+      if (cartTotal < coupon.minimumPurchase) {
+          return res.json({
+              success: false,
+              message: `Minimum purchase of ₹${coupon.minimumPurchase} required`
+          });
+      }
+
+      // Calculate discount
+      const discountAmount = (cartTotal * coupon.discount) / 100;
+      const finalAmount = cartTotal - discountAmount;
+
+      // Update cart with applied coupon
+      await cartModel.findOneAndUpdate(
+          { user: userId },
+          { 
+              $set: {
+                  appliedCoupon: coupon._id,
+                  discountAmount: discountAmount,
+                  finalAmount: finalAmount
+              }
+          }
+      );
+
+      res.json({
+          success: true,
+          discountAmount: discountAmount.toFixed(2),
+          finalAmount: finalAmount.toFixed(2),
+          message: 'Coupon applied successfully'
+      });
+
+  } catch (error) {
+      console.error('Error applying coupon:', error);
+      res.status(500).json({
+          success: false,
+          message: 'Error applying coupon'
+      });
+  }
+};
 module.exports = {
   loadCart,
   addToCart,
   updateQuantity,
-  removeFromCart
+  removeFromCart,
+  applyCoupon
 };

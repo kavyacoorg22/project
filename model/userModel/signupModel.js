@@ -25,12 +25,7 @@ const signupSchema = new mongoose.Schema({
       return !this.googleId; // Only required for non-Google users
     }
   },
-  confirmPassword: {
-    type: String,
-    required: function() {
-      return !this.googleId; // Only required for non-Google users
-    }
-  },
+
   status: {
     type: String,
     enum: ['active', 'inactive'],

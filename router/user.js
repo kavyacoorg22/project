@@ -74,6 +74,7 @@ router.get('/cart',userAuth,cartController.loadCart)
 router.post('/cart/add',userAuth,cartController.addToCart)
 router.post('/cart/updateQuantity',userAuth,cartController.updateQuantity)
 router.post('/cart/removeProduct',userAuth,cartController.removeFromCart)
+router.post('/applyCoupon',userAuth,cartController.applyCoupon)
 
 
 

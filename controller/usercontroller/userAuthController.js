@@ -44,6 +44,9 @@ const loadsignup=async(req,res)=>{
 
 const loadLogin=async(req,res)=>{
   try{
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
      res.render('userAuth/login',{title:"login",layout:"./layout/auth-layout",csspage:'login.css',email:' ',password:' '})
   }catch(err)
   {
@@ -77,7 +80,7 @@ const signup = async (req, res) => {
       email,
       number,
       password: hashedPassword,
-      confirmPassword
+      
     });
     
     await user.save();

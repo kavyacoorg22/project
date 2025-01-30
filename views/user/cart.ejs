@@ -87,23 +87,54 @@
         </div>
       </div>
     </div>
+
+
     <div class="row justify-content-end">
       <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
         <div class="cart-total mb-3">
-          <h3>Coupon Code</h3>
-          <p>Enter your coupon code if you have one</p>
-          <form action="#" class="info">
-            <div class="form-group">
-              <label for="">Coupon code</label>
-              <input type="text" class="form-control text-left px-3" placeholder="">
+            <h3>Coupon Code</h3>
+            <p>Enter your coupon code if you have one</p>
+            <form action="#" class="info">
+                <div class="form-group">
+                    <label for="">Coupon code</label>
+                    <input type="text" id="couponInput" class="form-control text-left px-3" placeholder="Enter coupon code">
+                </div>
+            </form>
+            <div class="alert alert-success" id="successAlert" style="display: none;"></div>
+            <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
+            <div class="discount-info" id="discountInfo" style="display: none;">
+                <p>Discount Amount: ₹<span id="discountAmount">0</span></p>
+                <p>Final Amount: ₹<span id="finalAmount">0</span></p>
             </div>
-          </form>
         </div>
-        <p><a href="#" class="btn btn-primary py-3 px-4">Apply Coupon</a></p>
+        <p><button onclick="applyCouponCode()" class="btn btn-primary py-3 px-4">Apply Coupon</button></p>
+     </div>
+    
+
+      
+    <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
+      <div class="coupon-container">
+          <h5>Available Coupons</h5>
+          <% if(coupons && coupons.length > 0) { %>
+              <% coupons.forEach(function(coupon) { %>
+                  <div class="coupon-card">
+                      <div class="coupon-text">
+                          <span class="coupon-code"><%= coupon.couponCode %></span>
+                          <span class="coupon-details">Get <%= coupon.discount %>% off • Min purchase: ₹<%= coupon.minimumPurchase %></span>
+                      </div>
+                      <button class="copy-btn" onclick="copyCode(this, '<%= coupon.couponCode %>')">Copy</button>
+                  </div>
+              <% }); %>
+          <% } else { %>
+              <p>No coupons available at the moment.</p>
+          <% } %>
       </div>
-      <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-        
-      </div>
+    </div>
+
+      
+      
+      
+      
       <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
         <div class="cart-total mb-3">
           <h3>Cart Totals</h3>
@@ -130,11 +161,82 @@
         <% } %>
       </div>
     </div>
+
+
+     
+    </div>
   </div>
 </section>
 
 
 <script>
+
+function copyCode(button, code) {
+        navigator.clipboard.writeText(code).then(() => {
+            button.textContent = 'Copied!';
+            button.classList.add('copied');
+            
+            setTimeout(() => {
+                button.textContent = 'Copy';
+                button.classList.remove('copied');
+            }, 1500);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    function showMessage(isSuccess, message) {
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        
+        successAlert.style.display = isSuccess ? 'block' : 'none';
+        errorAlert.style.display = isSuccess ? 'none' : 'block';
+        
+        if (isSuccess) {
+            successAlert.textContent = message;
+        } else {
+            errorAlert.textContent = message;
+        }
+    }
+
+    function applyCouponCode() {
+        const couponCode = document.getElementById('couponInput').value;
+        const cartTotal = cartTotal ; // Assuming cartTotal is passed from backend
+        
+        if (!couponCode) {
+            showMessage(false, 'Please enter a coupon code');
+            return;
+        }
+
+        fetch('/user/applyCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                couponCode: couponCode,
+                cartTotal: cartTotal
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('discountAmount').textContent = data.discountAmount.toFixed(2);
+                document.getElementById('finalAmount').textContent = data.finalAmount.toFixed(2);
+                document.getElementById('discountInfo').style.display = 'block';
+                showMessage(true, 'Coupon applied successfully!');
+                document.getElementById('couponInput').value = '';
+            } else {
+                showMessage(false, data.message);
+                document.getElementById('discountInfo').style.display = 'none';
+            }
+        })
+        .catch(err => {
+            showMessage(false, 'Error applying coupon');
+            console.error(err);
+        });
+    }
+
 
 document.addEventListener('DOMContentLoaded', () => {
   // Utility function to show notifications
@@ -394,4 +496,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize totals when page loads
   updateCartTotals();
 });
+
+
+
+
+
+
 </script>
