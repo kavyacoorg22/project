@@ -57,83 +57,77 @@ const loadCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
-    const { productId, quantity = 1 } = req.body;
-    const userId = req.user._id;
+      const { productId, quantity = 1 } = req.body;
+      const userId = req.user._id;
 
-    // Validate inputs
-    if (!productId || quantity < 1) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid product ID or quantity' 
-      });
-    }
-
-    // Get product details and check stock
-    const product = await productModel.findById(productId);
-    if (!product) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Product not found' 
-      });
-    }
-
-    if (!product.quantity || product.quantity < quantity) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Insufficient stock',
-        availableStock: product.quantity 
-      });
-    }
-
-    let cart = await cartModel.findOne({ user: userId });
-    
-    if (!cart) {
-      // Create new cart if doesn't exist
-      cart = new cartModel({
-        user: userId,
-        product: [{ product: productId, quantity }],
-        totalPrice: product.price * quantity
-      });
-    } else {
-      // Check if product exists in cart
-      const existingProductIndex = cart.product.findIndex(
-        item => item.product.toString() === productId
-      );
-
-      if (existingProductIndex !== -1) {
-        // Update existing product quantity
-        const newQuantity = cart.product[existingProductIndex].quantity + quantity;
-        if (newQuantity > product.quantity) {
+      if (!productId || quantity < 1) {
           return res.status(400).json({ 
-            success: false, 
-            message: 'Total quantity would exceed available stock',
-            availableStock: product.quantity 
+              success: false, 
+              message: 'Invalid product ID or quantity' 
           });
-        }
-        cart.product[existingProductIndex].quantity = newQuantity;
-      } else {
-        // Add new product to cart
-        cart.product.push({ product: productId, quantity });
       }
 
-      cart.totalPrice = await calculateTotalPrice(cart.product);
-    }
+      const product = await productModel.findById(productId);
+      if (!product) {
+          return res.status(404).json({ 
+              success: false, 
+              message: 'Product not found' 
+          });
+      }
 
-    await cart.save();
+      if (!product.quantity || product.quantity < quantity) {
+          return res.status(400).json({ 
+              success: false, 
+              message: 'Insufficient stock',
+              availableStock: product.quantity 
+          });
+      }
 
-    res.json({ 
-      success: true, 
-      cartCount: cart.product.length,
-      message: 'Product added to cart successfully'
-    });
+      let cart = await cartModel.findOne({ user: userId });
+      
+      if (!cart) {
+          cart = new cartModel({
+              user: userId,
+              product: [{ product: productId, quantity }]
+          });
+      } else {
+          const existingProductIndex = cart.product.findIndex(
+              item => item.product.toString() === productId
+          );
+
+          if (existingProductIndex !== -1) {
+              const newQuantity = cart.product[existingProductIndex].quantity + quantity;
+              if (newQuantity > product.quantity) {
+                  return res.status(400).json({ 
+                      success: false, 
+                      message: 'Total quantity would exceed available stock',
+                      availableStock: product.quantity 
+                  });
+              }
+              cart.product[existingProductIndex].quantity = newQuantity;
+          } else {
+              cart.product.push({ product: productId, quantity });
+          }
+      }
+
+      // Update all cart totals
+      cart = await updateCartTotals(cart);
+      await cart.save();
+
+      res.json({ 
+          success: true, 
+          cartCount: cart.product.length,
+          message: 'Product added to cart successfully'
+      });
   } catch (err) {
-    console.error('Add to cart error:', err);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Error adding product to cart' 
-    });
+      console.error('Add to cart error:', err);
+      res.status(500).json({ 
+          success: false, 
+          message: 'Error adding product to cart' 
+      });
   }
 };
+
 
 const updateQuantity = async (req, res) => {
   try {
@@ -259,26 +253,56 @@ const removeFromCart = async (req, res) => {
 // Helper function to calculate total price
 async function calculateTotalPrice(products) {
   try {
-    let total = 0;
-    for (const item of products) {
-      const product = await productModel.findById(item.product);
-      if (product) {
-        total += product.price * item.quantity;
+      let total = 0;
+      for (const item of products) {
+          const product = await productModel.findById(item.product);
+          if (product) {
+              total += product.price * item.quantity;
+          }
       }
-    }
-    return total;
+      return Number(total.toFixed(2)); // Ensure consistent decimal places
   } catch (err) {
-    console.error('Calculate total price error:', err);
-    throw new Error('Error calculating total price');
+      console.error('Calculate total price error:', err);
+      throw new Error('Error calculating total price');
   }
+}
+
+async function updateCartTotals(cart) {
+  const totalPrice = await calculateTotalPrice(cart.product);
+  cart.totalPrice = totalPrice;
+
+  // If there's an applied coupon, recalculate discount
+  if (cart.appliedCoupon) {
+      const coupon = await couponModel.findById(cart.appliedCoupon);
+      if (coupon && coupon.status === "Active") {
+          cart.discountAmount = Number(((totalPrice * coupon.discount) / 100).toFixed(2));
+          cart.finalAmount = Number((totalPrice - cart.discountAmount).toFixed(2));
+      } else {
+          // Reset coupon if it's no longer valid
+          cart.appliedCoupon = null;
+          cart.discountAmount = 0;
+          cart.finalAmount = totalPrice;
+      }
+  } else {
+      cart.finalAmount = totalPrice;
+  }
+  
+  return cart;
 }
 
 const applyCoupon = async (req, res) => {
   try {
-      const { couponCode, cartTotal } = req.body;
+      const { couponCode } = req.body;
       const userId = req.user._id;
 
-      // Find the coupon
+      const cart = await cartModel.findOne({ user: userId });
+      if (!cart) {
+          return res.json({
+              success: false,
+              message: 'Cart not found'
+          });
+      }
+
       const coupon = await couponModel.findOne({
           couponCode: couponCode,
           status: "Active",
@@ -286,7 +310,6 @@ const applyCoupon = async (req, res) => {
           endDate: { $gt: new Date() }
       });
 
-      // Validate coupon
       if (!coupon) {
           return res.json({
               success: false,
@@ -294,34 +317,21 @@ const applyCoupon = async (req, res) => {
           });
       }
 
-      // Check minimum purchase
-      if (cartTotal < coupon.minimumPurchase) {
+      if (cart.totalPrice < coupon.minimumPurchase) {
           return res.json({
               success: false,
               message: `Minimum purchase of ₹${coupon.minimumPurchase} required`
           });
       }
 
-      // Calculate discount
-      const discountAmount = (cartTotal * coupon.discount) / 100;
-      const finalAmount = cartTotal - discountAmount;
-
-      // Update cart with applied coupon
-      await cartModel.findOneAndUpdate(
-          { user: userId },
-          { 
-              $set: {
-                  appliedCoupon: coupon._id,
-                  discountAmount: discountAmount,
-                  finalAmount: finalAmount
-              }
-          }
-      );
+      cart.appliedCoupon = coupon._id;
+      await updateCartTotals(cart);
+      await cart.save();
 
       res.json({
           success: true,
-          discountAmount: discountAmount.toFixed(2),
-          finalAmount: finalAmount.toFixed(2),
+          discountAmount: cart.discountAmount.toFixed(2),
+          finalAmount: cart.finalAmount.toFixed(2),
           message: 'Coupon applied successfully'
       });
 
