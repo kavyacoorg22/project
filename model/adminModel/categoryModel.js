@@ -21,7 +21,11 @@ const categorySchema=new mongoose.Schema({
   isDeleted:{
     type:Boolean,
     default:false
-  }
+  },
+  offers: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'offer',
+  }],
 },{timestamps:true})
 
 module.exports=mongoose.model('category',categorySchema)

@@ -58,65 +58,65 @@ const loadeditOffer=async(req,res)=>{
   }
 }
 
-const editOffer = async (req, res) => {
-  try {
-    const {
-      name,
-      description,
-      offer,
-      productCategory,
-      productCategoryID,
-      startDate,
-      endDate,
-      status
-    } = req.body;
+// const editOffer = async (req, res) => {
+//   try {
+//     const {
+//       name,
+//       description,
+//       offer,
+//       productCategory,
+//       productCategoryID,
+//       startDate,
+//       endDate,
+//       status
+//     } = req.body;
 
 
-    // Validate offer percentage
-    if (offer < 0 || offer > 100) {
-      return res.status(400).json({
-        success: false,
-        message: "Offer percentage must be between 0 and 100"
-      });
-    }
+//     // Validate offer percentage
+//     if (offer < 0 || offer > 100) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Offer percentage must be between 0 and 100"
+//       });
+//     }
 
-    const updatedOffer = await offerModel.findByIdAndUpdate(
-      req.params.id,
-      {
-        name,
-        description,
-        offer,
-        productCategory,
-        productCategoryID,
-        startDate,
-        endDate,
-        status
-      },
-      { new: true, runValidators: true }
-    );
+//     const updatedOffer = await offerModel.findByIdAndUpdate(
+//       req.params.id,
+//       {
+//         name,
+//         description,
+//         offer,
+//         productCategory,
+//         productCategoryID,
+//         startDate,
+//         endDate,
+//         status
+//       },
+//       { new: true, runValidators: true }
+//     );
 
-    if (!updatedOffer) {
-      return res.status(404).json({
-        success: false,
-        message: "Offer not found"
-      });
-    }
+//     if (!updatedOffer) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Offer not found"
+//       });
+//     }
 
-    res.json({
-      success: true,
-      message: "Offer updated successfully",
-      offer: updatedOffer
-    });
+//     res.json({
+//       success: true,
+//       message: "Offer updated successfully",
+//       offer: updatedOffer
+//     });
 
-  } catch (error) {
-    console.error('Error in editOffer:', error);
-    res.status(500).json({
-      success: false,
-      message: "Error updating offer",
-      error: error.message
-    });
-  }
-};
+//   } catch (error) {
+//     console.error('Error in editOffer:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Error updating offer",
+//       error: error.message
+//     });
+//   }
+// };
 const offer=async(req,res)=>{
   try{
      
@@ -189,6 +189,83 @@ const getApplicable=async (req, res) => {
 }
 
 
+// const addoffer = async (req, res) => {
+//   try {
+//     const {name, description, offer, productCategory, productCategoryID, startDate, endDate, status} = req.body;
+  
+//     if(!name || !offer || !description || !productCategory || !productCategoryID || !startDate || !endDate || !status) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "All fields are required"
+//       });
+//     }
+
+    
+//     if (new Date(endDate) <= new Date(startDate)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "End date must be after start date"
+//       });
+//     }
+
+    
+//     if(name.trim() === '' || description.trim() === '') {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Fields should not be empty or only space"
+//       });
+//     }
+
+//     // Offer range validation
+//     if(offer > 100 || offer < 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Offer should be 1 to 100"
+//       });
+//     }
+
+//     // ObjectId validation
+//     if (!mongoose.Types.ObjectId.isValid(productCategoryID)) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invalid product/category ID"
+//       });
+//     }
+
+//     // Create and save new offer
+//     const newOffer = new offerModel({
+//       name,
+//       description,
+//       offer,
+//       productCategory,
+//       productCategoryID,
+//       startDate,
+//       endDate,
+//       status
+//     });
+
+//     const savedOffer = await newOffer.save();
+
+//     // Send success response
+//     return res.status(200).json({
+//       success: true,
+//       message: 'Offer added successfully',
+//       offer: savedOffer
+//     });
+
+//   } catch (error) {
+//     console.error('Error in addoffer:', error);
+//     return res.status(500).json({
+//       success: false,
+//       message: 'Error while creating offer',
+//       error: error.message
+//     });
+//   }
+// };
+
+
+
+
 const addoffer = async (req, res) => {
   try {
     const {name, description, offer, productCategory, productCategoryID, startDate, endDate, status} = req.body;
@@ -200,7 +277,6 @@ const addoffer = async (req, res) => {
       });
     }
 
-    
     if (new Date(endDate) <= new Date(startDate)) {
       return res.status(400).json({
         success: false,
@@ -208,7 +284,6 @@ const addoffer = async (req, res) => {
       });
     }
 
-    
     if(name.trim() === '' || description.trim() === '') {
       return res.status(400).json({
         success: false,
@@ -216,7 +291,6 @@ const addoffer = async (req, res) => {
       });
     }
 
-    // Offer range validation
     if(offer > 100 || offer < 0) {
       return res.status(400).json({
         success: false,
@@ -224,7 +298,6 @@ const addoffer = async (req, res) => {
       });
     }
 
-    // ObjectId validation
     if (!mongoose.Types.ObjectId.isValid(productCategoryID)) {
       return res.status(400).json({
         success: false,
@@ -232,7 +305,7 @@ const addoffer = async (req, res) => {
       });
     }
 
-    // Create and save new offer
+    // Create new offer
     const newOffer = new offerModel({
       name,
       description,
@@ -246,7 +319,22 @@ const addoffer = async (req, res) => {
 
     const savedOffer = await newOffer.save();
 
-    // Send success response
+    // Update product or category based on offer type
+    if (productCategory === 'product') {
+      await productModel.findByIdAndUpdate(
+        productCategoryID,
+        { $addToSet: { offers: savedOffer._id } }
+      );
+    } else if (productCategory === 'category') {
+      // Update category
+      await categoryModel.findByIdAndUpdate(
+        productCategoryID,
+        { $addToSet: { offers: savedOffer._id } }
+      );
+      
+      
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Offer added successfully',
@@ -258,6 +346,111 @@ const addoffer = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Error while creating offer',
+      error: error.message
+    });
+  }
+};
+
+const editOffer = async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      offer,
+      productCategory,
+      productCategoryID,
+      startDate,
+      endDate,
+      status
+    } = req.body;
+
+    if (offer < 0 || offer > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "Offer percentage must be between 0 and 100"
+      });
+    }
+
+    // Get original offer to compare changes
+    const originalOffer = await offerModel.findById(req.params.id);
+    if (!originalOffer) {
+      return res.status(404).json({
+        success: false,
+        message: "Offer not found"
+      });
+    }
+
+    // Remove offer from old product/category if target changed
+    if (originalOffer.productCategoryID.toString() !== productCategoryID || 
+        originalOffer.productCategory !== productCategory) {
+      
+      if (originalOffer.productCategory === 'product') {
+        await productModel.findByIdAndUpdate(
+          originalOffer.productCategoryID,
+          { $pull: { offers: originalOffer._id } }
+        );
+      } else if (originalOffer.productCategory === 'category') {
+        await categoryModel.findByIdAndUpdate(
+          originalOffer.productCategoryID,
+          { $pull: { offers: originalOffer._id } }
+        );
+        // Remove from all products in old category
+        await productModel.updateMany(
+          { category: originalOffer.productCategoryID },
+          { $pull: { offers: originalOffer._id } }
+        );
+      }
+    }
+
+    // Update the offer
+    const updatedOffer = await offerModel.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        description,
+        offer,
+        productCategory,
+        productCategoryID,
+        startDate,
+        endDate,
+        status
+      },
+      { new: true, runValidators: true }
+    );
+
+    // Add offer to new product/category if target changed
+    if (originalOffer.productCategoryID.toString() !== productCategoryID || 
+        originalOffer.productCategory !== productCategory) {
+      
+      if (productCategory === 'product') {
+        await productModel.findByIdAndUpdate(
+          productCategoryID,
+          { $addToSet: { offers: updatedOffer._id } }
+        );
+      } else if (productCategory === 'category') {
+        await categoryModel.findByIdAndUpdate(
+          productCategoryID,
+          { $addToSet: { offers: updatedOffer._id } }
+        );
+        // Add to all products in new category
+        await productModel.updateMany(
+          { category: productCategoryID },
+          { $addToSet: { offers: updatedOffer._id } }
+        );
+      }
+    }
+
+    res.json({
+      success: true,
+      message: "Offer updated successfully",
+      offer: updatedOffer
+    });
+
+  } catch (error) {
+    console.error('Error in editOffer:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating offer",
       error: error.message
     });
   }

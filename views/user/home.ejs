@@ -141,44 +141,51 @@
           </div>
         </div>   		
     	</div>
-    	<div class="container">
-    		<div class="row">
-					<%products.forEach(product=>{%>
-    			<div class="col-md-6 col-lg-3 ftco-animate">
-    				<div class="product">
-							  
-									<a href="/user/product/<%=product._id%>" class="img-prod"><img class="img-fluid" src="/img/productsimg/<%=product.images[0]%>" name="images" alt="Colorlib Template">
-										<span class="status"></span>
-										<div class="overlay"></div>
-									</a>
-									<div class="text py-3 pb-4 px-3 text-center">
-										<h3><a href="/user/product/<%=product._id%>"><%=product.name%></a></h3>
-										<div class="d-flex">
+			<!-- views/user/home.ejs -->
+<div class="container">
+	<div class="row">
+			<%products.forEach(product=>{%>
+			<div class="col-md-6 col-lg-3 ftco-animate">
+					<div class="product">
+							<a href="/user/product/<%=product._id%>" class="img-prod">
+									<img class="img-fluid" src="/img/productsimg/<%=product.images[0]%>" name="images" alt="Colorlib Template">
+									<% if(product.hasDiscount) { %>
+											<span class="status"><%=product.totalDiscount%>% OFF</span>
+									<% } %>
+									<div class="overlay"></div>
+							</a>
+							<div class="text py-3 pb-4 px-3 text-center">
+									<h3><a href="/user/product/<%=product._id%>"><%=product.name%></a></h3>
+									<div class="d-flex">
 											<div class="pricing">
-												<p class="price"><span class="price-sale">₹<%=product.price%></span></p>
+													<% if(product.hasDiscount) { %>
+															<p class="price">
+																	<span class="mr-2 price-dc">₹<%=product.price%></span>
+																	<span class="price-sale">₹<%=product.discountedPrice%></span>
+															</p>
+													<% } else { %>
+															<p class="price">
+																	<span class="price-sale">₹<%=product.price%></span>
+															</p>
+													<% } %>
 											</div>
-										</div>
-										<div class="bottom-area d-flex px-3">
-											<div class="m-auto d-flex">
-												
-												<a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
-													<span><i class="ion-ios-cart"></i></span>
-												</a>
-												<a href="#" class="heart d-flex justify-content-center align-items-center ">
-													<span><i class="ion-ios-heart"></i></span>
-												</a>
-											</div>
-										</div>
 									</div>
-						   
-    				</div>
-    			</div>
-					<%})%>
-				
-    			
-    				
-    		</div> 
+									<div class="bottom-area d-flex px-3">
+											<div class="m-auto d-flex">
+													<a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
+															<span><i class="ion-ios-cart"></i></span>
+													</a>
+													<a href="#" class="heart d-flex justify-content-center align-items-center " data-product-id="<%= product._id %>">
+															<span><i class="ion-ios-heart"></i></span>
+													</a>
+											</div>
+									</div>
+							</div>
+					</div>
 			</div>
+			<%})%>
+	</div>
+</div>
   </section>
 		
 	<script defer>
@@ -252,6 +259,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+
+// wishlist
+document.querySelectorAll('.heart').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const productId = button.dataset.productId;
+      
+      try {
+        const response = await fetch(`/user/wishlist/add/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Product added to wishlist');
+          button.querySelector('.ion-ios-heart').classList.add('active');
+        } else {
+          Swal.fire(data.message || 'Failed to add product to wishlist', 'error');
+        }
+      } catch (error) {
+        console.error('Add to wishlist error:', error);
+        Swal.fire('Failed to add product to wishlist', 'error');
+      }
+    });
+  });
 
 	</script>
     

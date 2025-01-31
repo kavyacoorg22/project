@@ -25,7 +25,7 @@ const createcat = async (req, res) => {
     }
     const formattedName = name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
 
-    const existingCategory = await categoryModel.findOne({ name: formattedName });
+    const existingCategory = await categoryModel.findOne({ name: formattedName,isDeleted:false });
     
     
     if (existingCategory) {

@@ -76,17 +76,30 @@
         </div>
         <div>
           <%if(product.category.name!=='Juice'){%>
-          <p class="price" style="color: #000; display: flex; align-items: center;">
-            <span>₹<%=product.price%> / KG</span>
-            
-          </p>
+            <p class="price" style="font-size: 24px; display: flex; align-items: center; gap: 10px;">
+              <% if(product.hasDiscount && product.discountedPrice !== product.price) { %>
+                <span style="color: #808080; text-decoration: line-through;">₹<%=product.price%></span>
+                <span style="color: #FF3647;">₹<%=product.discountedPrice%></span>
+                <span style="color: #808080; font-size: 18px;"> / KG</span>
+              <% } else { %>
+                <span>₹<%=product.price%></span>
+                <span style="color: #808080; font-size: 18px;"> / KG</span>
+              <% } %>
+            </p>
           <%}else{%>
-          <p class="price" style="color: #000; display: flex; align-items: center;">
-            <span>₹<%=product.price%> / Bottel</span>
-            
-          </p>
+            <p class="price" style="font-size: 24px; display: flex; align-items: center; gap: 10px;">
+              <% if(product.hasDiscount && product.discountedPrice !== product.price) { %>
+                <span style="color: #808080; text-decoration: line-through;">₹<%=product.price%></span>
+                <span style="color: #FF3647;">₹<%=product.discountedPrice%></span>
+                <span style="color: #808080; font-size: 18px;"> / Bottle</span>
+              <% } else { %>
+                <span>₹<%=product.price%></span>
+                <span style="color: #808080; font-size: 18px;"> / Bottle</span>
+              <% } %>
+            </p>
           <%}%>
-        </div>
+        </div> 
+       
         <p>A small river named Duden flows by their place and supplies it with the necessary regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth. Text should turn around and return to its own, safe country. But nothing the copy said could convince her and so it didn't take long until.</p>
         <div class="row mt-4">
           <div class="w-100"></div>
@@ -199,39 +212,50 @@
     </div>   		
   </div>
 <!-- related products -->
-  <div class="container">
-    <div class="row">
-      <% relatedProducts.forEach(products=>{%>
-      <div class="col-md-6 col-lg-3 ftco-animate">
-        <div class="product">
-          <a href="/user/product/<%=products._id%>" class="img-prod"><img class="img-fluid" src="/img/productsimg/<%=products.images[0]%>" alt="Colorlib Template">
-            <!-- <span class="status">30%</span> -->
-            <div class="overlay"></div>
-          </a>
-          <div class="text py-3 pb-4 px-3 text-center">
-            <h3><a href="/user/product/<%=products._id%>"><%=products.name%></a></h3>
-            <div class="d-flex">
-              <div class="pricing">
-                <p class="price"><span class="mr-2 price-dc"></span><span class="price-sale">₹<%=products.price%></span></p>
-              </div>
-            </div>
-            <div class="bottom-area d-flex px-3">
-              <div class="m-auto d-flex">
-                
-                <a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
-                  <span><i class="ion-ios-cart"></i></span>
-                </a>
-                <a href="#" class="heart d-flex justify-content-center align-items-center ">
-                  <span><i class="ion-ios-heart"></i></span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-     <%})%>
-    </div>
-  </div>
+<div class="container">
+	<div class="row">
+			<%products.forEach(product=>{%>
+			<div class="col-md-6 col-lg-3 ftco-animate">
+					<div class="product">
+							<a href="/user/product/<%=product._id%>" class="img-prod">
+									<img class="img-fluid" src="/img/productsimg/<%=product.images[0]%>" name="images" alt="Colorlib Template">
+									<% if(product.hasDiscount) { %>
+											<span class="status"><%=product.totalDiscount%>% OFF</span>
+									<% } %>
+									<div class="overlay"></div>
+							</a>
+							<div class="text py-3 pb-4 px-3 text-center">
+									<h3><a href="/user/product/<%=product._id%>"><%=product.name%></a></h3>
+									<div class="d-flex">
+											<div class="pricing">
+													<% if(product.hasDiscount) { %>
+															<p class="price">
+																	<span class="mr-2 price-dc">₹<%=product.price%></span>
+																	<span class="price-sale">₹<%=product.discountedPrice%></span>
+															</p>
+													<% } else { %>
+															<p class="price">
+																	<span class="price-sale">₹<%=product.price%></span>
+															</p>
+													<% } %>
+											</div>
+									</div>
+									<div class="bottom-area d-flex px-3">
+											<div class="m-auto d-flex">
+													<a href="#" class="buy-now d-flex justify-content-center align-items-center mx-1" data-product-id="<%= product._id %>">
+															<span><i class="ion-ios-cart"></i></span>
+													</a>
+													<a href="#" class="heart d-flex justify-content-center align-items-center " data-product-id="<%= product._id %>">
+															<span><i class="ion-ios-heart"></i></span>
+													</a>
+											</div>
+									</div>
+							</div>
+					</div>
+			</div>
+			<%})%>
+	</div>
+</div>
 </section>
 
 
@@ -462,4 +486,32 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
+
+document.querySelectorAll('.heart').forEach(button => {
+    button.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const productId = button.dataset.productId;
+      
+      try {
+        const response = await fetch(`/user/wishlist/add/${productId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Product added to wishlist');
+          button.querySelector('.ion-ios-heart').classList.add('active');
+        } else {
+          Swal.fire(data.message || 'Failed to add product to wishlist', 'error');
+        }
+      } catch (error) {
+        console.error('Add to wishlist error:', error);
+        Swal.fire('Failed to add product to wishlist', 'error');
+      }
+    });
+  });
 </script>

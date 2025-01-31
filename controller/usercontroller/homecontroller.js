@@ -2,20 +2,59 @@ const productModel=require("../../model/adminModel/productModel")
 require("dotenv").config()
 const reviewModel=require('../../model/userModel/reviewModel')
 const categoryModel=require('../../model/adminModel/categoryModel')
+const { calculateDiscount } = require('../../utils/calculateDiscount');
 
 
 const home = async (req, res) => {
   try {
-    const products=await productModel.find({isDeleted:false})
-    res.render('user/home', { title: "Home",products ,includeCss:true,csspage:"shop.css"});
+  
+    const products = await productModel.find({ isDeleted: false })
+      .populate({
+        path: 'offers',
+        match: {
+          status: 'Active',
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() }
+        }
+      })
+      .populate({
+        path: 'category',
+        populate: {
+          path: 'offers',
+          match: {
+            status: 'Active',
+            startDate: { $lte: new Date() },
+            endDate: { $gte: new Date() }
+          }
+        }
+      });
+
+    // Add discount calculations to each product
+    const processedProducts = products.map(product => {
+      const discountInfo = calculateDiscount(product);
+      return {
+        ...product.toObject(),
+        ...discountInfo
+      };
+    });
+
+    res.render('user/home', {
+      title: "Home",
+      products: processedProducts,
+      includeCss: true,
+      csspage: "shop.css"
+    });
   } catch (err) {
-    res.status(500).send(err.message); 
+    console.error('Error in home controller:', err);
+    res.status(500).send('Internal Server Error');
   }
 };
 
 
+
 const shop = async (req, res) => {
   try {
+    
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
     const skip = (page - 1) * limit;
@@ -86,13 +125,41 @@ const shop = async (req, res) => {
       .sort(sort)
       .skip(skip)
       .limit(limit)
-      .populate('category');
+      .populate('category')
+      .populate({
+        path: 'offers',
+        match: {
+          status: 'Active',
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() }
+        }
+      })
+      .populate({
+        path: 'category',
+        populate: {
+          path: 'offers',
+          match: {
+            status: 'Active',
+            startDate: { $lte: new Date() },
+            endDate: { $gte: new Date() }
+          }
+        }
+      });
+
+      // Add discount calculations to each product
+    const processedProducts = products.map(product => {
+      const discountInfo = calculateDiscount(product);
+      return {
+        ...product.toObject(),
+        ...discountInfo
+      };
+    });
 
     // Fetch categories
     const categories = await categoryModel.find({ isDeleted: false });
 
     res.render('user/shop', {
-      products,
+      products:processedProducts,
       categories,
       page,
       totalPages,
@@ -112,17 +179,81 @@ const shop = async (req, res) => {
 
 const product = async (req, res) => {
   try {
-    const {id}=req.params;
-    const product=await productModel.findById(id).populate('category')
-    
+    const {id} = req.params;
+    const product = await productModel.findById(id).populate('category')
+    .populate({
+      path: 'offers',
+      match: {
+        status: 'Active',
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() }
+      }
+    })
+    .populate({
+      path: 'category',
+      populate: {
+        path: 'offers',
+        match: {
+          status: 'Active',
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() }
+        }
+      }
+    });
+
+    // Changed productData to product
+    const processedProduct = {
+      ...product.toObject(),
+      ...calculateDiscount(product)
+    };
+
     const reviews = await reviewModel.find({ productId: req.params.id })
       .populate('userId', 'firstname avatar')
       .sort({ createdAt: -1 });
 
-  
-    const relatedProducts=await productModel.find({isDeleted:false})
-    res.render('user/product', { title: "product" ,product,relatedProducts,reviews,includeCss:false,currentPage:product.name});
+    const relatedProducts = await productModel.find({
+      isDeleted: false,
+      _id: { $ne: id }
+    })
+    .limit(4)
+    .populate({
+      path: 'offers',
+      match: {
+        status: 'Active',
+        startDate: { $lte: new Date() },
+        endDate: { $gte: new Date() }
+      }
+    })
+    .populate({
+      path: 'category',
+      populate: {
+        path: 'offers',
+        match: {
+          status: 'Active',
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() }
+        }
+      }
+    });
+
+    const processedProducts = relatedProducts.map(product => {
+      const discountInfo = calculateDiscount(product);
+      return {
+        ...product.toObject(),
+        ...discountInfo
+      };
+    });
+
+    res.render('user/product', { 
+      title: "product",
+      product: processedProduct,  // Changed to use processedProduct
+      products: processedProducts,
+      reviews,
+      includeCss: false,
+      currentPage: product.name
+    });
   } catch (err) {
+    console.error('Error in product controller:', err);
     res.status(500).send(err.message); 
   }
 };
