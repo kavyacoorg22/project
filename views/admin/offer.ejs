@@ -17,23 +17,60 @@
       </tr>
     </thead>
     <tbody>
+      <%offers.forEach((offer)=>{%>
       <tr>
-        <td>product</td>
-        <td>MacBook Air</td>
-        <td>offer</td>
-        <td>15</td>
-        <td>1/8/2025</td>
-        <td>1/18/2025</td>
+        <td><%=offer.productCategory%></td>
+        <td><%=offer.itemName%></td>
+        <td><%=offer.name%></td>
+        <td><%=offer.offer%>%</td>
+        <td><%=new Date(offer.startDate).toLocaleDateString()%></td>
+        <td><%=new Date(offer.endDate).toLocaleDateString()%></td>
         <td>
-          <select class="form-control">
-            <option value="Active" selected>Active</option>
+          <select class="form-control status-select" data-offer-id="<%=offer._id%>">
+            <option value="Active" <%=offer.status === 'Active' ? 'selected' : ''%>>Active</option>
+            <option value="Inactive" <%=offer.status === 'Inactive' ? 'selected' : ''%>>Inactive</option>
           </select>
         </td>
-        <td><button class="btn btn-primary" onclick='window.location.href="/admin/offer/edit/"'>Edit</button></td>
+        <td><button class="btn btn-primary" onclick='window.location.href="/admin/offer/edit/<%=offer._id%>"'>Edit</button></td>
       </tr>
-      
+      <%})%>
     </tbody>
   </table>
 
  
 </div>
+
+
+<script>
+  document.querySelectorAll('.status-select').forEach(select => {
+    select.addEventListener('change', async function() {
+      const offerId = this.dataset.offerId;
+      const newStatus = this.value;
+      
+      try {
+        const response = await fetch(`/admin/offer/updateStatus/${offerId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+  
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to update status');
+        }
+        
+        // Optional: Show success message
+        Swal.fire('Status updated successfully');
+        
+      } catch (error) {
+        console.error('Error:', error);
+        SWal.fire('Failed to update status');
+        // Reset to previous value
+        this.value = this.options[0].value;
+      }
+    });
+  });
+  </script>

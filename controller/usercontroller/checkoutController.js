@@ -43,7 +43,7 @@ const loadCheckout = async (req, res) => {
         const cartTotal = validProducts.reduce((sum, item) => 
             sum + (item.product.price * item.quantity), 0);
         const deliveryCharge = cartTotal > 1000 ? 0 : 40;
-        const discount = 0;
+        const discount = cart.discountAmount;
         const finalTotal = cartTotal + deliveryCharge - discount;
 
         res.render('user/checkout', {

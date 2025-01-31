@@ -41,7 +41,8 @@ const loadCart = async (req, res) => {
 
       res.render('user/cart', {
           title: 'Cart',
-          includeCss: false,
+          includeCss: true,
+          csspage:"coupon.css",
           products: validProducts,
           totalPrice: cart.totalPrice,
           discountAmount: cart.discountAmount || 0,

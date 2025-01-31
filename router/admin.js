@@ -48,8 +48,11 @@ router.get('/order/viewOrder/:orderId', adminAuth.checkSession,orderController.v
 
 router.get('/offer/add',adminAuth.checkSession,offerController.loadAddOffer)
 router.get('/offer',adminAuth.checkSession,offerController.loadOffer)
-router.get('/offer/edit',adminAuth.checkSession,offerController.loadeditOffer)
-
+router.get('/offer/edit/:id',adminAuth.checkSession,offerController.loadeditOffer)
+router.get('/offer/getApplicable/:type',adminAuth.checkSession,offerController.getApplicable) 
+router.post('/offer/add',adminAuth.checkSession,offerController.addoffer)
+router.post('/offer/edit/:id',adminAuth.checkSession,offerController.editOffer)
+router.patch('/offer/updateStatus/:id',adminAuth.checkSession, offerController.updateStatus);
 
 router.get('/coupon/add',adminAuth.checkSession,couponController.loadAddCoupon)
 router.get('/coupon',adminAuth.checkSession,couponController.loadCoupon)

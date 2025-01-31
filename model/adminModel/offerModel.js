@@ -8,8 +8,9 @@ const offerSchema = new mongoose.Schema({
     enum: ['category', 'product'],
   },
   productCategoryID: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
     required: true,
+    
   },
   name: {
     type: String,
@@ -33,20 +34,15 @@ const offerSchema = new mongoose.Schema({
   endDate: {
     type: Date,
     required: true,
-    validate: {
-      validator: function (value) {
-        return value > this.startDate; // Ensures endDate is after startDate
-      },
-      message: 'End date must be after the start date.',
-    },
+   
   },
   status: {
     type: String,
     required: true,
-    enum: ['Active', 'Inactive', 'Expired'], // Define valid statuses
+    enum: ['Active', 'Inactive'] // Define valid statuses
   },
 }, { timestamps: true }); 
 
-const Offer = mongoose.model('offer', offerSchema);
 
-module.exports = Offer;
+
+module.exports = mongoose.model('offer',offerSchema);
