@@ -56,13 +56,16 @@
  
       <div class="col-lg-6 product-details pl-md-5 ftco-animate">
         <h3><%=product.name%></h3>
-        <% if(product.stock <= 10) { %>
+        <%if(product.stock===0){%>
+          <span class="stock-badge product-stock-badge product-low-stock">Out-of-Stock</span>
+      
+        <%}else if(product.stock <= 10 && product.stock>=1) { %>
           <span class="stock-badge product-stock-badge product-low-stock">Low Stock: <%=product.stock%></span>
         <% } else if(product.stock > 10 && product.stock<= 50) { %>
           <span class="stock-badge product-stock-badge product-medium-stock">Stock: <%=product.stock%></span>
         <% } else { %>
           <span class="stock-badge product-stock-badge product-high-stock">In Stock: <%=product.stock%></span>
-        <% } %>
+        <% }%>
         <div class="rating d-flex">
           <p class="text-left mr-4">
             <a href="#" class="mr-2">5.0</a>

@@ -1,5 +1,6 @@
 const orderModel = require('../../model/userModel/orderModel')
 const productModel=require('../../model/adminModel/productModel')
+const walletModel=require('../../model/userModel/walletModel')
 
 const loadOrder = async (req, res) => {
   try {
@@ -47,10 +48,82 @@ const loadOrder = async (req, res) => {
     res.status(500).send('Error loading orders. Please try again.');
   }
 };
+
+
+const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedItem) => {
+  try {
+    console.log('Starting handleRefundAndQuantityUpdate with:', {
+      orderId,
+      itemId,
+      status,
+      updatedItem
+    });
+
+    // Update product quantity if status is 'canceled' or 'returned'
+    if (status === 'canceled' || status === 'returned') {
+      console.log('Attempting to update product quantity for product:', updatedItem.product);
+      console.log('Quantity to add back:', updatedItem.quantity);
+
+      const productBefore = await productModel.findById(updatedItem.product);
+      console.log('Product before update:', productBefore);
+
+      const updatedProduct = await productModel.findOneAndUpdate(
+        { _id: updatedItem.product }, // Changed from productId to product
+        { 
+          $inc: { 
+            quantity: updatedItem.quantity,
+            stock: updatedItem.quantity 
+          }
+        },
+        { new: true }
+      );
+
+      console.log('Product after update:', updatedProduct);
+    }
+
+    // Handle refund logic
+    const order = await orderModel.findOne({ orderID: orderId });
+    if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
+      const refundAmount = updatedItem.price * updatedItem.quantity;
+
+      if (order.paymentMethod === 'wallet') {
+        const walletBefore = await walletModel.findOne({ user: order.user });
+        console.log('Wallet before update:', walletBefore);
+
+        const updatedWallet = await walletModel.findOneAndUpdate(
+          { user: order.user },
+          {
+            $inc: { balance: refundAmount },
+            $push: {
+              transactions: {
+                transactionType: 'deposit',
+                amount: refundAmount,
+                date: new Date()
+              }
+            }
+          },
+          { new: true }
+        );
+
+        console.log('Wallet after update:', updatedWallet);
+      }
+    }
+  } catch (error) {
+    console.error('Error in handleRefundAndQuantityUpdate:', error);
+    throw error;
+  }
+};
+
 const updateStatus = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
     const { status } = req.body;
+
+    console.log('Updating status for:', {
+      orderId,
+      itemId,
+      status
+    });
 
     const updatedOrder = await orderModel.findOneAndUpdate(
       { 
@@ -66,23 +139,26 @@ const updateStatus = async (req, res) => {
     );
 
     if (!updatedOrder) {
+      console.log('Order or Item not found');
       return res.status(404).json({ 
         success: false, 
         message: 'Order or Item not found' 
       });
     }
-//find perticular product
+
+    console.log('Updated order:', updatedOrder);
+
     const updatedItem = updatedOrder.orderedItem.find(
       item => item._id.toString() === itemId
     );
     
-   
-     // Check if all items are canceled or returned
-     const allItemsCanceledOrReturned = updatedOrder.orderedItem.every(
+    console.log('Found updated item:', updatedItem);
+
+    // Check if all items are canceled or returned
+    const allItemsCanceledOrReturned = updatedOrder.orderedItem.every(
       item => item.status === 'canceled' || item.status === 'returned'
     );
 
-    // Update order status if all items are canceled/returned
     if (allItemsCanceledOrReturned) {
       const newOrderStatus = updatedOrder.orderedItem.some(
         item => item.status === 'canceled'
@@ -94,7 +170,8 @@ const updateStatus = async (req, res) => {
       );
     }
 
-  
+    // Handle refund and quantity update
+    await handleRefundAndQuantityUpdate(orderId, itemId, status, updatedItem);
 
     res.json({ 
       success: true, 
@@ -102,28 +179,15 @@ const updateStatus = async (req, res) => {
       item: updatedItem 
     });
 
-
-    if (status === 'canceled') {
-     
-      await productModel.findOneAndUpdate(
-          { _id: updatedItem.productId },
-          { 
-            $inc: { quantity: updatedItem.quantity },
-            $inc:{stock:updatedItem.quantity}
-          },
-          { new: true }
-        );
-      }
-  
-
   } catch (error) {
+    console.error('Error in updateStatus:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Error updating item status', 
       error: error.message 
     });
   }
-}
+};
 
 const viewOrder=async(req,res)=>{
   
