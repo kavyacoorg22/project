@@ -103,10 +103,10 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Fetch user from the database by email
+  
     const user = await signupModel.findOne({ email });
 
-    // Check if user exists
+    
     if (!user) {
       return res.status(400).json({
         success: false,
@@ -126,21 +126,20 @@ const login = async (req, res) => {
     // Create JWT token
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    // Set cache control headers BEFORE sending any response
     res.set({
       'Cache-Control': 'no-cache, no-store, must-revalidate, private',
       'Pragma': 'no-cache',
       'Expires': '-1'
     });
 
-    // Set cookie with secure options
+    
     res.cookie("token", token, {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',
       
     });
 
-    // Send the response LAST, after setting headers and cookies
+  
     return res.status(200).json({
       success: true,
       message: 'Login successful',

@@ -142,15 +142,25 @@ const changePassword = async (req, res) => {
 
 
 const logout = (req, res) => {
+  try {
+    // Clear the JWT token cookie
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // Ensure cookie is only cleared over HTTPS in production
+      sameSite: 'strict', // Prevent CSRF attacks
+    });
 
-
-  req.session.destroy((err) => {
-    if (err) {
-      console.error('Failed to destroy session:', err);
-      return res.status(500).send('Failed to log out');
-    }
-
-    
-  });
-}
+    // Send a success response
+    return res.status(200).json({
+      success: true,
+      message: 'Logged out successfully',
+    });
+  } catch (error) {
+    console.error('Error during logout:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'An error occurred during logout',
+    });
+  }
+};
 module.exports={loadProfile,updateProfile,changePassword,logout}

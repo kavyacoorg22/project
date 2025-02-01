@@ -42,7 +42,7 @@ const addWallet = async (req, res) => {
     if (!userId || !amount || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount or user ID" });
     }
-
+   
     let wallet = await walletModel.findOne({ user: userId });
 
     if (!wallet) {

@@ -22,7 +22,7 @@
       <a href="/user/address" ><span>Address</span></a>
       <a href="#"class="active"><span>Order</span></a>
       <a href="/user/wallet"><span>Wallet</span></a>
-      <a href="#" class="logout"><span>Logout</span></a>
+      <a href="/user/logout" class="logout" onclick="logout(event)"><span>Logout</span></a>
     </aside>
 
     <main class="main-content">
@@ -112,4 +112,27 @@
     document.querySelector('.sidebar').classList.toggle('active');
     document.querySelector('.overlay').classList.toggle('active');
   }
+
+
+  //logout
+  function logout(event) {
+  event.preventDefault(); 
+  
+  fetch('/user/logout', {
+    method: 'POST',
+    credentials: 'include', // Include cookies in the request
+  })
+    .then(response => {
+      if (response.ok) {
+        
+        window.location.href = '/user/login';
+      } else {
+        Swal.fire('Logout failed!');
+      }
+    })
+    .catch(error => {
+      console.error('Error during logout:', error);
+      Swal.fire('An error occurred during logout. Please try again.');
+    });
+}
 </script>
