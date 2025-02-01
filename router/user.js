@@ -80,6 +80,7 @@ router.post('/applyCoupon',userAuth,cartController.applyCoupon)
 
 
 router.get('/checkout',userAuth,checkoutController.loadCheckout)
+router.get('/check-wallet-balance',userAuth, checkoutController.checkWalletBalance);
 
 router.post('/placeOrder',userAuth,checkoutController.placeOrder)
 router.get('/orderSuccess/:id',userAuth,checkoutController.loadSuccessPage)

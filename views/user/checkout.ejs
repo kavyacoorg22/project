@@ -186,11 +186,93 @@
 </section>
 
 <script>
-
-document.addEventListener('DOMContentLoaded', function() {
-   
+    document.addEventListener('DOMContentLoaded', function() {
+    // Get all required elements
     const checkoutForm = document.getElementById('checkoutForm');
     const sameAsDeliveryCheckbox = document.getElementById('sameAsDelivery');
+    const paymentMethods = document.querySelectorAll('input[name="payment"]');
+    const termsCheckbox = document.getElementById('terms');
+    const submitButton = checkoutForm.querySelector('button[type="submit"]');
+
+    // Form field IDs for billing details
+    const billingFields = {
+        firstname: document.getElementById('firstname'),
+        lastname: document.getElementById('lastname'),
+        email: document.getElementById('email'),
+        mobile: document.getElementById('mobile'),
+        address: document.getElementById('address'),
+        postalCode: document.getElementById('postalCode')
+    };
+
+    // Validate email format
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    // Validate mobile number (10 digits)
+    function isValidMobile(mobile) {
+        return /^\d{10}$/.test(mobile);
+    }
+
+    // Validate postal code (6 digits)
+    function isValidPostalCode(code) {
+        return /^\d{6}$/.test(code);
+    }
+
+    // Function to validate all form fields
+    function validateFormFields() {
+        const errors = [];
+
+        // Check if delivery address is selected
+        const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
+        if (!selectedAddress) {
+            errors.push('Please select a delivery address');
+        }
+
+        // Validate billing details
+        if (!billingFields.firstname.value.trim()) {
+            errors.push('First name is required');
+        }
+
+        if (!billingFields.lastname.value.trim()) {
+            errors.push('Last name is required');
+        }
+
+        if (!billingFields.email.value.trim()) {
+            errors.push('Email is required');
+        } else if (!isValidEmail(billingFields.email.value)) {
+            errors.push('Please enter a valid email address');
+        }
+
+        if (!billingFields.mobile.value.trim()) {
+            errors.push('Mobile number is required');
+        } else if (!isValidMobile(billingFields.mobile.value)) {
+            errors.push('Please enter a valid 10-digit mobile number');
+        }
+
+        if (!billingFields.address.value.trim()) {
+            errors.push('Address is required');
+        }
+
+        if (!billingFields.postalCode.value.trim()) {
+            errors.push('Postal code is required');
+        } else if (!isValidPostalCode(billingFields.postalCode.value)) {
+            errors.push('Please enter a valid 6-digit postal code');
+        }
+
+        // Check payment method
+        const selectedPayment = document.querySelector('input[name="payment"]:checked');
+        if (!selectedPayment) {
+            errors.push('Please select a payment method');
+        }
+
+        // Check terms acceptance
+        if (!termsCheckbox.checked) {
+            errors.push('Please accept the terms and conditions');
+        }
+
+        return errors;
+    }
 
     // Function to copy delivery address to billing
     sameAsDeliveryCheckbox.addEventListener('change', async function() {
@@ -218,19 +300,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Split the details string and clean up each part
             const parts = details.split(',').map(part => part.trim());
             const firstLastName = parts[0].split(' ').map(part => part.trim());
-            const firstName = firstLastName[0];
-            const lastName = firstLastName[1];
-            const streetAddress = parts[1];
-            const postalCode = parts[2];
-            const email = parts[3];
-
-            // Fill the billing form
-            document.getElementById('firstname').value = firstName;
-            document.getElementById('lastname').value = lastName;
-            document.getElementById('email').value = email;
-            document.getElementById('mobile').value = phone.trim();
-            document.getElementById('address').value = streetAddress;
-            document.getElementById('postalCode').value = postalCode;
+            
+            billingFields.firstname.value = firstLastName[0];
+            billingFields.lastname.value = firstLastName[1] || '';
+            billingFields.email.value = parts[3];
+            billingFields.mobile.value = phone.trim();
+            billingFields.address.value = parts[1];
+            billingFields.postalCode.value = parts[2];
 
         } catch (error) {
             console.error('Error copying address:', error);
@@ -244,94 +320,96 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Function to clear billing form
     function clearBillingForm() {
-        document.getElementById('firstname').value = '';
-        document.getElementById('lastname').value = '';
-        document.getElementById('email').value = '';
-        document.getElementById('mobile').value = '';
-        document.getElementById('address').value = '';
-        document.getElementById('postalCode').value = '';
+        Object.values(billingFields).forEach(field => field.value = '');
     }
 
-    // Handle form submission with proper validation
+    // Handle payment method selection
+   
+paymentMethods.forEach(method => {
+    method.addEventListener('change', async function() {
+        if (this.value === 'wallet') {
+            try {
+                // Get wallet balance
+                const response = await fetch('/user/check-wallet-balance');
+                const data = await response.json();
+                
+                // Get order total from the page
+                const orderTotal = parseFloat(document.querySelector('.total-price span:last-child')
+                    .textContent.replace('₹', ''));
+
+                if (!data.success || data.balance < orderTotal) {
+                    // Show error if balance is insufficient
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Insufficient Balance',
+                        text: 'Your wallet balance is insufficient for this purchase.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Add Funds',
+                        cancelButtonText: 'Choose Different Payment'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/user/wallet';
+                        } else {
+                            this.checked = false;
+                        }
+                    });
+                } else {
+                    // Show success if balance is sufficient
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Balance Available',
+                        text: 'Sufficient balance in your wallet',
+                        timer: 1500
+                    });
+                }
+            } catch (error) {
+                // Show error if check fails
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Unable to verify wallet balance. Please try again.'
+                });
+                this.checked = false;
+            }
+        }
+    });
+});
+
+    // Handle form submission
     checkoutForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        console.log('Form submission started'); // Debug log
 
-        // Validate delivery address selection
-        const selectedAddress = document.querySelector('input[name="savedAddress"]:checked');
-        if (!selectedAddress) {
+        // Validate form
+        const errors = validateFormFields();
+        if (errors.length > 0) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Select Address',
-                text: 'Please select a delivery address'
+                title: 'Form Validation',
+                html: errors.join('<br>')
             });
             return;
         }
 
-        // Get all form values and log them
-        const formValues = {
-            firstname: document.getElementById('firstname').value,
-            lastname: document.getElementById('lastname').value,
-            email: document.getElementById('email').value,
-            mobile: document.getElementById('mobile').value,
-            address: document.getElementById('address').value,
-            postalCode: document.getElementById('postalCode').value
+        // Prepare form data
+        const formData = {
+            addressId: document.querySelector('input[name="savedAddress"]:checked').value,
+            paymentMethod: document.querySelector('input[name="payment"]:checked').value,
+            billing: {
+                firstName: billingFields.firstname.value,
+                lastName: billingFields.lastname.value,
+                email: billingFields.email.value,
+                phone: billingFields.mobile.value,
+                address: billingFields.address.value,
+                postcode: billingFields.postalCode.value
+            }
         };
 
-        console.log('Form values:', formValues); // Debug log
-
-        // Check for empty fields
-        const emptyFields = Object.entries(formValues)
-            .filter(([key, value]) => !value.trim())
-            .map(([key]) => key);
-
-        if (emptyFields.length > 0) {
-            console.log('Empty fields:', emptyFields); // Debug log
-            Swal.fire({
-                icon: 'warning',
-                title: 'Missing Information',
-                text: `Please fill in all required fields`
-            });
-            return;
-        }
-
-        // Validate payment method
-        const selectedPayment = document.querySelector('input[name="payment"]:checked');
-        if (!selectedPayment || selectedPayment.value !== 'cod') {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Payment Method',
-                text: 'Currently only Cash on Delivery (COD) is available'
-            });
-            return;
-        }
-
-        // Validate terms acceptance
-        if (!document.getElementById('terms').checked) {
-            Swal.fire({
-                icon: 'warning',
-                title: 'Terms & Conditions',
-                text: 'Please accept the terms and conditions'
-            });
-            return;
-        }
-
         try {
-            const formData = {
-                addressId: selectedAddress.value,
-                paymentMethod: selectedPayment.value,
-                billing: {
-                    firstName: formValues.firstname,
-                    lastName: formValues.lastname,
-                    email: formValues.email,
-                    phone: formValues.mobile,
-                    address: formValues.address,
-                    postcode: formValues.postalCode
-                }
-            };
-
-            console.log('Submitting form data:', formData); // Debug log
+            // Disable submit button
+            submitButton.disabled = true;
+            submitButton.textContent = 'Processing...';
 
             const response = await fetch('/user/placeOrder', {
                 method: 'POST',
@@ -341,33 +419,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(formData)
             });
 
-            if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
             const result = await response.json();
 
             if (result.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Success!',
-                    text: 'Order placed successfully',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = `/user/orderSuccess/${result.orderId}`;
-                });
+                if (formData.paymentMethod === 'razorpay') {
+                    // Handle Razorpay payment
+                    handleRazorpayPayment(result.order);
+                } else {
+                    // Handle other payment methods (COD, Wallet)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed!',
+                        text: 'Your order has been placed successfully',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = `/user/orderSuccess/${result.orderId}`;
+                    });
+                }
             } else {
                 throw new Error(result.message || 'Failed to place order');
             }
         } catch (error) {
-            console.error('Order submission error:', error); 
+            console.error('Order submission error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Order Failed',
                 text: error.message || 'Failed to place order. Please try again.'
             });
+        } finally {
+            // Re-enable submit button
+            submitButton.disabled = false;
+            submitButton.textContent = 'Place Order';
         }
     });
-});
 
+    // Function to handle Razorpay payment
+    function handleRazorpayPayment(order) {
+        const options = {
+            key: order.key_id,
+            amount: order.amount,
+            currency: order.currency,
+            name: 'Your Store Name',
+            description: 'Order Payment',
+            order_id: order.id,
+            handler: async function (response) {
+                try {
+                    const verifyResponse = await fetch('/user/verify-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        })
+                    });
+
+                    const verifyResult = await verifyResponse.json();
+
+                    if (verifyResult.success) {
+                        window.location.href = `/user/orderSuccess/${order.receipt}`;
+                    } else {
+                        throw new Error('Payment verification failed');
+                    }
+                } catch (error) {
+                    console.error('Payment verification error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Payment Failed',
+                        text: 'Payment verification failed. Please contact support.'
+                    });
+                }
+            },
+            prefill: {
+                name: `${billingFields.firstname.value} ${billingFields.lastname.value}`,
+                email: billingFields.email.value,
+                contact: billingFields.mobile.value
+            },
+            theme: {
+                color: '#3399cc'
+            }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    }
+});
 </script>

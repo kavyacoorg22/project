@@ -3,6 +3,7 @@ const signupModel = require('../../model/userModel/signupModel');
 const cartModel = require('../../model/userModel/cartModel');
 const orderModel = require('../../model/userModel/orderModel');
 const productModel = require('../../model/adminModel/productModel');
+const walletModel=require('../../model/userModel/walletModel')
 
 const loadCheckout = async (req, res) => {
     try {
@@ -72,7 +73,6 @@ const loadCheckout = async (req, res) => {
 const placeOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod, billing } = req.body;
-        console.log(req.user._id)
         const userId = req.user._id;
 
         if (!addressId || !billing) {
@@ -115,6 +115,31 @@ const placeOrder = async (req, res) => {
         const discount = 0;
         const finalAmount = cartTotal + deliveryCharge - discount;
 
+        // Check wallet balance if payment method is wallet
+        if (paymentMethod === 'wallet') {
+            const wallet = await walletModel.findOne({ user: userId });
+            
+            if (!wallet || wallet.balance < finalAmount) {
+                throw new Error('Insufficient wallet balance');
+            }
+
+            // Deduct amount from wallet
+            await walletModel.findOneAndUpdate(
+                { user: userId },
+                {
+                    $inc: { balance: -finalAmount },
+                    $push: {
+                        transactions: {
+                            transactionType: 'withdrawal',
+                            amount: finalAmount,
+                            date: new Date()
+                        }
+                    }
+                },
+                { new: true }
+            );
+        }
+
         const orderID = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
        
         const order = await orderModel.create({
@@ -127,28 +152,25 @@ const placeOrder = async (req, res) => {
             deliveryCharge,
             discount,
             paymentMethod: paymentMethod || 'cod',
-            status: 'processing',
+            status: paymentMethod === 'wallet' ? 'processing' : 'Payment Pending',
             orderDate: new Date()
         });
 
         await Promise.all(
             orderedItem.map(async (item) => {
-             
-              const updatedProduct = await productModel.findByIdAndUpdate(
-                item.product,
-                { $inc: { quantity: -item.quantity } }, // Decrement quantity
-                { new: true } 
-              );
+                const updatedProduct = await productModel.findByIdAndUpdate(
+                    item.product,
+                    { $inc: { quantity: -item.quantity } },
+                    { new: true } 
+                );
           
-             
-              return productModel.findByIdAndUpdate(
-                item.product,
-                { $set: { stock: updatedProduct.quantity } }, // Set stock to new quantity
-                { new: true } 
-              );
+                return productModel.findByIdAndUpdate(
+                    item.product,
+                    { $set: { stock: updatedProduct.quantity } },
+                    { new: true } 
+                );
             })
-          );
-          
+        );
 
         await cartModel.findOneAndDelete({ user: userId });
 
@@ -195,8 +217,26 @@ const loadSuccessPage = async (req, res) => {
     }
 };
 
+
+const checkWalletBalance = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const wallet = await walletModel.findOne({ user: userId });
+        
+        if (!wallet) {
+            return res.json({ success: false, balance: 0 });
+        }
+
+        res.json({
+            success: true,
+            balance: wallet.balance
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error checking balance' });
+    }
+};
 module.exports = {
     loadCheckout,
     placeOrder,
-    loadSuccessPage
+    loadSuccessPage,checkWalletBalance
 };

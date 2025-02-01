@@ -13,6 +13,7 @@ const path=require('path')
 const methodOverride = require('method-override');
 const nocache=require("nocache")
 const passport=require("passport")
+const Razorpay = require('razorpay');
 
 
 
@@ -62,6 +63,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+//razor pay
+
+// const razorpay = new Razorpay({
+//   key_id: process.env.RAZORPAY_KEY_ID,
+//   key_secret: process.env.RAZORPAY_KEY_SECRET
+// });
 
 // Routes
 
