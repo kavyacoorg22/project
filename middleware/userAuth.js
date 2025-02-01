@@ -2,49 +2,80 @@ const jwt = require('jsonwebtoken');
 const signupModel = require('../model/userModel/signupModel');
 require('dotenv').config();
 
+// Main authentication middleware for protected routes
 const userAuth = async (req, res, next) => {
   try {
-    // Read the token from the cookies
-    const cookies = req.cookies;
-    const { token } = cookies;
+    const token = req.cookies.token;
     
     if (!token) {
+      // No token, redirect to login
       return res.redirect('/user/login');
     }
 
-    // Validate token and decode it
+    // Verify token
     const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
     const { _id } = decodedObj;
 
-    // Find the user by ID
+    // Find user
     const user = await signupModel.findById(_id);
+    
     if (!user) {
-      return res.status(404).json({message:"User not found"});
+      res.clearCookie('token');
+      return res.redirect('/user/login');
     }
-   
-    if(user.status==='inactive')
-    {
-      return res.redirect(`/user/login?error=Access denied. This user is blocked by the admin and can't access the site.`);
+
+    if (user.status === 'inactive') {
+      res.clearCookie('token');
+      return res.redirect('/user/login?error=Account blocked by admin');
     }
-   
-    // Attach the user to the request object
+
+    // User is authenticated
     req.user = user;
+    
+    // Prevent caching for authenticated pages
+    res.set({
+      'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     next();
   } catch (err) {
-   
-    if (err.name === 'JsonWebTokenError') {
-      return res.status(401).send("Invalid token");
-    } else if (err.name === 'TokenExpiredError') {
-      return res.status(401).send("please login to continue");
-    }
-    
-    return res.status(400).send("Authentication error: " + err.message);
+    res.clearCookie('token');
+    return res.redirect('/user/login');
   }
 };
 
+// Middleware specifically for the login page
+const checkLoginPage = async (req, res, next) => {
+  try {
+    const token = req.cookies.token;
+    
+    if (!token) {
+      // No token, allow access to login page
+      return next();
+    }
 
+    // If there's a token, verify it
+    const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
+    const { _id } = decodedObj;
 
+    const user = await signupModel.findById(_id);
+    
+    if (!user || user.status === 'inactive') {
+      // Invalid user or inactive status, clear token and show login page
+      res.clearCookie('token');
+      return next();
+    }
 
+    // Valid token and active user, redirect to home
+    return res.redirect('/user/home');
+    
+  } catch (err) {
+    // Invalid token, clear it and show login page
+    res.clearCookie('token');
+    return next();
+  }
+};
 
-
-module.exports={userAuth}
+module.exports = { userAuth, checkLoginPage };

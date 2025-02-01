@@ -2,7 +2,7 @@ const express=require('express');
 const router=express.Router();
 const userAuthController=require('../controller/usercontroller/userAuthController')
 const validateSignUpData=require('../middleware/signupvalidate')
-const {userAuth}=require('../middleware/userAuth')
+const {userAuth,checkLoginPage}=require('../middleware/userAuth')
 const homeController=require('../controller/usercontroller/homecontroller')
 const reviewController=require('../controller/usercontroller/singlePoductController')
 const addressController=require('../controller/usercontroller/addressController')
@@ -40,11 +40,11 @@ router.use((req, res, next) => {
 });
 
 
-router.get('/signup',userAuthController.loadsignup)
+router.get('/signup',checkLoginPage,userAuthController.loadsignup)
 router.post('/signup',validateSignUpData,userAuthController.signup)
 
 
-router.get('/login',userAuthController.loadLogin)
+router.get('/login',checkLoginPage,userAuthController.loadLogin)
 router.post('/login',userAuthController.login)
 
 router.get('/email',userAuthController.loademail)

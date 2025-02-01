@@ -126,11 +126,7 @@ const login = async (req, res) => {
     // Create JWT token
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-    res.set({
-      'Cache-Control': 'no-cache, no-store, must-revalidate, private',
-      'Pragma': 'no-cache',
-      'Expires': '-1'
-    });
+    
 
     
     res.cookie("token", token, {
@@ -139,7 +135,7 @@ const login = async (req, res) => {
       
     });
 
-  
+    
     return res.status(200).json({
       success: true,
       message: 'Login successful',
