@@ -12,6 +12,7 @@ const profileController=require('../controller/usercontroller/profileController'
 const addressvalidation=require('../middleware/addressValidation')
 const orderController=require('../controller/usercontroller/orderController')
 const wishlistController=require('../controller/usercontroller/wishlistController')
+const walletController=require('../controller/usercontroller/walletController')
 const passport = require('passport');
 require('../utils/passport');
 
@@ -102,4 +103,7 @@ router.get('/wishlist',userAuth,wishlistController.loadWishlist)
 router.post('/wishlist/add/:productId',userAuth,wishlistController.addWishlist)
 router.delete('/wishlist/remove/:productId',userAuth,wishlistController.removeFromWishlist)
 
+
+router.get('/wallet',userAuth,walletController.loadWallet)
+router.post('/wallet/add',userAuth,walletController.addWallet)
 module.exports=router

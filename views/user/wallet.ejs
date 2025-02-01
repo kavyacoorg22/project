@@ -1,0 +1,174 @@
+
+<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
+  <div class="container">
+    <div class="row no-gutters slider-text align-items-center justify-content-center">
+      <div class="col-md-9 ftco-animate text-center">
+        <p class="breadcrumbs">
+          <span class="mr-2"><a href="/user/home">Home</a></span> 
+          <% if(currentPage !== 'Home') { %>
+              <span><%= currentPage %></span>
+          <% } %>
+      </p>
+        <h1 class="mb-0 bread">Profile</h1>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="layout-wrapper">
+  <!-- Sidebar -->
+  <div class="custom-sidebar">
+      <a href="/user/profile"><span>Profile</span></a>
+      <a href="/user/address"><span>Address</span></a>
+      <a href="/user/orderHistory"><span>Order</span></a>
+      <a href="#" class="active"><span>Wallet</span></a>
+      <a href="#" class="logout"><span>Logout</span></a>
+  </div>
+
+ 
+  <!-- Main Content -->
+<div class="wallet-section">
+  <div class="wallet-box">
+    <div class="wallet-icon">💼</div>
+    <div class="wallet-balance">My Wallet Balance</div>
+    <div class="wallet-amount">₹<%= wallet.balance %></div>
+    <button class="add-money-btn">Add Money</button>
+  </div>
+
+  <table class="wallet-table">
+    <tr>
+      <th>Transaction ID</th>
+      <th>Date</th>
+      <th>Withdrawal</th>
+      <th>Deposit</th>
+    </tr>
+    <% if (wallet.transactions.length > 0) { %>
+      <% wallet.transactions.forEach(transaction => { %>
+        <tr>
+          <td><%= transaction._id %></td>
+          <td><%= transaction.date.toLocaleString() %></td>
+          <td>
+            <% if (transaction.transactionType === 'withdrawal') { %>
+              ₹<%= transaction.amount %>
+            <% } else { %>
+              -
+            <% } %>
+          </td>
+          <td>
+            <% if (transaction.transactionType === 'deposit') { %>
+              ₹<%= transaction.amount %>
+            <% } else { %>
+              -
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+    <% } else { %>
+      <tr>
+        <td colspan="4">No transactions found.</td>
+      </tr>
+    <% } %>
+  </table>
+</div>
+
+  <!-- Add Money Modal -->
+  <div class="wallet-add-money-modal hidden">
+    <div class="wallet-add-money-modal-content">
+      <div class="wallet-add-money-modal-header">
+        <h2>Add Money to Wallet</h2>
+        <button class="wallet-add-money-modal-close">&times;</button>
+      </div>
+      <div class="wallet-add-money-modal-body">
+        <label for="wallet-amount">Enter Amount:</label>
+        <input type="number" id="wallet-amount" name="wallet-amount" min="0" required>
+        <div class="wallet-modal-buttons">
+          <button class="wallet-cancel-btn">Cancel</button>
+          <button class="wallet-add-btn">Add Money</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const addMoneyBtn = document.querySelector(".add-money-btn");
+    const walletAddMoneyModal = document.querySelector(".wallet-add-money-modal");
+    const walletCloseModal = document.querySelector(".wallet-add-money-modal-close");
+    const walletCancelBtn = document.querySelector(".wallet-cancel-btn");
+    const walletAddBtn = document.querySelector(".wallet-add-btn");
+    const walletAmountInput = document.getElementById("wallet-amount");
+    const walletBalanceText = document.querySelector(".wallet-amount");
+
+    // Open Modal
+    addMoneyBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        walletAddMoneyModal.style.display = "block";
+    });
+
+    // Close Modal
+    function closeModal(event) {
+        event.preventDefault();
+        walletAddMoneyModal.style.display = "none";
+    }
+
+    walletCloseModal.addEventListener("click", closeModal);
+    walletCancelBtn.addEventListener("click", closeModal);
+
+    // Close modal when clicking outside of it
+    window.addEventListener("click", (event) => {
+        if (event.target === walletAddMoneyModal) {
+            walletAddMoneyModal.style.display = "none";
+        }
+    });
+
+    // Validate Amount
+    function validateAmount(amount) {
+        if (isNaN(amount) || amount <= 0) {
+            Swal.fire("Please enter a valid amount greater than zero");
+            return false;
+        }
+        return true;
+    }
+
+    // Add Money Function
+    walletAddBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+
+        const amount = parseFloat(walletAmountInput.value);
+
+        if (!validateAmount(amount)) return;
+
+        try {
+            const response = await fetch("/user/wallet/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ amount })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to add money");
+            }
+
+            const data = await response.json();
+
+            // Update wallet balance on UI
+            walletBalanceText.textContent = `₹${data.balance}`;
+
+            // Close modal & clear input
+            walletAddMoneyModal.style.display = "none";
+            walletAmountInput.value = "";
+
+            Swal.fire("Money added successfully!");
+            window.location.reload();
+
+
+        } catch (error) {
+            console.error("Error adding money to wallet:", error);
+          Swal.fire("Unable to add money. Please try again.");
+        }
+    });
+  });
+</script>
