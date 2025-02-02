@@ -185,8 +185,9 @@
     </div>
 </section>
 
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
     // Get all required elements
     const checkoutForm = document.getElementById('checkoutForm');
     const sameAsDeliveryCheckbox = document.getElementById('sameAsDelivery');
@@ -275,7 +276,7 @@
     }
 
     // Function to copy delivery address to billing
-    sameAsDeliveryCheckbox.addEventListener('change', async function() {
+    sameAsDeliveryCheckbox.addEventListener('change', async function () {
         if (!this.checked) {
             clearBillingForm();
             return;
@@ -300,7 +301,7 @@
             // Split the details string and clean up each part
             const parts = details.split(',').map(part => part.trim());
             const firstLastName = parts[0].split(' ').map(part => part.trim());
-            
+
             billingFields.firstname.value = firstLastName[0];
             billingFields.lastname.value = firstLastName[1] || '';
             billingFields.email.value = parts[3];
@@ -325,60 +326,8 @@
         Object.values(billingFields).forEach(field => field.value = '');
     }
 
-    // Handle payment method selection
-   
-paymentMethods.forEach(method => {
-    method.addEventListener('change', async function() {
-        if (this.value === 'wallet') {
-            try {
-                // Get wallet balance
-                const response = await fetch('/user/check-wallet-balance');
-                const data = await response.json();
-                
-                // Get order total from the page
-                const orderTotal = parseFloat(document.querySelector('.total-price span:last-child')
-                    .textContent.replace('₹', ''));
-
-                if (!data.success || data.balance < orderTotal) {
-                    // Show error if balance is insufficient
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Insufficient Balance',
-                        text: 'Your wallet balance is insufficient for this purchase.',
-                        showCancelButton: true,
-                        confirmButtonText: 'Add Funds',
-                        cancelButtonText: 'Choose Different Payment'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = '/user/wallet';
-                        } else {
-                            this.checked = false;
-                        }
-                    });
-                } else {
-                    // Show success if balance is sufficient
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Balance Available',
-                        text: 'Sufficient balance in your wallet',
-                        timer: 1500
-                    });
-                }
-            } catch (error) {
-                // Show error if check fails
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Unable to verify wallet balance. Please try again.'
-                });
-                this.checked = false;
-            }
-        }
-    });
-});
-
     // Handle form submission
-    checkoutForm.addEventListener('submit', async function(e) {
+    checkoutForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
         // Validate form
@@ -422,9 +371,70 @@ paymentMethods.forEach(method => {
             const result = await response.json();
 
             if (result.success) {
+                // Handle Razorpay payment
                 if (formData.paymentMethod === 'razorpay') {
-                    // Handle Razorpay payment
-                    handleRazorpayPayment(result.order);
+                    const razorpayOptions = {
+                        key: result.razorpay.key,
+                        amount: result.razorpay.amount, // Amount in paise
+                        currency: result.razorpay.currency,
+                        order_id: result.razorpay.orderID,
+                        handler: function (response) {
+                            // Call backend to verify payment
+                            const paymentData = {
+                                razorpay_order_id: result.razorpay.orderID,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            };
+
+                            // Verify the payment on backend
+                            fetch('/user/verifyPayment', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(paymentData)
+                            })
+                                .then(verifyResponse => verifyResponse.json())
+                                .then(verifyResult => {
+                                    if (verifyResult.success) {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'Payment Successful',
+                                            text: 'Your order has been confirmed.',
+                                            timer: 2000,
+                                            showConfirmButton: false
+                                        }).then(() => {
+                                            window.location.href = `/user/orderSuccess/${result.orderId}`;
+                                        });
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'error',
+                                            title: 'Payment Failed',
+                                            text: verifyResult.message || 'Failed to verify payment.'
+                                        });
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Payment verification failed:', error);
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Payment Failed',
+                                        text: 'Failed to verify payment. Please try again later.'
+                                    });
+                                });
+                        },
+                        prefill: {
+                            name: billingFields.firstname.value + ' ' + billingFields.lastname.value,
+                            email: billingFields.email.value,
+                            contact: billingFields.mobile.value
+                        },
+                        theme: {
+                            color: '#F37254'
+                        }
+                    };
+
+                    const razorpay = new Razorpay(razorpayOptions);
+                    razorpay.open();
                 } else {
                     // Handle other payment methods (COD, Wallet)
                     Swal.fire({
@@ -453,58 +463,6 @@ paymentMethods.forEach(method => {
             submitButton.textContent = 'Place Order';
         }
     });
-
-    // Function to handle Razorpay payment
-    function handleRazorpayPayment(order) {
-        const options = {
-            key: order.key_id,
-            amount: order.amount,
-            currency: order.currency,
-            name: 'Your Store Name',
-            description: 'Order Payment',
-            order_id: order.id,
-            handler: async function (response) {
-                try {
-                    const verifyResponse = await fetch('/user/verify-payment', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature
-                        })
-                    });
-
-                    const verifyResult = await verifyResponse.json();
-
-                    if (verifyResult.success) {
-                        window.location.href = `/user/orderSuccess/${order.receipt}`;
-                    } else {
-                        throw new Error('Payment verification failed');
-                    }
-                } catch (error) {
-                    console.error('Payment verification error:', error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Payment Failed',
-                        text: 'Payment verification failed. Please contact support.'
-                    });
-                }
-            },
-            prefill: {
-                name: `${billingFields.firstname.value} ${billingFields.lastname.value}`,
-                email: billingFields.email.value,
-                contact: billingFields.mobile.value
-            },
-            theme: {
-                color: '#3399cc'
-            }
-        };
-
-        const rzp = new Razorpay(options);
-        rzp.open();
-    }
 });
+
 </script>

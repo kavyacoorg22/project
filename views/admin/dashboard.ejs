@@ -1,110 +1,116 @@
-<main class="main-content">
-  <!-- Welcome Section -->
-  <div class="welcome">
-      <h1>Welcome to Dashboard</h1>
-  </div>
+<div class="container mt-4">
+    <h2>Sales Report</h2>
 
-  <!-- Stats Cards
-  <div class="stats-grid">
-      <div class="stat-card">
-          <div class="stat-icon">
-              <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-info">
-              <h3>12</h3>
-              <p>Today</p>
-          </div>
-      </div>
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form id="reportForm" method="GET">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <select class="form-select" name="timeRange" id="timeRange">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-md-6 custom-date-range" style="display: none;">
+                        <div class="row g-2">
+                            <div class="col-md-6">
+                                <input type="date" class="form-control" name="startCustomDate" id="startDate">
+                            </div>
+                            <div class="col-md-6">
+                                <input type="date" class="form-control" name="endCustomDate" id="endDate">
+                            </div>
+                        </div>
+                    </div>
 
-      <div class="stat-card">
-          <div class="stat-icon">
-              <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-info">
-              <h3>1033</h3>
-              <p>Customer</p>
-          </div>
-      </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">Generate Report</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 
-      <div class="stat-card">
-          <div class="stat-icon">
-              <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="stat-info">
-              <h3>33</h3>
-              <p>Orders</p>
-          </div>
-      </div>
-  </div>-->
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h3><%= overallTotals.totalOrders %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Sales</h5>
+                    <h3>₹<%= overallTotals.totalAmount.toFixed(2) %></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Total Discounts</h5>
+                    <h3>₹<%= overallTotals.totalDiscount.toFixed(2) %></h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <!-- Orders Section -->
-  <!-- <div class="orders-section">
-      <div class="section-header">
-          <h2>Latest Orders</h2>
-      </div>
+    <!-- Download Buttons -->
+    <div class="mb-4">
+        <a href="/admin/sales/download-excel?startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-success me-2">
+            Download Excel
+        </a>
+        <a href="/admin/sales/download-pdf?startDate=<%= startDate %>&endDate=<%= endDate %>" class="btn btn-danger">
+            Download PDF
+        </a>
+    </div>
 
-      <table class="orders-table">
-          <thead>
-              <tr>
-                  <th>Order ID</th>
-                  <th>Product</th>
-                  <th>Date</th>
-                  <th>Customer</th>
-                  <th>Total</th>
-                  <th>Payment</th>
-              </tr>
-          </thead>
-          <tbody>
-              <tr>
-                  <td>302012</td>
-                  <td>
-                      <div class="product-cell">
-                          <div class="product-image">
-                              <img src="/api/placeholder/40/40" alt="Strawberry">
-                          </div>
-                          <div class="product-info">
-                              <span class="product-name">Strawberry</span>
-                              <span class="product-count">3 Products</span>
-                          </div>
-                      </div>
-                  </td>
-                  <td>29 Dec 2022</td>
-                  <td>Josh Wisley</td>
-                  <td>$55</td>
-                  <td>24 Jun 2025</td>
-              </tr>
-              <tr>
-                  <td>302012</td>
-                  <td>
-                      <div class="product-cell">
-                          <div class="product-image">
-                              <img src="/api/placeholder/40/40" alt="Tomato">
-                          </div>
-                          <div class="product-info">
-                              <span class="product-name">Tomato</span>
-                              <span class="product-count">3 Products</span>
-                          </div>
-                      </div>
-                  </td>
-                  <td>29 Dec 2022</td>
-                  <td>Josh Wisley</td>
-                  <td>$44</td>
-                  <td>20 Jun 2025</td>
-              </tr>
-          </tbody>
-      </table>
+    <!-- Sales Table -->
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Orders</th>
+                            <th>Total Amount</th>
+                            <th>Discount</th>
+                            <th>Net Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% sales.forEach(day => { %>
+                            <tr>
+                                <td><%= day._id %></td>
+                                <td><%= day.totalOrders %></td>
+                                <td>₹<%= day.totalAmount.toFixed(2) %></td>
+                                <td>₹<%= day.totalDiscount.toFixed(2) %></td>
+                                <td>₹<%= (day.totalAmount - day.totalDiscount).toFixed(2) %></td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
 
-      <div class="pagination">
-          <span>Showing 1-10 from 100</span>
-          <div class="page-numbers">
-              <span><i class="fas fa-chevron-left"></i></span>
-              <span class="active">01</span>
-              <span>02</span>
-              <span>03</span>
-              <span>04</span>
-              <span>05</span>
-              <span><i class="fas fa-chevron-right"></i></span>
-          </div>
-      </div>
-  </div> -->
-</main>
+<script>
+    document.getElementById('timeRange').addEventListener('change', function() {
+        const customDateRange = document.querySelector('.custom-date-range');
+        if (this.value === 'custom') {
+            customDateRange.style.display = 'block';
+        } else {
+            customDateRange.style.display = 'none';
+        }
+    });
+</script>

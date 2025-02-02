@@ -4,6 +4,12 @@ const cartModel = require('../../model/userModel/cartModel');
 const orderModel = require('../../model/userModel/orderModel');
 const productModel = require('../../model/adminModel/productModel');
 const walletModel=require('../../model/userModel/walletModel')
+const Razorpay = require('razorpay');
+
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 const loadCheckout = async (req, res) => {
     try {
@@ -67,6 +73,55 @@ const loadCheckout = async (req, res) => {
             message: 'Error loading checkout page',
             error: err 
         });
+    }
+};
+
+
+
+
+const loadSuccessPage = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        
+        
+        // Fetch order details
+        const orderDetails = await orderModel.findById(orderId)
+
+            
+
+        if (!orderDetails) {
+            return res.redirect('/user/order');
+        }
+
+        res.render('user/orderSuccess', {
+            title: 'Order Success',
+            includeCss: true,
+            csspage: 'orderSuccess.css',
+            
+        });
+
+    } catch (err) {
+        console.error('Error loading success page:', err);
+        res.redirect('/user/orders');
+    }
+};
+
+
+const checkWalletBalance = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const wallet = await walletModel.findOne({ user: userId });
+        
+        if (!wallet) {
+            return res.json({ success: false, balance: 0 });
+        }
+
+        res.json({
+            success: true,
+            balance: wallet.balance
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Error checking balance' });
     }
 };
 
@@ -141,7 +196,8 @@ const placeOrder = async (req, res) => {
         }
 
         const orderID = `ORD${Date.now()}${Math.floor(Math.random() * 1000)}`;
-       
+        
+        // Create order in your database
         const order = await orderModel.create({
             orderID,
             user: userId,
@@ -156,6 +212,37 @@ const placeOrder = async (req, res) => {
             orderDate: new Date()
         });
 
+        // If payment method is Razorpay, create Razorpay order
+        if (paymentMethod === 'razorpay') {
+            try {
+                const razorpayOrder = await razorpay.orders.create({
+                    amount: finalAmount * 100, // Convert to paise
+                    currency: 'INR',
+                    receipt: orderID,
+                    notes: {
+                        orderId: order._id.toString()
+                    }
+                });
+
+                // Return Razorpay order details along with success response
+                return res.json({
+                    success: true,
+                    orderId: order._id,
+                    razorpay: {
+                        orderID: razorpayOrder.id,
+                        amount: razorpayOrder.amount,
+                        currency: razorpayOrder.currency,
+                        key: process.env.RAZORPAY_KEY_ID
+                    }
+                });
+            } catch (error) {
+                // If Razorpay order creation fails, delete the order from your database
+                await orderModel.findByIdAndDelete(order._id);
+                throw new Error('Failed to create Razorpay order');
+            }
+        }
+
+        // For non-Razorpay payments, continue with the existing flow
         await Promise.all(
             orderedItem.map(async (item) => {
                 const updatedProduct = await productModel.findByIdAndUpdate(
@@ -189,54 +276,87 @@ const placeOrder = async (req, res) => {
     }
 };
 
-
-const loadSuccessPage = async (req, res) => {
+// Add this new function to verify Razorpay payments
+const verifyPayment = async (req, res) => {
     try {
-        const orderId = req.params.id;
+        const {
+            razorpay_order_id,
+            razorpay_payment_id,
+            razorpay_signature
+        } = req.body;
         
-        
-        // Fetch order details
-        const orderDetails = await orderModel.findById(orderId)
 
-            
-
-        if (!orderDetails) {
-            return res.redirect('/user/order');
-        }
-
-        res.render('user/orderSuccess', {
-            title: 'Order Success',
-            includeCss: true,
-            csspage: 'orderSuccess.css',
-            
+        const razorpay = new Razorpay({
+            key_id: process.env.RAZORPAY_KEY_ID,
+            key_secret: process.env.RAZORPAY_KEY_SECRET
         });
+        // Verify signature
+        const body = razorpay_order_id + '|' + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+            .update(body.toString())
+            .digest('hex');
 
-    } catch (err) {
-        console.error('Error loading success page:', err);
-        res.redirect('/user/orders');
-    }
-};
+        if (expectedSignature === razorpay_signature) {
+            // Get Razorpay order details
+            const razorpayOrder = await razorpay.orders.fetch(razorpay_order_id);
+            
+            // Find and update order in your database
+            const order = await orderModel.findOne({ orderID: razorpayOrder.receipt });
+            
+            if (!order) {
+                throw new Error('Order not found');
+            }
 
+            // Update order status
+            order.status = 'processing';
+            order.orderedItem = order.orderedItem.map(item => ({
+                ...item.toObject(),
+                status: 'processing'
+            }));
 
-const checkWalletBalance = async (req, res) => {
-    try {
-        const userId = req.user._id;
-        const wallet = await walletModel.findOne({ user: userId });
-        
-        if (!wallet) {
-            return res.json({ success: false, balance: 0 });
+            await order.save();
+
+            // Update product quantities
+            await Promise.all(
+                order.orderedItem.map(async (item) => {
+                    const updatedProduct = await productModel.findByIdAndUpdate(
+                        item.product,
+                        { $inc: { quantity: -item.quantity } },
+                        { new: true } 
+                    );
+              
+                    return productModel.findByIdAndUpdate(
+                        item.product,
+                        { $set: { stock: updatedProduct.quantity } },
+                        { new: true } 
+                    );
+                })
+            );
+
+            // Clear cart
+            await cartModel.findOneAndDelete({ user: order.user });
+
+            res.json({
+                success: true,
+                message: 'Payment verified and order confirmed'
+            });
+        } else {
+            throw new Error('Invalid payment signature');
         }
-
-        res.json({
-            success: true,
-            balance: wallet.balance
-        });
     } catch (error) {
-        res.status(500).json({ success: false, message: 'Error checking balance' });
+        console.error('Payment verification error:', error);
+        res.status(400).json({
+            success: false,
+            message: error.message || 'Payment verification failed'
+        });
     }
 };
+
+
+
 module.exports = {
     loadCheckout,
     placeOrder,
-    loadSuccessPage,checkWalletBalance
+    loadSuccessPage,checkWalletBalance,verifyPayment
 };

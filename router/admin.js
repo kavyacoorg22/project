@@ -10,6 +10,7 @@ const userController=require('../controller/admincontroller/userController')
 const orderController=require('../controller/admincontroller/orderController')
 const offerController=require('../controller/admincontroller/offerController')
 const couponController=require('../controller/admincontroller/couponController')
+const reportControlller=require('../controller/admincontroller/reportcontroller')
 
 
 
@@ -18,7 +19,10 @@ const couponController=require('../controller/admincontroller/couponController')
 router.post('/logout',adminController.logout)
 router.get('/signup',adminAuth.isSignup,adminController.loadSignup)
 router.post('/signup',adminController.signup)
-router.get('/dashboard',adminAuth.checkSession,adminController.loadDashboard)
+
+// router.get('/dashboard',adminAuth.checkSession,reportControlller.loadDashboard)
+// router.get('/download/pdf', adminAuth.checkSession,reportControlller.downloadPdf)
+// router.get('/download/excel',adminAuth.checkSession,reportControlller.downloadExcel)
 
 router.get('/category',adminAuth.checkSession,categoryController.getAllCategories)
 router.get('/category/edit/:id',adminAuth.checkSession,categoryController.loadEditCat)
