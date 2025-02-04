@@ -49,8 +49,7 @@ const loadCheckout = async (req, res) => {
             req.flash('warning', 'Some items in your cart are no longer available');
         }
         
-        const cartTotal = validProducts.reduce((sum, item) => 
-            sum + (item.product.price * item.quantity), 0);
+        const cartTotal=cart.finalAmount;
         const deliveryCharge = cartTotal > 1000 ? 0 : 40;
         const discount = cart.discountAmount;
         const finalTotal = cartTotal + deliveryCharge - discount;
@@ -127,7 +126,7 @@ const placeOrder = async (req, res) => {
     try {
         const { addressId, paymentMethod, billing } = req.body;
         const userId = req.user._id;
-        console.log(`Starting order placement - Payment Method: ${paymentMethod}`);
+      
 
         // Validate required fields
         if (!addressId || !billing) {
@@ -158,15 +157,7 @@ const placeOrder = async (req, res) => {
             .populate('product.product');
 
          
-            console.log("Cart data:", JSON.stringify({
-                exists: !!cart,
-                productCount: cart?.product?.length || 0,
-                products: cart?.product?.map(p => ({
-                    id: p.product?._id,
-                    name: p.product?.name,
-                    quantity: p.quantity
-                }))
-            }, null, 2));
+           
 
         if (!cart || !cart.product.length) {
             return res.status(400).json({ 
@@ -209,7 +200,7 @@ const placeOrder = async (req, res) => {
 
         // Calculate charges and final amount
         const deliveryCharge = cartTotal > 1000 ? 0 : 40;
-        const discount = 0;
+        const discount = cart.discountAmount;
         const finalAmount = cartTotal + deliveryCharge - discount;
 
         // Handle wallet payment
@@ -428,122 +419,6 @@ const verifyPayment = async (req, res) => {
 
 
 
-
-// const retryPayment = async (req, res) => {
-//     try {
-//         const { orderID, productID } = req.body; // Receive productID
-//         if (!orderID || !productID) {
-//             throw new Error('Missing orderID or productID');
-//         }
-
-//         const razorpay = new Razorpay({
-//             key_id: process.env.RAZORPAY_KEY_ID,
-//             key_secret: process.env.RAZORPAY_KEY_SECRET
-//         });
-
-//         // Find order and product in it
-//         const order = await orderModel.findOne({ orderID });
-//         if (!order) {
-//             throw new Error('Order not found');
-//         }
-
-//         const productItem = order.orderedItem.find(item => item.product.toString() === productID);
-//         if (!productItem) {
-//             throw new Error('Product not found in order');
-//         }
-
-//         if (productItem.status === 'processing') {
-//             return res.json({ success: false, message: 'Product is already being processed' });
-//         }
-
-//         // Create Razorpay Order
-//         let razorpayOrder;
-//         try {
-//             razorpayOrder = await razorpay.orders.create({
-//                 amount: productItem.price * productItem.quantity * 100,
-//                 currency: 'INR',
-//                 receipt: order.orderID + '-' + productID, 
-//                 notes: { orderId: order._id.toString(), productId: productID }
-//             });
-//         } catch (err) {
-//             console.error('Error creating Razorpay order:', err);
-//             return res.status(500).json({ success: false, message: 'Failed to create Razorpay order' });
-//         }
-
-//         res.json({
-//             success: true,
-//             orderID,
-//             productID,
-//             razorpay: {
-//                 orderID: razorpayOrder.id,
-//                 amount: razorpayOrder.amount,
-//                 currency: razorpayOrder.currency,
-//                 key: process.env.RAZORPAY_KEY_ID
-//             }
-//         });
-
-//     } catch (error) {
-//         console.error('Error in retry-payment:', error);
-//         res.status(400).json({
-//             success: false,
-//             message: error.message || 'Failed to retry payment'
-//         });
-//     }
-// };
-
-  
-  
-// const verifyreturnPayment = async (req, res) => {
-//     try {
-//         const { orderID, productID, paymentResponse } = req.body;
-//         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = paymentResponse;
-        
-//         const razorpay = new Razorpay({
-//             key_id: process.env.RAZORPAY_KEY_ID,
-//             key_secret: process.env.RAZORPAY_KEY_SECRET
-//         });
-
-//         // Verify Signature
-//         const body = razorpay_order_id + '|' + razorpay_payment_id;
-//         const expectedSignature = crypto
-//             .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-//             .update(body)
-//             .digest('hex');
-
-//         if (expectedSignature !== razorpay_signature) {
-//             return res.json({ success: false, message: 'Payment verification failed' });
-//         }
-
-//         // Find Order
-//         const order = await orderModel.findOne({ _id: orderID });
-//         if (!order) {
-//             return res.json({ success: false, message: 'Order not found' });
-//         }
-
-//         // Find Product in Order
-//         const productItem = order.orderedItem.find(item => item.product.toString() === productID);
-//         if (!productItem) {
-//             return res.json({ success: false, message: 'Product not found in order' });
-//         }
-
-//         // ✅ Update only this product's status
-//         productItem.status = "processing";
-
-//         // ✅ Update Stock for this Product
-//         await productModel.findByIdAndUpdate(
-//             productID,
-//             { $inc: { quantity: -productItem.quantity } }, 
-//             { new: true }
-//         );
-
-//         await order.save();
-
-//         res.json({ success: true, message: 'Payment verified, product is processing' });
-//     } catch (error) {
-//         console.error('Payment verification error:', error);
-//         res.json({ success: false, message: 'Payment verification failed' });
-//     }
-// };
 
 
 const retryPayment = async (req, res) => {

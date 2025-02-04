@@ -54,12 +54,12 @@ const loadCart = async (req, res) => {
           });
       }
 
-      // Process products with discount calculation
+    
       const validProducts = cart.product.filter(item => item.product != null).map(item => {
-          // Calculate discount for each product
+       
           const discountInfo = calculateDiscount(item.product);
           
-          // Use discounted price if available
+    
           const price = discountInfo.hasDiscount ? discountInfo.discountedPrice : item.product.price;
           
           return {

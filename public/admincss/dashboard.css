@@ -1,245 +1,206 @@
-/* sales-report.css */
 
-/* Dashboard Container */
-.container {
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f6fa;
+  color: #333;
+  line-height: 1.6;
+}
+
+.dashboard-container {
   padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-/* Page Title */
-h2 {
-  color: #2c3e50;
-  margin-bottom: 30px;
-  font-weight: 600;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
-}
 
-/* Filter Card Styles */
-.filter-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-bottom: 25px;
-}
-
-.filter-card .card-body {
+/* Report Table */
+.report-table-container {
+  background: white;
   padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  overflow-x: auto;
 }
 
-/* Form Controls */
-.form-select, .form-control {
-  height: 45px;
-  border-radius: 6px;
-  border: 1px solid #dce0e3;
-  font-size: 14px;
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.form-select:focus, .form-control:focus {
-  border-color: #4a90e2;
-  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+.report-table th,
+.report-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
-/* Button Styles */
+.report-table th {
+  background-color: var(--light-gray);
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+.report-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Action Buttons */
+.action-buttons {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 .btn {
-  height: 45px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
   font-weight: 500;
-  padding: 0 25px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s ease;
 }
 
 .btn-primary {
-  background-color: #4a90e2;
-  border-color: #4a90e2;
-}
-
-.btn-primary:hover {
-  background-color: #357abd;
-  border-color: #357abd;
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .btn-success {
-  background-color: #2ecc71;
-  border-color: #2ecc71;
+  background-color: var(--success-color);
+  color: white;
 }
 
-.btn-success:hover {
-  background-color: #27ae60;
-  border-color: #27ae60;
+.btn:hover {
+  opacity: 0.9;
 }
 
-.btn-danger {
-  background-color: #e74c3c;
-  border-color: #e74c3c;
-}
-
-.btn-danger:hover {
-  background-color: #c0392b;
-  border-color: #c0392b;
-}
-
-/* Summary Cards */
-.summary-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  height: 100%;
-  transition: transform 0.3s ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-5px);
-}
-
-.summary-card .card-body {
-  padding: 20px;
-}
-
-.summary-card .card-title {
-  color: #7f8c8d;
-  font-size: 16px;
-  margin-bottom: 15px;
-}
-
-.summary-card h3 {
-  color: #2c3e50;
-  font-size: 24px;
-  font-weight: 600;
-  margin: 0;
-}
-
-/* Table Styles */
-.table-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 25px;
-}
-
-.table {
-  margin-bottom: 0;
-}
-
-.table thead th {
-  background-color: #f8f9fa;
-  border-bottom: 2px solid #dee2e6;
-  color: #2c3e50;
-  font-weight: 600;
-  padding: 15px;
-  font-size: 14px;
-}
-
-.table tbody td {
-  padding: 15px;
-  vertical-align: middle;
-  color: #2c3e50;
-  font-size: 14px;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(0, 0, 0, 0.02);
-}
-
-/* Custom Date Range */
-.custom-date-range {
-  transition: all 0.3s ease;
-}
-
-/* Responsive Adjustments */
+/* Responsive Design */
 @media (max-width: 768px) {
-  .container {
-      padding: 15px;
+  .dashboard-container {
+      padding: 10px;
+  }
+
+  .filter-grid {
+      grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+      grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+      flex-direction: column;
   }
 
   .btn {
       width: 100%;
-      margin-bottom: 10px;
-  }
-
-  .summary-card {
-      margin-bottom: 15px;
-  }
-
-  .table-responsive {
-      border: none;
-  }
-
-  .table td, .table th {
-      padding: 10px;
-      font-size: 13px;
   }
 }
 
-/* Loading State */
-.loading {
-  opacity: 0.7;
-  pointer-events: none;
+
+/* Styling for the Ledger Book Section */
+.ledger-container {
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+  font-family: Arial, sans-serif;
 }
 
-/* Animation for Summary Cards */
-@keyframes fadeInUp {
-  from {
-      opacity: 0;
-      transform: translateY(20px);
-  }
-  to {
-      opacity: 1;
-      transform: translateY(0);
-  }
+.ledger-container h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
 }
 
-.summary-card {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-/* Download Buttons Container */
-.download-buttons {
-  margin: 20px 0;
+/* Buttons Styling */
+.button-group {
   display: flex;
+  justify-content: center;
   gap: 10px;
-}
-
-/* Custom Scrollbar */
-.table-responsive {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #f8f9fa;
-}
-
-.table-responsive::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-.table-responsive::-webkit-scrollbar-track {
-  background: #f8f9fa;
-}
-
-.table-responsive::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 3px;
-}
-
-/* Error State */
-.error-message {
-  color: #e74c3c;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #fdeaea;
   margin-bottom: 15px;
-  font-size: 14px;
 }
 
-/* Success Message */
-.success-message {
-  color: #27ae60;
-  padding: 10px;
-  border-radius: 4px;
-  background-color: #eafaf1;
-  margin-bottom: 15px;
+button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
   font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Generate Ledger Button */
+.generate-btn {
+  background-color: white;
+  border: 2px solid black;
+  color: black;
+  font-weight: bold;
+}
+
+.generate-btn:hover {
+  background-color: black;
+  color: white;
+}
+
+/* Download Buttons */
+.download-excel {
+  background-color: green;
+  color: white;
+}
+
+.download-excel:hover {
+  background-color: darkgreen;
+}
+
+.download-pdf {
+  background-color: red;
+  color: white;
+}
+
+.download-pdf:hover {
+  background-color: darkred;
+}
+
+/* Disabled Button */
+button:disabled {
+  background-color: lightgray;
+  color: white;
+  cursor: not-allowed;
+}
+
+/* Table Styling */
+.table-container {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+thead {
+  background-color: black;
+  color: white;
+}
+
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
 }

@@ -68,7 +68,7 @@ const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedIte
       console.log('Product before update:', productBefore);
 
       const updatedProduct = await productModel.findOneAndUpdate(
-        { _id: updatedItem.product }, // Changed from productId to product
+        { _id: updatedItem.product }, 
         { 
           $inc: { 
             quantity: updatedItem.quantity,
