@@ -95,7 +95,9 @@
                       <% } else if (item.status === 'delivered') { %>
                           <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/returnOrder/<%=orders.orderID%>/<%=item.product%>'">Return</button>
                       <% } else if (item.status === 'Payment Pending') { %>
-                          <button class="od-btn">Re-Payment</button>
+                        <button class="od-btn" onclick="handleRepayment('<%= orders.orderID %>', '<%= item.product %>')">
+                          Re-Payment
+                        </button>
                       <% } else if (item.status === 'cancel request') { %>
                           <button class="od-btn od-btn-disabled" disabled>Cancel Request Pending</button>
                       <% }else if (item.status === 'canceled') { %>
@@ -140,7 +142,8 @@
   
   fetch('/user/logout', {
     method: 'POST',
-    credentials: 'include', // Include cookies in the request
+    credentials: 'include'
+, // Include cookies in the request
   })
     .then(response => {
       if (response.ok) {
@@ -155,4 +158,106 @@
       Swal.fire('An error occurred during logout. Please try again.');
     });
 }
+const loadRazorpayScript = () => {
+    return new Promise((resolve) => {
+        if (window.Razorpay) {
+            resolve(true); // ✅ Razorpay already loaded
+        } else {
+            const script = document.createElement('script');
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => resolve(true);
+            script.onerror = () => resolve(false);
+            document.body.appendChild(script);
+        }
+    });
+};
+const handleRepayment = async (orderID, productID) => {
+    try {
+        // First fetch - creating Razorpay order
+        const response = await fetch('/user/retry-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include',  // Changed from 'same-origin' to 'include'
+            body: JSON.stringify({ orderID, productID })
+        });
+
+        if (!response.ok) {  // Add status check
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Received response:', data);  // Debug log
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to create payment order');
+        }
+
+        // Initialize Razorpay with the data
+        const options = {
+            key: data.razorpay.key,
+            amount: data.razorpay.amount,
+            currency: data.razorpay.currency,
+            order_id: data.razorpay.orderID,
+            name: "Your Store Name",
+            description: `Payment for ${data.productName}`,
+            handler: function (response) {
+                verifyRepayment(orderID, productID, response);  // Removed async
+            },
+            modal: {
+                ondismiss: function() {
+                    console.log('Payment modal closed');
+                    alert('Payment cancelled');
+                }
+            }
+        };
+
+        console.log('Initializing Razorpay with options:', options);  // Debug log
+          
+        const rzp1 = new Razorpay(options);
+        
+        rzp1.on('payment.failed', function (response) {
+            console.log('Payment failed:', response);  // Debug log
+            alert('Payment failed: ' + response.error.description);
+        });
+
+        rzp1.open();
+    } catch (error) {
+        console.error('Error in handleRepayment:', error);  // Enhanced error logging
+        alert(error.message || 'Error processing payment. Please try again.');
+    }
+};
+
+const verifyRepayment = async (orderID, productID, paymentResponse) => {
+    try {
+        const res = await fetch('/user/verify-repayment', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            credentials: 'include',  // Changed from 'same-origin' to 'include'
+            body: JSON.stringify({ orderID, productID, paymentResponse })
+        });
+
+        if (!res.ok) {  // Add status check
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const result = await res.json();
+        console.log('Verification response:', result);  // Debug log
+
+        if (result.success) {
+            alert('Payment successful!');
+            window.location.reload();
+        } else {
+            throw new Error('Payment verification failed');
+        }
+    } catch (error) {
+        console.error('Error in verifyRepayment:', error);  // Enhanced error logging
+        alert('Error verifying payment. Please try again.');
+    }
+};
 </script>

@@ -1,6 +1,9 @@
 const cartModel = require('../../model/userModel/cartModel');
 const productModel = require('../../model/adminModel/productModel');
 const couponModel=require('../../model/adminModel/couponModel')
+const { calculateDiscount } = require('../../utils/calculateDiscount');
+
+
 
 const loadCart = async (req, res) => {
   try {
@@ -14,7 +17,27 @@ const loadCart = async (req, res) => {
           .findOne({ user: userId })
           .populate({
               path: 'product.product',
-              select: 'name description price images quantity'
+              populate: [
+                {
+                  path: 'offers',
+                  match: {
+                    status: 'Active',
+                    startDate: { $lte: new Date() },
+                    endDate: { $gte: new Date() }
+                  }
+                },
+                {
+                  path: 'category',
+                  populate: {
+                    path: 'offers',
+                    match: {
+                      status: 'Active',
+                      startDate: { $lte: new Date() },
+                      endDate: { $gte: new Date() }
+                    }
+                  }
+                }
+              ]
           })
           .populate('appliedCoupon');
 
@@ -31,22 +54,35 @@ const loadCart = async (req, res) => {
           });
       }
 
-      const validProducts = cart.product.filter(item => item.product != null);
+      // Process products with discount calculation
+      const validProducts = cart.product.filter(item => item.product != null).map(item => {
+          // Calculate discount for each product
+          const discountInfo = calculateDiscount(item.product);
+          
+          // Use discounted price if available
+          const price = discountInfo.hasDiscount ? discountInfo.discountedPrice : item.product.price;
+          
+          return {
+              ...item.toObject(),
+              price: price,
+              hasDiscount: discountInfo.hasDiscount,
+              totalDiscount: discountInfo.totalDiscount,
+              originalPrice: item.product.price
+          };
+      });
       
-      if (validProducts.length !== cart.product.length) {
-          cart.product = validProducts;
-          cart.totalPrice = await calculateTotalPrice(validProducts);
-          await cart.save();
-      }
+      // Calculate total price
+      const totalPrice = validProducts.reduce((total, item) => 
+          total + (item.price * item.quantity), 0);
 
       res.render('user/cart', {
           title: 'Cart',
           includeCss: true,
-          csspage:"coupon.css",
+          csspage: "coupon.css",
           products: validProducts,
-          totalPrice: cart.totalPrice,
+          totalPrice: totalPrice,
           discountAmount: cart.discountAmount || 0,
-          finalAmount: cart.finalAmount || cart.totalPrice,
+          finalAmount: cart.finalAmount || totalPrice,
           appliedCoupon: cart.appliedCoupon,
           coupons,
       });

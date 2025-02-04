@@ -84,6 +84,8 @@ router.get('/check-wallet-balance',userAuth, checkoutController.checkWalletBalan
 router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
 router.post('/placeOrder',userAuth,checkoutController.placeOrder)
 router.get('/orderSuccess/:id',userAuth,checkoutController.loadSuccessPage)
+router.post('/retry-payment',userAuth,checkoutController.retryPayment)
+router.post('/verify-repayment',userAuth,checkoutController.verifyReturnPayment)
 
 
 router.get('/profile',userAuth,profileController.loadProfile)
