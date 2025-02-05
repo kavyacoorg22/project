@@ -58,65 +58,7 @@ const loadeditOffer=async(req,res)=>{
   }
 }
 
-// const editOffer = async (req, res) => {
-//   try {
-//     const {
-//       name,
-//       description,
-//       offer,
-//       productCategory,
-//       productCategoryID,
-//       startDate,
-//       endDate,
-//       status
-//     } = req.body;
 
-
-//     // Validate offer percentage
-//     if (offer < 0 || offer > 100) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Offer percentage must be between 0 and 100"
-//       });
-//     }
-
-//     const updatedOffer = await offerModel.findByIdAndUpdate(
-//       req.params.id,
-//       {
-//         name,
-//         description,
-//         offer,
-//         productCategory,
-//         productCategoryID,
-//         startDate,
-//         endDate,
-//         status
-//       },
-//       { new: true, runValidators: true }
-//     );
-
-//     if (!updatedOffer) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Offer not found"
-//       });
-//     }
-
-//     res.json({
-//       success: true,
-//       message: "Offer updated successfully",
-//       offer: updatedOffer
-//     });
-
-//   } catch (error) {
-//     console.error('Error in editOffer:', error);
-//     res.status(500).json({
-//       success: false,
-//       message: "Error updating offer",
-//       error: error.message
-//     });
-//   }
-// };
 const offer=async(req,res)=>{
   try{
      
@@ -189,79 +131,6 @@ const getApplicable=async (req, res) => {
 }
 
 
-// const addoffer = async (req, res) => {
-//   try {
-//     const {name, description, offer, productCategory, productCategoryID, startDate, endDate, status} = req.body;
-  
-//     if(!name || !offer || !description || !productCategory || !productCategoryID || !startDate || !endDate || !status) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "All fields are required"
-//       });
-//     }
-
-    
-//     if (new Date(endDate) <= new Date(startDate)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "End date must be after start date"
-//       });
-//     }
-
-    
-//     if(name.trim() === '' || description.trim() === '') {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Fields should not be empty or only space"
-//       });
-//     }
-
-//     // Offer range validation
-//     if(offer > 100 || offer < 0) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Offer should be 1 to 100"
-//       });
-//     }
-
-//     // ObjectId validation
-//     if (!mongoose.Types.ObjectId.isValid(productCategoryID)) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid product/category ID"
-//       });
-//     }
-
-//     // Create and save new offer
-//     const newOffer = new offerModel({
-//       name,
-//       description,
-//       offer,
-//       productCategory,
-//       productCategoryID,
-//       startDate,
-//       endDate,
-//       status
-//     });
-
-//     const savedOffer = await newOffer.save();
-
-//     // Send success response
-//     return res.status(200).json({
-//       success: true,
-//       message: 'Offer added successfully',
-//       offer: savedOffer
-//     });
-
-//   } catch (error) {
-//     console.error('Error in addoffer:', error);
-//     return res.status(500).json({
-//       success: false,
-//       message: 'Error while creating offer',
-//       error: error.message
-//     });
-//   }
-// };
 
 
 
@@ -455,4 +324,4 @@ const editOffer = async (req, res) => {
     });
   }
 };
-module.exports={updateStatus,loadAddOffer,loadOffer,loadeditOffer,offer,getApplicable,addoffer,editOffer}
+module.exports={updateStatus,loadAddOffer,loadOffer,loadeditOffer,getApplicable,addoffer,editOffer}

@@ -77,10 +77,10 @@ const shop = async (req, res) => {
       ];
     }
 
-    // Stock Filter - Modified to handle the stock status correctly
+
     const stockFilter = req.query.stock;
     if (stockFilter === 'in-stock') {
-      productQuery.quantity = { $gt: 0 }; // Assuming you have a quantity field
+      productQuery.quantity = { $gt: 0 };
       productQuery.status = 'In-stock';
     } else if (stockFilter === 'out-of-stock') {
       productQuery.$or = [

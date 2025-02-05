@@ -98,7 +98,10 @@ const orderSchema = new mongoose.Schema({
     orderDate: {
         type: Date,
         default: Date.now
-    },
+    },couponCode: {
+        type: String,
+        default: null
+    }
    
 }, { timestamps: true });
 

@@ -49,6 +49,7 @@ const couponSchema = new mongoose.Schema(
       default: "Active",
     },
   },
+  
   {
     timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
   }

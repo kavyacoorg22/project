@@ -92,6 +92,79 @@ const loadCart = async (req, res) => {
   }
 };
 
+// const addToCart = async (req, res) => {
+//   try {
+//       const { productId, quantity = 1 } = req.body;
+//       const userId = req.user._id;
+
+//       if (!productId || quantity < 1) {
+//           return res.status(400).json({ 
+//               success: false, 
+//               message: 'Invalid product ID or quantity' 
+//           });
+//       }
+
+//       const product = await productModel.findById(productId);
+//       if (!product) {
+//           return res.status(404).json({ 
+//               success: false, 
+//               message: 'Product not found' 
+//           });
+//       }
+
+//       if (!product.quantity || product.quantity < quantity) {
+//           return res.status(400).json({ 
+//               success: false, 
+//               message: 'Insufficient stock',
+//               availableStock: product.quantity 
+//           });
+//       }
+
+//       let cart = await cartModel.findOne({ user: userId });
+      
+//       if (!cart) {
+//           cart = new cartModel({
+//               user: userId,
+//               product: [{ product: productId, quantity }]
+//           });
+//       } else {
+//           const existingProductIndex = cart.product.findIndex(
+//               item => item.product.toString() === productId
+//           );
+
+//           if (existingProductIndex !== -1) {
+//               const newQuantity = cart.product[existingProductIndex].quantity + quantity;
+//               if (newQuantity > product.quantity) {
+//                   return res.status(400).json({ 
+//                       success: false, 
+//                       message: 'Total quantity would exceed available stock',
+//                       availableStock: product.quantity 
+//                   });
+//               }
+//               cart.product[existingProductIndex].quantity = newQuantity;
+//           } else {
+//               cart.product.push({ product: productId, quantity });
+//           }
+//       }
+
+//       // Update all cart totals
+//       cart = await updateCartTotals(cart);
+//       await cart.save();
+
+//       res.json({ 
+//           success: true, 
+//           cartCount: cart.product.length,
+//           message: 'Product added to cart successfully'
+//       });
+//   } catch (err) {
+//       console.error('Add to cart error:', err);
+//       res.status(500).json({ 
+//           success: false, 
+//           message: 'Error adding product to cart' 
+//       });
+//   }
+// };
+
 const addToCart = async (req, res) => {
   try {
       const { productId, quantity = 1 } = req.body;
@@ -120,12 +193,22 @@ const addToCart = async (req, res) => {
           });
       }
 
+      // Calculate discount information
+      const discountInfo = calculateDiscount(product);
+      const discountedPrice = discountInfo.hasDiscount 
+          ? discountInfo.discountedPrice 
+          : product.price;
+
       let cart = await cartModel.findOne({ user: userId });
       
       if (!cart) {
           cart = new cartModel({
               user: userId,
-              product: [{ product: productId, quantity }]
+              product: [{ 
+                  product: productId, 
+                  quantity, 
+                  price: discountedPrice 
+              }]
           });
       } else {
           const existingProductIndex = cart.product.findIndex(
@@ -142,8 +225,13 @@ const addToCart = async (req, res) => {
                   });
               }
               cart.product[existingProductIndex].quantity = newQuantity;
+              cart.product[existingProductIndex].price = discountedPrice;
           } else {
-              cart.product.push({ product: productId, quantity });
+              cart.product.push({ 
+                  product: productId, 
+                  quantity,
+                  price: discountedPrice // Store the discounted price
+              });
           }
       }
 
@@ -164,7 +252,6 @@ const addToCart = async (req, res) => {
       });
   }
 };
-
 
 const updateQuantity = async (req, res) => {
   try {
@@ -288,13 +375,83 @@ const removeFromCart = async (req, res) => {
 };
 
 // Helper function to calculate total price
+// async function calculateTotalPrice(products) {
+//   try {
+//       let total = 0;
+//       for (const item of products) {
+//           const product = await productModel.findById(item.product);
+//           if (product) {
+//               total += product.price * item.quantity;
+//           }
+//       }
+//       return Number(total.toFixed(2)); // Ensure consistent decimal places
+//   } catch (err) {
+//       console.error('Calculate total price error:', err);
+//       throw new Error('Error calculating total price');
+//   }
+// }
+
+// async function updateCartTotals(cart) {
+//   const totalPrice = await calculateTotalPrice(cart.product);
+//   cart.totalPrice = totalPrice;
+
+//   // If there's an applied coupon, recalculate discount
+//   if (cart.appliedCoupon) {
+//       const coupon = await couponModel.findById(cart.appliedCoupon);
+//       if (coupon && coupon.status === "Active") {
+//           cart.discountAmount = Number(((totalPrice * coupon.discount) / 100).toFixed(2));
+//           cart.finalAmount = Number((totalPrice - cart.discountAmount).toFixed(2));
+//       } else {
+//           // Reset coupon if it's no longer valid
+//           cart.appliedCoupon = null;
+//           cart.discountAmount = 0;
+//           cart.finalAmount = totalPrice;
+//       }
+//   } else {
+//       cart.finalAmount = totalPrice;
+//   }
+  
+//   return cart;
+// }
+
+
 async function calculateTotalPrice(products) {
   try {
       let total = 0;
       for (const item of products) {
-          const product = await productModel.findById(item.product);
+          const product = await productModel.findById(item.product)
+              .populate([
+                  {
+                      path: 'offers',
+                      match: {
+                          status: 'Active',
+                          startDate: { $lte: new Date() },
+                          endDate: { $gte: new Date() }
+                      }
+                  },
+                  {
+                      path: 'category',
+                      populate: {
+                          path: 'offers',
+                          match: {
+                              status: 'Active',
+                              startDate: { $lte: new Date() },
+                              endDate: { $gte: new Date() }
+                          }
+                      }
+                  }
+              ]);
+
           if (product) {
-              total += product.price * item.quantity;
+              // Calculate discount
+              const discountInfo = calculateDiscount(product);
+              
+              // Use discounted price if available
+              const price = discountInfo.hasDiscount 
+                  ? discountInfo.discountedPrice 
+                  : product.price;
+              
+              total += price * item.quantity;
           }
       }
       return Number(total.toFixed(2)); // Ensure consistent decimal places
@@ -305,28 +462,40 @@ async function calculateTotalPrice(products) {
 }
 
 async function updateCartTotals(cart) {
-  const totalPrice = await calculateTotalPrice(cart.product);
-  cart.totalPrice = totalPrice;
+  try {
+    const totalPrice = await calculateTotalPrice(cart.product);
+    cart.totalPrice = totalPrice;
 
-  // If there's an applied coupon, recalculate discount
-  if (cart.appliedCoupon) {
-      const coupon = await couponModel.findById(cart.appliedCoupon);
-      if (coupon && coupon.status === "Active") {
-          cart.discountAmount = Number(((totalPrice * coupon.discount) / 100).toFixed(2));
-          cart.finalAmount = Number((totalPrice - cart.discountAmount).toFixed(2));
-      } else {
-          // Reset coupon if it's no longer valid
-          cart.appliedCoupon = null;
-          cart.discountAmount = 0;
-          cart.finalAmount = totalPrice;
-      }
-  } else {
-      cart.finalAmount = totalPrice;
+    // If there's an applied coupon, recalculate discount
+    if (cart.appliedCoupon) {
+        const coupon = await couponModel.findById(cart.appliedCoupon);
+        if (coupon && coupon.status === "Active") {
+            // Ensure minimum purchase requirement is met
+            if (totalPrice >= coupon.minimumPurchase) {
+                cart.discountAmount = Number(((totalPrice * coupon.discount) / 100).toFixed(2));
+                cart.finalAmount = Number((totalPrice - cart.discountAmount).toFixed(2));
+            } else {
+                // Reset coupon if minimum purchase is not met
+                cart.appliedCoupon = null;
+                cart.discountAmount = 0;
+                cart.finalAmount = totalPrice;
+            }
+        } else {
+            // Reset coupon if it's no longer valid
+            cart.appliedCoupon = null;
+            cart.discountAmount = 0;
+            cart.finalAmount = totalPrice;
+        }
+    } else {
+        cart.finalAmount = totalPrice;
+    }
+    
+    return cart;
+  } catch (err) {
+    console.error('Update cart totals error:', err);
+    throw new Error('Error updating cart totals');
   }
-  
-  return cart;
 }
-
 const applyCoupon = async (req, res) => {
   try {
       const { couponCode } = req.body;

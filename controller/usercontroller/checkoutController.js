@@ -6,7 +6,7 @@ const productModel = require('../../model/adminModel/productModel');
 const walletModel=require('../../model/userModel/walletModel')
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-
+const { calculateDiscount } = require('../../utils/calculateDiscount');
 
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -185,17 +185,19 @@ const placeOrder = async (req, res) => {
                     message: `Insufficient stock for ${item.product.name || 'a product'}` 
                 });
             }
+            const discountInfo = calculateDiscount(item.product);
+             const price = discountInfo.hasDiscount ? discountInfo.discountedPrice : item.product.price;
 
             orderedItem.push({
                 product: item.product._id,
                 quantity: item.quantity,
-                price: item.product.price,
+                price:price,
                 name: item.product.name,
                 firstImage: item.product.images[0],
                 status: paymentMethod === 'razorpay' ? 'Payment Pending' : 'processing'
             });
 
-            cartTotal += item.product.price * item.quantity;
+            cartTotal +=item.product.price * item.quantity;
         }
 
         // Calculate charges and final amount
