@@ -283,29 +283,33 @@ const placeOrder = async (req, res) => {
         }
 
         // Update product stock for COD and wallet payments
-        if (paymentMethod === 'cod' || paymentMethod === 'wallet') {
+        if (paymentMethod === "cod" || paymentMethod === "wallet") {
             try {
                 await Promise.all(
                     orderedItem.map(async (item) => {
                         // Fetch the full product
                         const product = await productModel.findById(item.product);
-                        
+        
                         if (!product) {
                             throw new Error(`Product not found: ${item.name}`);
                         }
-
+        
                         // Calculate new quantity
                         const currentQuantity = Number(product.quantity) || 0;
                         const newQuantity = Math.max(0, currentQuantity - item.quantity);
-
-                        // Update product quantity
+        
+                        // Determine the new status
+                        const newStatus = newQuantity > 0 ? "In Stock" : "Out of Stock";
+        
+                        // Update product quantity and status
                         await productModel.findByIdAndUpdate(
                             item.product,
-                            { 
-                                $set: { 
+                            {
+                                $set: {
                                     quantity: newQuantity,
-                                    stock: newQuantity 
-                                }
+                                    stock: newQuantity,
+                                    status: newStatus,
+                                },
                             },
                             { new: true }
                         );
@@ -314,12 +318,13 @@ const placeOrder = async (req, res) => {
             } catch (stockError) {
                 // Rollback order if stock update fails
                 await orderModel.findOneAndDelete({ orderID });
-                return res.status(500).json({ 
-                    success: false, 
-                    message: stockError.message || 'Error updating product stock' 
+                return res.status(500).json({
+                    success: false,
+                    message: stockError.message || "Error updating product stock",
                 });
             }
         }
+        
 
         // Clear user's cart
         await cartModel.findOneAndDelete({ user: userId });
@@ -367,7 +372,7 @@ const verifyPayment = async (req, res) => {
             // Get Razorpay order details
             const razorpayOrder = await razorpay.orders.fetch(razorpay_order_id);
             
-            // Find and update order in your database
+        
             const order = await orderModel.findOne({ orderID: razorpayOrder.receipt });
             
             if (!order) {
@@ -383,22 +388,29 @@ const verifyPayment = async (req, res) => {
 
             await order.save();
 
-            // Update product quantities
+            // Update product quantities and status
             await Promise.all(
                 order.orderedItem.map(async (item) => {
                     const updatedProduct = await productModel.findByIdAndUpdate(
                         item.product,
                         { $inc: { quantity: -item.quantity } },
-                        { new: true } 
+                        { new: true }
                     );
-              
-                    return productModel.findByIdAndUpdate(
+            
+                    if (!updatedProduct) return;
+            
+                  
+                    const status = updatedProduct.quantity > 0 ? "In Stock" : "Out of Stock";
+            
+                    
+                    await productModel.findByIdAndUpdate(
                         item.product,
-                        { $set: { stock: updatedProduct.quantity } },
-                        { new: true } 
+                        { $set: { stock: updatedProduct.quantity, status: status } },
+                        { new: true }
                     );
                 })
             );
+            
 
             // Clear cart
             await cartModel.findOneAndDelete({ user: order.user });
