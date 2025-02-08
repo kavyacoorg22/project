@@ -100,6 +100,7 @@ router.get('/cancelOrder/:orderID/:productId',userAuth,orderController.loadOrder
 router.get('/returnOrder/:orderID/:productId',userAuth,orderController.loadOrderReturn)
 router.post('/cancelOrder/:orderID/:productId',userAuth,orderController.cancelOrder)
 router.post('/returnOrder/:orderID/:productId',userAuth,orderController.returnOrder)
+router.get('/order/:orderId/invoice',userAuth,orderController.invoice) 
 
 
 router.get('/wishlist',userAuth,wishlistController.loadWishlist)
@@ -109,4 +110,7 @@ router.delete('/wishlist/remove/:productId',userAuth,wishlistController.removeFr
 
 router.get('/wallet',userAuth,walletController.loadWallet)
 router.post('/wallet/add',userAuth,walletController.addWallet)
+
+
+
 module.exports=router

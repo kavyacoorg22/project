@@ -51,7 +51,11 @@
                       <th>Quantity</th>
                       <th>Price</th>
                       <th>Total</th>
-                     
+                      <% let showReasonColumn = orders.orderedItem.some(item => item.status === "return request" || item.status === "cancel request");
+                      if (showReasonColumn) { 
+                      %>
+                          <th>Reason</th>
+                      <% } %>
                   </tr>
               </thead>
               <tbody>
@@ -63,7 +67,9 @@
                     <td><%=item.quantity%></td>
                     <td>₹<%=item.price%></td>
                     <td>₹<%=item.price * item.quantity%></td>
-                    
+                    <% if (item.status === "cancel request" || item.status === "return request") { %>
+                        <td style="color:red"><%= item.cancelReason || item.returnReason %></td>
+                    <% } %>
                   </tr>
                 <% }); %>
               </tbody>

@@ -22,6 +22,10 @@ router.post('/signup',adminController.signup)
 
 router.get('/dashboard',adminAuth.checkSession,dashboardControlller.loadDashboard)
 
+
+router.get('/top-categories', adminAuth.checkSession,dashboardControlller.topCategories)
+router.get('/top-products',adminAuth.checkSession,dashboardControlller.topProducts)
+router.get('/sales-data', adminAuth.checkSession,dashboardControlller.salesData);
 router.get("/ledger-data", adminAuth.checkSession,dashboardControlller.ledgerData);
 
 

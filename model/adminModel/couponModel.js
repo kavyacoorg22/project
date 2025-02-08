@@ -21,13 +21,13 @@ const couponSchema = new mongoose.Schema(
     discount: {
       type: Number,
       required: true,
-      min: 0, // Discount cannot be negative
-      max: 100, // Discount cannot exceed 100%
+      min: 0, 
+      max: 100, 
     },
     minimumPurchase: {
       type: Number,
       required: true,
-      min: 0, // Minimum purchase cannot be negative
+      min: 0, 
     },
     startDate: {
       type: Date,
@@ -45,13 +45,13 @@ const couponSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["Active", "Inactive"], // Limits status to these two options
+      enum: ["Active", "Inactive"], 
       default: "Active",
     },
   },
   
   {
-    timestamps: true, // Automatically adds `createdAt` and `updatedAt` fields
+    timestamps: true, 
   }
 );
 

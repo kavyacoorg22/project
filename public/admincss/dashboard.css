@@ -1,4 +1,44 @@
+.sales-chart-container {
+  position: relative;
+  margin: auto;
+  height: 400px;
+  width: 100%;
+}
 
+.chart-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  height: auto;  /* Changed from 100% to auto */
+  min-height: 450px;  /* Added minimum height */
+}
+.chart-cards {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+  height: auto;  /* Changed from 100% to auto */
+  min-height: 300px;  /* Added minimum height */
+}
+
+canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+.small-chart-container {
+  height: 150px;
+}
+
+.filter-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
 
 * {
   margin: 0;
@@ -6,12 +46,7 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f6fa;
-  color: #333;
-  line-height: 1.6;
-}
+
 
 .dashboard-container {
   padding: 20px;
@@ -204,3 +239,4 @@ th, td {
 tbody tr:nth-child(even) {
   background-color: #f9f9f9;
 }
+

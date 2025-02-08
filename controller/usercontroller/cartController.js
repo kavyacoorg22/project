@@ -423,6 +423,7 @@ const applyCoupon = async (req, res) => {
       }
 
       cart.appliedCoupon = coupon._id;
+      cart.couponCode=coupon.couponCode;
       await updateCartTotals(cart);
       await cart.save();
 

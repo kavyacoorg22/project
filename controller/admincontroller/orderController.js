@@ -61,9 +61,7 @@ const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedIte
 
 
     if (status === 'canceled' || status === 'returned') {
-      console.log('Attempting to update product quantity for product:', updatedItem.product);
-      console.log('Quantity to add back:', updatedItem.quantity);
-
+     
       const productBefore = await productModel.findById(updatedItem.product);
       console.log('Product before update:', productBefore);
 

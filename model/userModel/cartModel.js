@@ -33,8 +33,13 @@ const cartSchema = new mongoose.Schema(
     finalAmount: {
         type: Number,
         default: 0
+    },
+    couponCode:{
+      type:String,
+      default:null
     }
        },
+
     { timestamps: true }
 );
 

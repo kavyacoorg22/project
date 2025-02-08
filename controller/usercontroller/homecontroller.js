@@ -59,10 +59,9 @@ const shop = async (req, res) => {
     const limit = 4;
     const skip = (page - 1) * limit;
 
-    // Base query
+  
     let productQuery = { isDeleted: false };
 
-    // Category filter
     const selectedCategory = req.query.category || null;
     if (selectedCategory) {
       productQuery.category = selectedCategory;
@@ -89,8 +88,8 @@ const shop = async (req, res) => {
       ];
     }
 
-    // Sorting options
-    let sort = { createdAt: -1 }; // default sort
+    
+    let sort = { createdAt: -1 }; 
     
     switch (req.query.sort) {
       case 'price-low-to-high':
