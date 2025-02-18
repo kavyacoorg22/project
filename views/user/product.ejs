@@ -130,11 +130,11 @@
             <%}%>
           </div>
         </div>
-        <%if(product.status==='In-stock'){%>
-        <p><a href="/user/cart" class="btn btn-black py-3 px-5" data-product-id="<%= product._id %>">Add to Cart</a></p>
-        <%}else if(product.status==='Out-of-stock'){%>
+        <%if(product.stock > 0){%>
+          <p><a href="/user/cart" class="btn btn-black py-3 px-5" data-product-id="<%= product._id %>">Add to Cart</a></p>
+        <%}else{%>
           <p><a href="cart.html" class="btn-notify">Notify me</a></p>
-          <%}%>
+        <%}%>
       </div>
     </div>
   </div>

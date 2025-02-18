@@ -377,7 +377,7 @@ async function updateCartTotals(cart) {
             cart.finalAmount = totalPrice;
         }
     } else {
-        cart.finalAmount = totalPrice;
+        cart.finalAmount =totalPrice;
     }
     
     return cart;
@@ -442,10 +442,46 @@ const applyCoupon = async (req, res) => {
       });
   }
 };
+const removeCoupon = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const cart = await cartModel.findOne({ user: userId });
+    if (!cart) {
+      return res.json({
+        success: false,
+        message: 'Cart not found'
+      });
+    }
+
+    // Remove coupon from cart
+    cart.appliedCoupon = null;
+    cart.couponCode = null;
+    cart.discountAmount = 0;
+    
+    // Recalculate cart totals without coupon
+    await updateCartTotals(cart);
+    await cart.save();
+
+    res.json({
+      success: true,
+      message: 'Coupon removed successfully',
+      finalAmount: cart.finalAmount.toFixed(2)
+    });
+
+  } catch (error) {
+    console.error('Error removing coupon:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error removing coupon'
+    });
+  }
+};
 module.exports = {
   loadCart,
   addToCart,
   updateQuantity,
   removeFromCart,
-  applyCoupon
+  applyCoupon,
+  removeCoupon
 };

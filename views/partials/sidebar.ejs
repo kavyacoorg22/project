@@ -56,12 +56,6 @@
           </a>
       </li>
       
-      <li class="menu-item">
-          <a href="#" class="menu-link">
-              <i class="fas fa-exchange-alt"></i>
-              <span class="menu-text">Transaction</span>
-          </a>
-      </li>
 
       <div class="divider"></div>
       
@@ -74,17 +68,16 @@
 </ul>
 </aside>      
 <script>
-    // Logout function
+   
     function logout(event) {
-      event.preventDefault();  // Prevent the default anchor tag behavior 
-  
+      event.preventDefault();  
       fetch('/admin/logout', {
-        method: 'POST',  // Use POST for logout
+        method: 'POST',
         credentials: 'same-origin'
       })
       .then(response => {
         if (response.ok) {
-          window.location.href = '/admin/signup';  // Redirect after successful logout
+          window.location.href = '/admin/signup';  
         } else {
           alert('Logout failed!');
         }
@@ -94,25 +87,25 @@
       });
     }
   
-   // Function to set the active link
+  
   function setActiveLink(event) {
-    // Get all menu links
+
     const menuLinks = document.querySelectorAll('.menu-link');
     
-    // Remove 'active' class from all links
+    
     menuLinks.forEach(link => {
       link.classList.remove('active');
     });
     
-    // Add 'active' class to the clicked link
+   
     event.currentTarget.classList.add('active');
   }
 
-  // Function to set active link on page load based on the current route
+  
   function setActiveLinkOnPageLoad() {
-    const path = window.location.pathname;  // Get the current URL path
+    const path = window.location.pathname;  
 
-    // Get all menu links
+    
     const menuLinks = document.querySelectorAll('.menu-link');
 
     // Loop through each menu link and check if its href matches the current path

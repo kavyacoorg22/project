@@ -117,27 +117,35 @@ textarea {
 }
 
 
-/* notify button */
-
-.btn-add-to-cart,
 .btn-notify {
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-    max-width: 300px;
+  display: inline-block;
+  background-color: #ff6b6b;
+  color: white;
+  font-weight: 500;
+  padding: 12px 25px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 2px solid #ff6b6b;
+  box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
 }
 
-.btn-add-to-cart {
-    background-color: #2563eb;
-    color: white;
-    border: none;
+.btn-notify:hover {
+  background-color: white;
+  color: #ff6b6b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(255, 107, 107, 0.3);
 }
 
-.btn-notify {
-    background-color: #f3f4f6;
-    color: #1f2937;
-    border: 1px solid #d1d5db;
+.btn-notify:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(255, 107, 107, 0.2);
+}
+
+.btn-notify:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.4);
 }

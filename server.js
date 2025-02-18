@@ -14,11 +14,12 @@ const methodOverride = require('method-override');
 const nocache=require("nocache")
 const passport=require("passport")
 const Razorpay = require('razorpay');
+const mongoose=require('mongoose')
 
 
 
 //port
-const port = process.env.PORT || 3000;
+let port = process.env.PORT || 8000;
 
 
 app.use(cors({ origin: 'http://localhost:3000', credentials: true }))
@@ -90,12 +91,68 @@ app.use((err, req, res, next) => {
   });
 });
 
-connectDB()
-.then(()=>
-{
-  console.log("Database connection established succesfully")
-  app.listen(port, ()=>console.log(`server running on the port ${port}`));
-})
-.catch(()=>{
-  console.log('Database connection lost',err.message)
-})
+
+
+const startServer = async () => {
+  try {
+    await connectDB(); // Using your existing connectDB function
+    console.log("Database connection established successfully");
+    
+    let server;
+    
+    // Handle graceful shutdown
+    const gracefulShutdown = () => {
+      console.log('Received kill signal, shutting down gracefully');
+      if (server) {
+        server.close(() => {
+          console.log('Closed out remaining connections');
+          mongoose.connection.close(false, () => {
+            console.log('MongoDB connection closed');
+            process.exit(0);
+          });
+        });
+
+        // Force shutdown after 10 seconds
+        setTimeout(() => {
+          console.error('Could not close connections in time, forcefully shutting down');
+          process.exit(1);
+        }, 10000);
+      }
+    };
+
+    // Handle shutdown signals
+    process.on('SIGTERM', gracefulShutdown);
+    process.on('SIGINT', gracefulShutdown);
+
+    // Start server after DB connection
+    server = app.listen(port, () => console.log(`Server running on port ${port}`));
+
+    // Handle server errors
+    server.on('error', (error) => {
+      if (error.code === 'EADDRINUSE') {
+        console.log(`Port ${port} is busy, trying ${port + 1}`);
+        port += 1;
+        server = app.listen(port, () => console.log(`Server running on port ${port}`));
+      } else {
+        console.error('Server error:', error);
+      }
+    });
+
+  } catch (err) {
+    console.log('Server startup failed:', err.message);
+    process.exit(1);
+  }
+};
+
+// Call the function
+startServer();
+
+// connectDB()
+// .then(()=>
+// {
+//   console.log("Database connection established succesfully")
+//   app.listen(port, ()=>console.log(`server running on the port ${port}`));
+// })
+// .catch(()=>{
+//   console.log('Database connection lost',err.message)
+// })

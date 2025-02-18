@@ -32,6 +32,12 @@ const addressvalidation=async(req,res,next)=>{
     if (!/^\d{6}$/.test(postalCode)) {  
       return res.status(400).json({ message: "Postal code should contain exactly 6 digits" });
     }
+    
+    const postalCodeNumber = parseInt(postalCode, 10);
+    if (postalCodeNumber < 571201 || postalCodeNumber > 571254) {
+        return res.status(400).json({ message: "We can't deliver to this address" });
+    }
+  
     next()
   }
 

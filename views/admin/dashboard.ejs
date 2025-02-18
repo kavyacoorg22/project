@@ -71,141 +71,145 @@
             </div>
         </div>
     </div>
+
+    <!-- Ledger Section -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="ledger-container">
+                <h2>Ledger Book</h2>
+    
+                <div class="button-group mb-3">
+                    <button class="generate-btn" id="generateLedger">Generate Ledger</button>
+                    <button class="download-excel" id="downloadExcel" disabled>Download Excel</button>
+                    <button class="download-pdf" id="downloadPDF" disabled>Download PDF</button>
+                </div>
+    
+                <div class="table-container">
+                    <table id="ledgerTable" class="table">
+                        <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Total Sales</th>
+                                <th>Period</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerTableBody">
+                            <!-- Data will be populated here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="ledger-container">
-    <h2>Ledger Book</h2>
 
-    <div class="button-group">
-        <button class="generate-btn" id="generateLedger">Generate Ledger</button>
-        <button class="download-excel" id="downloadExcel" disabled>Download Excel</button>
-        <button class="download-pdf" id="downloadPDF" disabled>Download PDF</button>
-    </div>
-
-    <div class="table-container">
-        <table id="ledgerTable">
-            <thead>
-                <tr>
-                    <th>Year</th>
-                    <th>Month</th>
-                    <th>Total Sales</th>
-                </tr>
-            </thead>
-            <tbody id="ledgerTableBody">
-                <!-- Data will be populated here dynamically -->
-            </tbody>
-        </table>
-    </div>
-</div>
-
-  
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
     // Global chart variables
     let salesChart = null;
     let productsChart = null;
     let categoriesChart = null;
+    let currentLedgerData = [];
 
     // Sales Chart Initialization
-    // Replace your existing sales chart initialization with this:
-async function initializeSalesChart(period = 'daily', startDate = null, endDate = null) {
-    try {
-        const params = new URLSearchParams({
-            period: period || 'daily'
-        });
-        if (startDate) params.append('startDate', startDate);
-        if (endDate) params.append('endDate', endDate);
+    async function initializeSalesChart(period = 'daily', startDate = null, endDate = null) {
+        try {
+            const params = new URLSearchParams({
+                period: period || 'daily'
+            });
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
 
-        const response = await fetch(`/admin/sales-data?${params}`);
-        const data = await response.json();
+            const response = await fetch(`/admin/sales-data?${params}`);
+            const data = await response.json();
 
-        const ctx = document.getElementById('salesChart').getContext('2d');
+            const ctx = document.getElementById('salesChart').getContext('2d');
 
-        if (salesChart) {
-            salesChart.destroy();
-        }
+            if (salesChart) {
+                salesChart.destroy();
+            }
 
-        // Calculate max value for y-axis
-        const maxSales = Math.max(...data.sales);
-        const maxDiscounts = Math.max(...data.discounts);
-        const yAxisMax = Math.ceil(Math.max(maxSales, maxDiscounts) * 1.1);
+            // Calculate max value for y-axis
+            const maxSales = Math.max(...data.sales);
+            const maxDiscounts = Math.max(...data.discounts);
+            const yAxisMax = Math.ceil(Math.max(maxSales, maxDiscounts) * 1.1);
 
-        salesChart = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: data.labels,
-                datasets: [{
-                    label: 'Sales',
-                    data: data.sales,
-                    backgroundColor: '#0d6efd',
-                    borderWidth: 1,
-                    order: 1
-                }, {
-                    label: 'Discounts',
-                    data: data.discounts,
-                    backgroundColor: '#ffc107',
-                    borderWidth: 1,
-                    order: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top'
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+            salesChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Sales',
+                        data: data.sales,
+                        backgroundColor: '#0d6efd',
+                        borderWidth: 1,
+                        order: 1
+                    }, {
+                        label: 'Discounts',
+                        data: data.discounts,
+                        backgroundColor: '#ffc107',
+                        borderWidth: 1,
+                        order: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ₹${context.parsed.y.toLocaleString()}`;
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₹' + value.toLocaleString();
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: yAxisMax,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: '#e0e0e0'
                             }
                         },
-                        grid: {
-                            color: '#e0e0e0'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
+                        x: {
+                            grid: {
+                                display: false
+                            }
                         }
                     }
                 }
-            }
-        });
-    } catch (error) {
-        console.error('Error initializing sales chart:', error);
+            });
+        } catch (error) {
+            console.error('Error initializing sales chart:', error);
+        }
     }
-}
-
-// Update the event listeners
-document.getElementById('applyFilters').addEventListener('click', () => {
-    const period = document.getElementById('timePeriod').value;
-    const startDate = document.getElementById('startDate').value;
-    const endDate = document.getElementById('endDate').value;
-    initializeSalesChart(period, startDate, endDate);
-});
-
-// Initialize on page load
-initializeSalesChart();
 
     // Products Chart Initialization
-    async function initializeProductsChart() {
+    async function initializeProductsChart(period = 'daily', startDate = null, endDate = null) {
         try {
-            const response = await fetch('/admin/top-products');
+            const params = new URLSearchParams({
+                period: period
+            });
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            const response = await fetch(`/admin/top-products?${params}`);
             const productsData = await response.json();
 
             const canvas = document.getElementById('productsChart');
@@ -261,9 +265,15 @@ initializeSalesChart();
     }
 
     // Categories Chart Initialization
-    async function initializeCategoriesChart() {
+    async function initializeCategoriesChart(period = 'daily', startDate = null, endDate = null) {
         try {
-            const response = await fetch('/admin/top-categories');
+            const params = new URLSearchParams({
+                period: period
+            });
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            const response = await fetch(`/admin/top-categories?${params}`);
             const categoriesData = await response.json();
 
             const canvas = document.getElementById('categoriesChart');
@@ -318,85 +328,161 @@ initializeSalesChart();
         }
     }
 
-    // Ledger Functions
+    // Function to generate ledger
     async function generateLedger() {
         try {
-            const response = await fetch('/admin/ledger-data');
-            const ledgerData = await response.json();
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            // Construct URL with query parameters
+            let url = '/admin/ledger-data';
+            if (startDate && endDate) {
+                url += `?startDate=${startDate}&endDate=${endDate}`;
+            }
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error('Failed to fetch ledger data');
+            }
+            
+            currentLedgerData = await response.json();
+            
+            // Update table
             const tableBody = document.getElementById('ledgerTableBody');
             tableBody.innerHTML = '';
 
-            ledgerData.forEach(entry => {
+            currentLedgerData.forEach(entry => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${entry.year}</td>
                     <td>${entry.month}</td>
-                    <td>₹${entry.totalSales.toLocaleString()}</td>
+                    <td>₹${parseFloat(entry.totalSales).toLocaleString('en-IN', {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}</td>
+                    <td>${entry.period}</td>
                 `;
                 tableBody.appendChild(row);
             });
 
-            document.getElementById('downloadExcel').removeAttribute('disabled');
-            document.getElementById('downloadPDF').removeAttribute('disabled');
+            // Enable download buttons
+            document.getElementById('downloadExcel').disabled = false;
+            document.getElementById('downloadPDF').disabled = false;
+            
         } catch (error) {
             console.error('Error generating ledger:', error);
+            alert('Error generating ledger. Please try again.');
         }
     }
 
-    function downloadExcel() {
-        const table = document.getElementById('ledgerTable');
-        const ws = XLSX.utils.table_to_sheet(table);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Ledger Book');
-        XLSX.writeFile(wb, 'Ledger_Book.xlsx');
+    // Download Excel function
+    async function downloadExcel() {
+        try {
+            if (!currentLedgerData.length) {
+                alert('Please generate the ledger first');
+                return;
+            }
+
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(currentLedgerData.map(row => ({
+                Year: row.year,
+                Month: row.month,
+                'Total Sales': `₹${parseFloat(row.totalSales).toLocaleString('en-IN')}`,
+                Period: row.period
+            })));
+            
+            XLSX.utils.book_append_sheet(wb, ws, 'Ledger Data');
+            
+            const fileName = currentLedgerData[0].period === 'All Time' 
+                ? 'Ledger_All_Time.xlsx'
+                : `Ledger_${currentLedgerData[0].period.replace(' - ', '_to_')}.xlsx`;
+                
+            XLSX.writeFile(wb, fileName);
+        } catch (error) {
+            console.error('Error downloading Excel:', error);
+            alert('Error downloading Excel. Please try again.');
+        }
     }
 
-    function downloadPDF() {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        doc.text('Ledger Book', 20, 10);
-        doc.autoTable({
-            html: '#ledgerTable',
-            startY: 20,
-            theme: 'grid',
-            styles: {
-                fontSize: 8
+    // Download PDF function
+    async function downloadPDF() {
+        try {
+            if (!currentLedgerData.length) {
+                alert('Please generate the ledger first');
+                return;
             }
-        });
 
-        doc.save('Ledger_Book.pdf');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text('Ledger Report', 20, 20);
+            doc.text(`Period: ${currentLedgerData[0].period}`, 20, 30);
+
+            const tableColumn = ["Year", "Month", "Total Sales", "Period"];
+            const tableRows = currentLedgerData.map(item => [
+                item.year,
+                item.month,
+                `₹${parseFloat(item.totalSales).toLocaleString('en-IN')}`,
+                item.period
+            ]);
+
+            doc.autoTable({
+                head: [tableColumn],
+                body: tableRows,
+                startY: 40,
+                theme: 'grid',
+                styles: { fontSize: 8 },
+                headStyles: { fillColor: [41, 128, 185] }
+            });
+
+            const fileName = currentLedgerData[0].period === 'All Time'
+                ? 'Ledger_All_Time.pdf'
+                : `Ledger_${currentLedgerData[0].period.replace(' - ', '_to_')}.pdf`;
+
+            doc.save(fileName);
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            alert('Error downloading PDF. Please try again.');
+        }
+    }
+
+    // Function to update all charts
+    async function updateDashboard() {
+        const period = document.getElementById('timePeriod').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        // Validate dates
+        if ((startDate && !endDate) || (!startDate && endDate)) {
+            alert('Please select both start and end dates');
+            return;
+        }
+
+        if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+            alert('Start date cannot be later than end date');
+            return;
+        }
+
+        try {
+            // Update all charts
+            await initializeSalesChart(period, startDate, endDate);
+            await initializeProductsChart(period, startDate, endDate);
+            await initializeCategoriesChart(period, startDate, endDate);
+            // Update ledger
+            await generateLedger();
+        } catch (error) {
+            console.error('Error updating dashboard:', error);
+            alert('Error updating dashboard. Please try again.');
+        }
     }
 
     // Event Listeners
-    const applyFiltersBtn = document.getElementById('applyFilters');
-    if (applyFiltersBtn) {
-        applyFiltersBtn.addEventListener('click', () => {
-            const period = document.getElementById('timePeriod').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
-            initializeSalesChart(period, startDate, endDate);
-        });
-    }
+    document.getElementById('applyFilters').addEventListener('click', updateDashboard);
+    document.getElementById('generateLedger').addEventListener('click', generateLedger);
+    document.getElementById('downloadExcel').addEventListener('click', downloadExcel);
+    document.getElementById('downloadPDF').addEventListener('click', downloadPDF);
 
-    const generateLedgerBtn = document.getElementById('generateLedger');
-    if (generateLedgerBtn) {
-        generateLedgerBtn.addEventListener('click', generateLedger);
-    }
-
-    const downloadExcelBtn = document.getElementById('downloadExcel');
-    if (downloadExcelBtn) {
-        downloadExcelBtn.addEventListener('click', downloadExcel);
-    }
-
-    const downloadPDFBtn = document.getElementById('downloadPDF');
-    if (downloadPDFBtn) {
-        downloadPDFBtn.addEventListener('click', downloadPDF);
-    }
-
-    // Initialize all charts on page load
-    initializeSalesChart();
-    initializeProductsChart();
-    initializeCategoriesChart();
+    // Initialize dashboard on page load
+    updateDashboard();
 });
 </script>

@@ -5,8 +5,10 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js"
+    "prestart": "kill-port 3000",
+    "start": "nodemon --signal SIGTERM server.js"
   },
+ 
   "author": "kavya",
   "license": "ISC",
   "dependencies": {

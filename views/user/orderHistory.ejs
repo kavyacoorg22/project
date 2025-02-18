@@ -41,18 +41,26 @@
                           <th>DATE</th>
                           <th>TOTAL</th>
                           <th>DISCOUNT</th>
+                          <th>ACTION</th>
                       </tr>
                   </thead>
                   <tbody>
                       <% if (placedOrders && placedOrders.length > 0) { %>
                           <% placedOrders.forEach(order => { %>
                           
-                              <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
-                                  <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
-                                  <td class="oh-order-id"><%= order.orderId %></td>
+                              <tr>
+                                  <td onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;" class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
+                                  <td onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;" class="oh-order-id"><%= order.orderId %></td>
                                   <td class="oh-date"><%= order.date %></td>
                                   <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
                                   <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
+                                  <td>
+                                    <%if(order.status==="Payment Pending"){%>
+                                        <button class="od-btn" onclick="handleRepayment('<%= order.orderId %>')" data-order='<%= order.orderId %>'>
+                                            Re-Pay
+                                        </button>
+                                    <%}%>
+                                </td>
                               </tr>
                           <% }); %>
                       <% } else { %>
@@ -66,43 +74,23 @@
           </div>
       </div>
 
-      
-      <div class="oh-section oh-failed-section">
-        <h2 class="oh-section-title oh-failed-title">Failed Order</h2>
-        <div class="oh-table-wrapper">
-            <table class="oh-table">
-                <thead>
-                    <tr>
-                        <th>PRODUCT COUNT</th>
-                        <th>ORDERID</th>
-                        <th>DATE</th>
-                        <th>TOTAL</th>
-                        <th>DISCOUNT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% if (failedOrders && failedOrders.length > 0) { %>
-                        <% failedOrders.forEach(order => { %>
-                          
-                            <tr onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;">
-                                <td class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
-                                <td class="oh-order-id"><%= order.orderId %></td>
-                                <td class="oh-date"><%= order.date %></td>
-                                <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
-                                <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
-                            </tr>
-                        <% }); %>
-                    <% } else { %>
-                        <tr>
-                            <td colspan="5" class="no-orders">No failed orders</td>
-                        </tr>
-                      <
-                    <% } %>
-                </tbody>
-            </table>
-        </div>
-    </div>
 </div>
+
+<div class="pagination">
+    <% if (page > 1) { %>
+        <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+    <% } %>
+
+    <% for (let i = 1; i <= totalPages; i++) { %>
+        <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+            <%= i %>
+        </a>
+    <% } %>
+
+    <% if (page < totalPages) { %>
+        <a href="?page=<%= page + 1 %>" class="page-link">></a>
+    <% } %>
+  </div>
 </main>
 </div>
 
@@ -133,6 +121,127 @@
     .catch(error => {
       console.error('Error during logout:', error);
       Swal.fire('An error occurred during logout. Please try again.');
+    });
+}
+
+
+async function handleRepayment(orderId) {
+    try {
+       
+        Swal.fire({
+            title: 'Processing...',
+            text: 'Please wait while we initialize payment',
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        
+        const response = await fetch('/user/retry-payment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ orderId })
+        });
+
+        const data = await response.json();
+        
+        
+        Swal.close();
+
+        if (!data.success) {
+            throw new Error(data.message || 'Failed to create payment order');
+        }
+
+       
+        const options = {
+            key: data.razorpay.key,
+            amount: data.razorpay.amount,
+            currency: data.razorpay.currency,
+            order_id: data.razorpay.orderID,
+            name: "VEGEFOODS",
+            description: `Repayment for order ${orderId}`,
+            prefill: {
+                name: data.orderDetails.billingDetails.name,
+                email: data.orderDetails.billingDetails.email,
+                contact: data.orderDetails.billingDetails.contact
+            },
+            handler: function(response) {
+                
+                Swal.fire({
+                    title: 'Verifying Payment',
+                    text: 'Please wait...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                // Verify payment
+                fetch('/user/verifyRepayment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                })
+                .then(verifyResponse => verifyResponse.json())
+                .then(verifyData => {
+                    if (verifyData.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Payment Successful',
+                            text: 'Your payment has been processed successfully!',
+                            showConfirmButton: true
+                        }).then(() => {
+                            window.location.href = `/user/orderSuccess/${orderId}`;
+                        });
+                    } else {
+                        throw new Error(verifyData.message || 'Payment verification failed');
+                    }
+                })
+                .catch(error => {
+                    handlePaymentError(error);
+                });
+            },
+            theme: {
+                color: "#3CBC8D"
+            }
+        };
+
+       
+        if (typeof Razorpay === 'undefined') {
+            throw new Error('Razorpay SDK not loaded');
+        }
+
+        
+        const razorpayInstance = new Razorpay(options);
+        razorpayInstance.on('payment.failed', function(response) {
+            handlePaymentError(new Error(response.error.description));
+        });
+
+        razorpayInstance.open();
+
+    } catch (error) {
+        handlePaymentError(error);
+    }
+}
+
+
+function handlePaymentError(error) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Payment Failed',
+        text: error.message || 'An error occurred during payment. Please try again.',
+        showConfirmButton: true
     });
 }
 </script>

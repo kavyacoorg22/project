@@ -5,7 +5,7 @@ const walletModel=require('../../model/userModel/walletModel')
 const loadOrder = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = 2;
+    const limit = 4;
     const skip = (page - 1) * limit;
 
     

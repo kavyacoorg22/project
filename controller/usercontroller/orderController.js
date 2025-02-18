@@ -1,13 +1,25 @@
 const orderModel=require('../../model/userModel/orderModel')
 const Razorpay = require('razorpay');
 const PDFDocument = require('pdfkit');
+const {calculateDiscount}=require('../../utils/calculateDiscount')
+
 
 const loadOrderHistory = async (req, res) => {
   try {
       const userId = req.user._id;
+      const page = parseInt(req.query.page) || 1; // Default to page 1
+      const limit = 10; // Orders per page
+      const skip = (page - 1) * limit;
 
+      // Get total count of user's orders for pagination
+      const totalOrders = await orderModel.countDocuments({ user: userId });
+      const totalPages = Math.ceil(totalOrders / limit);
+
+      // Get paginated orders
       const orders = await orderModel.find({ user: userId })
-          .sort({ orderDate: -1 });
+          .sort({ orderDate: -1 })
+          .skip(skip)
+          .limit(limit);
 
       const processedOrders = orders.map(order => ({
           productCount: order.orderedItem.length,
@@ -18,20 +30,13 @@ const loadOrderHistory = async (req, res) => {
           status: order.status
       }));
 
-      const failedOrders = processedOrders.filter(order => 
-          ['canceled', 'returned', 'Payment Pending'].includes(order.status)
-      );
-
-      const placedOrders = processedOrders.filter(order => 
-          !['canceled', 'returned', 'Payment Pending'].includes(order.status)
-      );
-
       res.render('user/orderHistory', {
           title: 'Order History',
           includeCss: true,
           csspage: 'orderHistory.css',
-          failedOrders,
-          placedOrders
+          placedOrders: processedOrders,
+          page: page,
+          totalPages: totalPages
       });
 
   } catch (err) {
@@ -45,27 +50,54 @@ const loadOrderHistory = async (req, res) => {
 
 const loadOrderDetails = async (req, res) => {
   try {
-   
     const orderId = req.params.id;
     const orders = await orderModel.findOne({ orderID: orderId })
       .populate('deliveryAddress')
-      .populate('user','firstname number ')
+      .populate('user', 'firstname number')
       .populate('billingDetails')
-      
+      .populate({
+        path: 'orderedItem.product',
+        populate: {
+          path: 'offers',
+          match: {
+            status: 'Active',
+            startDate: { $lte: new Date() },
+            endDate: { $gte: new Date() }
+          }
+        }
+      });
+    
     if (!orders) {
       return res.status(404).send('Order not found');
     }
+    
+   
+    const processedOrders = {
+      ...orders.toObject(),
+      orderedItem: orders.orderedItem.map(item => { 
+        const discountInfo = calculateDiscount(item.product);
+        return {
+          ...item.toObject(),
+          product: {
+            ...item.product.toObject(),
+            ...discountInfo
+          }
+        };
+      })
+    };
+    
     
     res.render('user/orderDetails', {
       title: 'OrderDetails',
       includeCss: true,
       csspage: 'orderDetails.css',
-      orders
+      orders: processedOrders
     });
   } catch (err) {
     res.status(500).send(err.message);
   }
 };
+
 
 const loadOrderCancel = async (req, res) => {
   try {

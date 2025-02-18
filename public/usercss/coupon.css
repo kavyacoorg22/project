@@ -68,3 +68,23 @@
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
+
+.coupon-input-container {
+  position: relative;
+}
+
+#removeCoupon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: none;
+  color: red;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#couponInput:not(:placeholder-shown) + #removeCoupon {
+  display: block;
+}

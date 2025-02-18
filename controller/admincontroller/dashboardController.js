@@ -137,17 +137,41 @@ const loadDashboard = async (req, res) => {
   }
 };
 
+
+
+
 const ledgerData = async (req, res) => {
   try {
+    const { startDate, endDate } = req.query;
+    
+    // Create the base pipeline
     const pipeline = [
       { $unwind: "$orderedItem" },
       {
         $match: {
           "orderedItem.status": {
-            $nin: ["Canceled", "Returned", "Cancel Request", "Return Request","Payment pending"]
+            $nin: ["Canceled", "Returned", "Cancel Request", "Return Request", "Payment pending"]
           }
         }
-      },
+      }
+    ];
+    
+    // Add date range filter if both start and end dates are provided
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0); // Start of day
+      
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999); // End of day
+      
+      pipeline.push({
+        $match: {
+          orderDate: { $gte: start, $lte: end }
+        }
+      });
+    }
+    
+    pipeline.push(
       {
         $lookup: {
           from: "coupons",
@@ -171,16 +195,6 @@ const ledgerData = async (req, res) => {
               ]},
               0
             ]
-          },
-          itemCouponDeduction: {
-            $cond: [
-              { $and: [
-                { $gt: ["$coupon.discount", 0] },
-                { $gte: ["$orderedItem.price", "$coupon.minimumPurchase"] }
-              ]},
-              { $multiply: ["$orderedItem.quantity", "$orderedItem.price"] },
-              0
-            ]
           }
         }
       },
@@ -194,8 +208,14 @@ const ledgerData = async (req, res) => {
             $sum: {
               $subtract: [
                 { $multiply: ["$orderedItem.price", "$orderedItem.quantity"] },
-                { $add: ["$itemDiscount", "$itemCouponDeduction"] }
+                "$itemDiscount"
               ]
+            }
+          },
+          dateRange: {
+            $first: {
+              start: startDate ? new Date(startDate) : null,
+              end: endDate ? new Date(endDate) : null
             }
           }
         }
@@ -206,7 +226,7 @@ const ledgerData = async (req, res) => {
           "_id.month": -1
         }
       }
-    ];
+    );
 
     const ledgerData = await Order.aggregate(pipeline);
 
@@ -218,7 +238,10 @@ const ledgerData = async (req, res) => {
     const formattedData = ledgerData.map((entry) => ({
       year: entry._id.year,
       month: months[entry._id.month - 1],
-      totalSales: entry.totalSales.toFixed(2)
+      totalSales: entry.totalSales.toFixed(2),
+      period: startDate && endDate ? 
+        `${new Date(startDate).toLocaleDateString()} - ${new Date(endDate).toLocaleDateString()}` : 
+        'All Time'
     }));
 
     res.json(formattedData);
@@ -230,32 +253,42 @@ const ledgerData = async (req, res) => {
 
 
 
+
+
+
+
+
 const getDateRange = (period) => {
   const now = new Date();
   const start = new Date();
   
   switch(period) {
-      case 'daily':
-          start.setDate(now.getDate() - 5);
-          break;
-      case 'weekly':
-          start.setDate(now.getDate() - 28);
-          break;
-      case 'monthly':
-          start.setMonth(now.getMonth() - 4);
-          break;
-      case 'yearly':
-          start.setFullYear(now.getFullYear() - 4);
-          break;
-      default:
-          start.setDate(now.getDate() - 5);
+    case 'daily':
+      start.setDate(now.getDate() - 7);
+      break;
+    case 'weekly':
+  
+      const currentDay = now.getDay();
+      const diff = currentDay === 0 ? 6 : currentDay - 1; // Adjust for Sunday
+      now.setDate(now.getDate() - diff); // Move to current week's Monday
+      start.setDate(now.getDate() - (4 * 7)); // Go back 4 weeks from current week's Monday
+      break;
+    case 'monthly':
+      start.setMonth(now.getMonth() - 4);
+      break;
+    case 'yearly':
+      start.setFullYear(now.getFullYear() - 4);
+      break;
+    default:
+      start.setDate(now.getDate() - 5);
   }
+  
+  // Set time to start of day for start date and end of day for end date
+  start.setHours(0, 0, 0, 0);
+  now.setHours(23, 59, 59, 999);
   
   return { start, end: now };
 };
-
-
-
 
 const salesData = async (req, res) => {
   try {
@@ -264,39 +297,86 @@ const salesData = async (req, res) => {
     const start = startDate ? new Date(startDate) : dateRange.start;
     const end = endDate ? new Date(endDate) : dateRange.end;
 
+    const getDateFormat = (period) => {
+      switch (period) {
+        case 'daily':
+          return '%Y-%m-%d';
+        case 'weekly':
+          return '%Y-W%V'; // ISO week format
+        case 'monthly':
+          return '%Y-%m';
+        default:
+          return '%Y';
+      }
+    };
+
     const pipeline = [
       {
         $match: {
           orderDate: { $gte: start, $lte: end },
-          status: { $nin: ["Canceled", "Returned", "Cancel Request", "Return Request","Payment Pending"] }
+          status: { $nin: ["Canceled", "Returned", "Cancel Request", "Return Request", "Payment Pending"] }
         }
       },
       { $unwind: "$orderedItem" },
       {
         $group: {
           _id: {
-            date: {
-              $dateToString: {
-                format: period === 'daily' ? "%Y-%m-%d" : 
-                        period === 'monthly' ? "%Y-%m" : "%Y",
-                date: "$orderDate"
-              }
-            }
+            date: period === 'weekly' 
+              ? {
+                  $concat: [
+                    { $toString: { $isoWeekYear: "$orderDate" } }, "-W",
+                    { $toString: { $isoWeek: "$orderDate" } }
+                  ]
+                }
+              : {
+                  $dateToString: {
+                    format: getDateFormat(period),
+                    date: "$orderDate"
+                  }
+                }
           },
           sales: { 
             $sum: { $multiply: ["$orderedItem.price", "$orderedItem.quantity"] }
           },
           discounts: {
             $sum: { $ifNull: ["$discount", 0] }
-          }
+          },
+          weekStart: { $min: "$orderDate" },  // Always apply, but ignore if not used
+          weekEnd: { $max: "$orderDate" }     // Always apply, but ignore if not used
         }
       },
-      { $sort: { "_id.date": 1 } }
+      { $sort: { "_id.date": 1 } },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id.date",
+          sales: 1,
+          discounts: 1,
+          weekRange: {
+            $cond: {
+              if: { $eq: [period, "weekly"] },
+              then: {
+                $concat: [
+                  { $dateToString: { format: "%b %d", date: "$weekStart" } },
+                  " - ",
+                  { $dateToString: { format: "%b %d", date: "$weekEnd" } }
+                ]
+              },
+              else: null
+            }
+          }
+        }
+      }
+      
     ];
 
     const results = await Order.aggregate(pipeline);
 
-    const labels = results.map(r => r._id.date);
+    // Format the labels based on period
+    const labels = results.map(r => 
+      period === 'weekly' ? (r.weekRange || r.date) : r.date
+    );
+    
     const sales = results.map(r => r.sales);
     const discounts = results.map(r => r.discounts);
 

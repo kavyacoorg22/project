@@ -76,6 +76,7 @@ router.post('/cart/add',userAuth,cartController.addToCart)
 router.post('/cart/updateQuantity',userAuth,cartController.updateQuantity)
 router.post('/cart/removeProduct',userAuth,cartController.removeFromCart)
 router.post('/applyCoupon',userAuth,cartController.applyCoupon)
+router.post('/remove-coupon', userAuth, cartController.removeCoupon);
 
 
 
@@ -84,8 +85,12 @@ router.get('/check-wallet-balance',userAuth, checkoutController.checkWalletBalan
 router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
 router.post('/placeOrder',userAuth,checkoutController.placeOrder)
 router.get('/orderSuccess/:id',userAuth,checkoutController.loadSuccessPage)
-router.post('/retry-payment',userAuth,checkoutController.retryPayment)
-router.post('/verify-repayment',userAuth,checkoutController.verifyReturnPayment)
+
+router.post('/retry-payment', userAuth,checkoutController.retryPayment);
+router.post('/verifyRepayment', userAuth,checkoutController.verifyRepayment);
+
+
+router.get('/orderFailed/:id',userAuth,checkoutController.loadFailedPage)
 
 
 router.get('/profile',userAuth,profileController.loadProfile)
@@ -111,6 +116,14 @@ router.delete('/wishlist/remove/:productId',userAuth,wishlistController.removeFr
 router.get('/wallet',userAuth,walletController.loadWallet)
 router.post('/wallet/add',userAuth,walletController.addWallet)
 
-
+router.use((req, res) => {
+  res.status(404).render('user/error', {
+    title: '404 - Page Not Found',
+    originalUrl: req.originalUrl,
+    includeCss: true,
+    csspage: "error.css",
+    layout:"./layout/auth-layout"
+  });
+});
 
 module.exports=router

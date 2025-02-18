@@ -30,61 +30,7 @@
                 <th>Total</th>
               </tr>
             </thead>
-            <!-- <tbody>
-              <% if (products && products.length > 0) { %>
-                <% products.forEach((item) => { %>
-                  <tr class="text-center" data-product-id="<%= item.product._id %>" data-stock="<%= item.product.stock %>">
-                    <td class="product-remove">
-                      <a href="#"><span class="ion-ios-close"></span></a>
-                    </td>
-                    <td class="image-prod">
-                      <a href="/user/product/<%= item.product._id %>">
-                        <img src="/img/productsimg/<%=item.product.images[0]%>" alt="<%=item.product.name%>" class="img" style="width: 100px; height: 100px; object-fit: cover;">
-                      </a>
-                    </td>
-                    <td class="product-name">
-                      <a href="/user/product/<%= item.product._id %>" style="text-decoration: none; color: inherit;">
-                        <h3><%=item.product.name%></h3>
-                        <p><%=item.product.description%></p>
-                      </a>
-                    </td>
-                    <td class="price">₹<%=item.product.price%></td>
-                    
-                    <td class="quantity">
-                      <div class="input-group mb-3">
-                        <span class="input-group-btn mr-2">
-                          <button type="button" class="quantity-left-minus btn" data-type="minus">
-                            <i class="ion-ios-remove"></i>
-                          </button>
-                        </span>
-                        <input type="text" 
-                               name="quantity" 
-                               class="quantity form-control input-number" 
-                               value="<%=item.quantity%>" 
-                               min="1" 
-                               max="<%=item.product.quantity%>"
-                               data-stock="<%=item.product.quantity%>"
-                               data-product-id="<%=item.product._id%>"
-                               readonly>
-                        <span class="input-group-btn ml-2">
-                          <button type="button" class="quantity-right-plus btn" data-type="plus">
-                            <i class="ion-ios-add"></i>
-                          </button>
-                        </span>
-                      </div>
-                    </td>
-                    
-                    <td class="total">₹<%= (item.product.price * item.quantity).toFixed(2) %></td>
-                  </tr>
-                <% }) %>
-              <% } else { %>
-                <tr>
-                  <td colspan="6" class="text-center">Your cart is empty</td>
-                </tr>
-              <% } %>
-           
-           </tbody> -->
-
+            
 
 
             <tbody>
@@ -172,26 +118,30 @@
 
 
     <div class="row justify-content-end">
-      <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
-        <div class="cart-total mb-3">
-            <h3>Coupon Code</h3>
-            <p>Enter your coupon code if you have one</p>
-            <form action="#" class="info">
-                <div class="form-group">
-                    <label for="">Coupon code</label>
-                    <input type="text" id="couponInput" class="form-control text-left px-3" placeholder="Enter coupon code">
-                </div>
-            </form>
-            <div class="alert alert-success" id="successAlert" style="display: none;"></div>
-            <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
-            <div class="discount-info" id="discountInfo" style="display: none;">
-                <p>Discount Amount: ₹<span id="discountAmount">0</span></p>
-                <p>Final Amount: ₹<span id="finalAmount">0</span></p>
-            </div>
-        </div>
-        <p><button onclick="applyCouponCode()" class="btn btn-primary py-3 px-4">Apply Coupon</button></p>
-     </div>
+      
     
+     <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
+      <div class="cart-total mb-3">
+          <h3>Coupon Code</h3>
+          <p>Enter your coupon code if you have one</p>
+          <form action="#" class="info">
+            <div class="form-group">
+              <label for="">Coupon code</label>
+              <div class="coupon-input-container">
+                  <input type="text" id="couponInput" class="form-control text-left px-3" placeholder="Enter coupon code">
+                  <span id="removeCoupon" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; display: none; color: red;">&times;</span>
+              </div>
+          </div>
+          </form>
+          <div class="alert alert-success" id="successAlert" style="display: none;"></div>
+          <div class="alert alert-error" id="errorAlert" style="display: none;"></div>
+          <div class="discount-info" id="discountInfo" style="display: none;">
+              <p>Discount Amount: ₹<span id="discountAmount">0</span></p>
+              <p>Final Amount: ₹<span id="finalAmount">0</span></p>
+          </div>
+      </div>
+      <p><button onclick="applyCouponCode()" class="btn btn-primary py-3 px-4">Apply Coupon</button></p>
+  </div>
 
       
     <div class="col-lg-4 mt-5 cart-wrap ftco-animate">
@@ -314,6 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const couponInput = document.getElementById('couponInput');
             const couponCode = couponInput?.value?.trim();
+            const removeCouponBtn = document.getElementById('removeCoupon');
+            const discountInfoEl = document.getElementById('discountInfo');
             
             if (!couponCode) {
                 showNotification('Please enter a coupon code', 'error');
@@ -336,13 +288,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data.success) {
                     showNotification('Coupon applied successfully');
                     updateTotalsAfterCoupon(data.discountAmount, data.finalAmount);
-                    couponInput.value = ''; // Clear input after successful application
+                    
+                    // Keep the coupon code in the input field
+                    couponInput.value = couponCode;
+                    
+                    // Show the X button and discount info
+                    if (removeCouponBtn) removeCouponBtn.style.display = 'block';
+                    if (discountInfoEl) discountInfoEl.style.display = 'block';
+                    
+                    // Update discount info if it exists
+                    const discountAmountEl = document.getElementById('discountAmount');
+                    const finalAmountEl = document.getElementById('finalAmount');
+                    if (discountAmountEl) discountAmountEl.textContent = data.discountAmount;
+                    if (finalAmountEl) finalAmountEl.textContent = data.finalAmount;
                 } else {
                     showNotification(data.message || 'Invalid coupon code', 'error');
                 }
             } catch (error) {
                 console.error('Apply coupon error:', error);
                 showNotification('Error applying coupon', 'error');
+            }
+        });
+    }
+
+    // Handle coupon removal
+    const removeCouponBtn = document.getElementById('removeCoupon');
+    if (removeCouponBtn) {
+        removeCouponBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/user/remove-coupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Clear input and hide elements
+                    document.getElementById('couponInput').value = '';
+                    document.getElementById('discountInfo').style.display = 'none';
+                    this.style.display = 'none';
+                    
+                    // Update totals
+                    updateTotalsAfterCoupon(0, data.finalAmount);
+                    
+                    // Show success message
+                    showNotification(data.message || 'Coupon removed successfully');
+                } else {
+                    showNotification(data.message || 'Failed to remove coupon', 'error');
+                }
+            } catch (error) {
+                console.error('Error removing coupon:', error);
+                showNotification('Something went wrong. Please try again.', 'error');
             }
         });
     }

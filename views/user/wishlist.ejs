@@ -33,14 +33,14 @@
             <tbody>
               <% if (wishlist && wishlist.products.length > 0) { %>
                 <% wishlist.products.forEach(product => { %>
-                  <tr class="text-center product-row" data-product-id="<%= product._id %>" onclick="window.location.href='/user/product/<%= product._id %>'" style="cursor: pointer;">
+                  <tr class="text-center product-row" data-product-id="<%= product._id %>"  style="cursor: pointer;">
                     <td class="product-remove">
                       <a href="#" class="remove-from-wishlist">
                         <span class="ion-ios-close"></span>
                       </a>
                     </td>
                     <td class="image-prod">
-                      <img src="/img/productsimg/<%=product.images[0]%>" alt="<%=product.name%>" class="img" style="width: 100px; height: 100px; object-fit: cover;">
+                      <img src="/img/productsimg/<%=product.images[0]%>" alt="<%=product.name%>" class="img" style="width: 100px; height: 100px; object-fit: cover;" onclick="window.location.href='/user/product/<%= product._id %>'">
                     </td>
                     <td class="product-name">
                       <h3><%= product.name %></h3>

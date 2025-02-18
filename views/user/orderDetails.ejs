@@ -1,4 +1,4 @@
-<div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
+ <div class="hero-wrap hero-bread" style="background-image: url('/images/bg_1.jpg');">
   <div class="container">
     <div class="row no-gutters slider-text align-items-center justify-content-center">
       <div class="col-md-9 ftco-animate text-center">
@@ -80,12 +80,24 @@
               </thead>
               <tbody>
                 <% orders.orderedItem.forEach(function(item) { %>
-                  <tr onclick="window.location.href='/user/product/<%= item.product._id %>'" style="cursor: pointer;">
+                  <tr onclick="window.location.href='/user/product/<%= item.product %>'" style="cursor: pointer;">
                     <td><img src="/img/productsimg/<%=item.firstImage%>" alt="<%=item.name%>" class="od-product-img"></td>
                     <td><%=item.name%></td>
                     <td><span class="od-status-<%=orders.status.toLowerCase()%>"><%=item.status%></span></td>
                     <td><%=item.quantity%></td>
-                    <td>₹<%=item.price%></td>
+                    <td>
+                      <% if(item.hasDiscount) { %>
+                        <p class="price">
+                          <span class="mr-2 price-dc">₹<%=item.price%></span>
+                          <span class="price-sale">₹<%=item.discountedPrice%></span>
+                          <small class="discount-tag">-<%=item.totalDiscount%>% off</small>
+                        </p>
+                      <% } else { %>
+                        <p class="price">
+                          <span class="price-sale">₹<%=item.price%></span>
+                        </p>
+                      <% } %>
+                    </td>
                     <td>₹<%=item.price * item.quantity%></td>
                     <td>
                       <% if (item.status === 'processing') { %>
@@ -95,8 +107,8 @@
                       <% } else if (item.status === 'delivered') { %>
                           <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/returnOrder/<%=orders.orderID%>/<%=item.product%>'">Return</button>
                       <% } else if (item.status === 'Payment Pending') { %>
-                        <button class="od-btn" onclick="handleRepayment('<%= orders.orderID %>', '<%=  item.product._id %>')">
-                          Re-Payment
+                        <button class="od-btn od-btn-disabled" disabled>
+                          Re-Pay
                         </button>
                       <% } else if (item.status === 'cancel request') { %>
                           <button class="od-btn od-btn-disabled" disabled>Cancel Request Pending</button>
@@ -114,34 +126,35 @@
           </table>
       </div>
 
+      
       <div class="od-summary-section">
-          <h2 class="od-info-title">Order Summary</h2>
-          <div class="od-summary-grid">
-              <span class="od-label">Subtotal:</span>
-              <span class="od-value">₹<%= orders.orderedItem.reduce((total, item) => total + (item.price * item.quantity), 0) %></span>
-              
-              <span class="od-label">Discount:</span>
-              <span class="od-value">₹-<%=orders.discount%></span>
-              
-              <span class="od-label">Shipping:</span>
-              <span class="od-value">₹<%=orders.deliveryCharge%></span>
-              
-              <div class="od-label od-summary-total">Total:</div>
-              <div class="od-value od-summary-total">₹<%=orders.totalAmount%></div>
-
-              <div class="text-right mt-3">
+        <h2 class="od-info-title">Order Summary</h2>
+        <div class="od-summary-grid">
+            <span class="od-label">Subtotal:</span>
+            <span class="od-value">₹<%= orders.orderedItem.reduce((total, item) => total + (item.price * item.quantity), 0) %></span>
+            
+            <span class="od-label">Discount:</span>
+            <span class="od-value">₹-<%= orders.discount %></span>
+            
+            <span class="od-label">Shipping:</span>
+            <span class="od-value">₹<%= orders.deliveryCharge %></span>
+            
+            <div class="od-label od-summary-total">Total:</div>
+            <div class="od-value od-summary-total">₹<%= orders.totalAmount %></div>
+    
+            <div class="text-right mt-3">
                 <% if (orders.status !== "canceled" && orders.status !== "returned") { %>
                     <% const hasPendingItems = orders.orderedItem.some(item => item.status === "Payment Pending"); %>
                     <% if (!hasPendingItems) { %>
-                        <button class="od-btn" onclick="downloadInvoice('<%=orders.orderID%>')">
+                        <button class="od-btn" onclick="downloadInvoice('<%= orders.orderID %>')">
                             Download Invoice
                         </button>
                     <% } %>
                 <% } %>
             </div>
-          </div>
-      </div>
-  </div>
+        </div>
+    </div>
+    </div>
 </div>
 
 <script>
@@ -182,142 +195,9 @@ async function downloadInvoice(orderID) {
 
 
 
-const handleRepayment = async (orderID, productID) => {
-    try {
-        console.log('Starting payment process...'); // Debug log
-        
-        
-
-        // Make the API request
-        console.log('Making fetch request to /user/retry-payment'); // Debug log
-        const response = await fetch('/user/retry-payment', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'include',
-            body: JSON.stringify({ 
-                orderID, 
-                productID 
-            })
-        });
-
-        // Log response details
-        console.log('Response status:', response.status);
-        console.log('Response ok:', response.ok);
-        
-        // Check if response is ok before trying to parse JSON
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Response not ok:', {
-                status: response.status,
-                statusText: response.statusText,
-                body: errorText
-            });
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Try to parse JSON response
-        let data;
-        try {
-            data = await response.json();
-            console.log('Response data:', data);
-        } catch (e) {
-            console.error('JSON parse error:', e);
-            throw new Error('Failed to parse server response');
-        }
-
-        if (!data.success) {
-            throw new Error(data.message || 'Failed to create payment order');
-        }
-
-        const options = {
-            key: data.razorpay.key,           // The key from your response
-            amount: data.razorpay.amount,     // Amount in smallest currency unit
-            currency: data.razorpay.currency,
-            order_id: data.razorpay.orderID,  // The Razorpay order ID
-            name: "VEGEFOODS",
-            description: `Payment for ${data.productName}`,
-            prefill: {
-                name: "Customer Name",
-                email: "",
-                contact: ""
-            },
-            handler: function(response) {
-                console.log('Payment success:', response);
-                verifyRepayment(orderID, productID, {
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_signature: response.razorpay_signature
-                });
-            },
-            modal: {
-                ondismiss: function() {
-                    console.log('Checkout form closed');
-                }
-            }
-        };
-
-        console.log('Creating Razorpay instance with options:', options);
-        const rzp = new window.Razorpay(options);
-        
-        rzp.on('payment.failed', function(response) {
-            console.error('Payment failed:', response.error);
-            alert(`Payment failed: ${response.error.description}`);
-        });
-
-        console.log('Opening Razorpay modal...');
-        if (!data.razorpay.key) {
-    throw new Error('Razorpay key is missing');
-}
-if (!data.razorpay.orderID) {
-    throw new Error('Razorpay order ID is missing');
-}
-if (!data.razorpay.amount) {
-    throw new Error('Amount is missing');
-}
-        rzp.open();
-
-    } catch (error) {
-        console.error('Payment error:', error);
-        alert(error.message || 'Payment failed. Please try again.');
-    }
-};
 
 
 
-const verifyRepayment = async (orderID, productID, paymentResponse) => {
-    try {
-        console.log('Sending verification request:', {
-            orderID, 
-            productID, 
-            paymentResponse
-        });
-        
-        const res = await fetch('/user/verify-repayment', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'include',
-            body: JSON.stringify({ orderID, productID, paymentResponse })
-        });
 
-        console.log('Response status:', res.status);
-        const result = await res.json();
-        console.log('Verification response:', result);
+</script> 
 
-        if (result.success) {
-            alert('Payment successful!');
-            window.location.reload();
-        } else {
-            throw new Error(result.message || 'Payment verification failed');
-        }
-    } catch (error) {
-        console.error('Error in verifyRepayment:', error);
-        alert('Error verifying payment: ' + error.message);
-    }
-};
-</script>
