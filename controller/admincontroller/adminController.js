@@ -38,14 +38,14 @@ const signup = async (req, res) => {
 
     req.session.save((err) => {
       if (err) {
-        console.error('Session save error:', err);
+        
         return res.status(500).json({ message: 'Session error' });
       }
       return res.status(200).json({ message: 'Login successful' });
     });
 
   } catch (err) {
-    console.error('Login error:', err);
+ 
     return res.status(500).json({ message: 'An error occurred. Please try again.' });
   }
 };
@@ -106,7 +106,7 @@ const loadCreatecat=async(req,res)=>
 
   req.session.destroy((err) => {
     if (err) {
-      console.error('Failed to destroy session:', err);
+      
       return res.status(500).send('Failed to log out');
     }
 
@@ -118,6 +118,4 @@ const loadCreatecat=async(req,res)=>
 
 
     module.exports={loadSignup,signup,loadDashboard,loadcategory,loadCreatecat,logout,
-                    
-
-    }
+}

@@ -35,7 +35,7 @@ const calculateDiscount = (product) => {
       hasDiscount: totalDiscount > 0
     };
   } catch (error) {
-    console.error('Error calculating discount:', error);
+  
     return {
       totalDiscount: 0,
       discountedPrice: product.price,

@@ -22,7 +22,7 @@ const processImage = async (buffer, filename) => {
 
         return uniqueFilename;
     } catch (error) {
-        console.error('Image processing error:', error);
+        
         throw new Error('Failed to process image');
     }
 };

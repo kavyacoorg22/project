@@ -24,7 +24,7 @@
       <a href="/user/wallet"><span>Wallet</span></a>
       <a href="/user/logout" class="logout" onclick="logout(event)"><span>Logout</span></a>
     </aside>
-
+<!-- 
     <main class="main-content">
       <div class="oh-container">
         <h1 class="oh-main-title">Order History</h1>
@@ -36,7 +36,7 @@
               <table class="oh-table">
                   <thead>
                       <tr>
-                          <th>PRODUCT COUNT</th>
+                          <th>PRODUCT</th>
                           <th>ORDERID</th>
                           <th>DATE</th>
                           <th>TOTAL</th>
@@ -49,17 +49,35 @@
                           <% placedOrders.forEach(order => { %>
                           
                               <tr>
-                                  <td onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;" class="oh-product-count"><%= order.productCount %> Product<%= order.productCount > 1 ? 's' : '' %></td>
+                                <td onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;" class="oh-product-preview">
+                                    <div class="product-image-container">
+                                        <% if (order.firstProduct.image) { %>
+                                            <img src="/img/productsimg/<%= order.firstProduct.image %>" 
+                                                 alt="<%= order.firstProduct.name %>" 
+                                                 class="product-thumbnail"
+                                                 title="<%= order.firstProduct.name %>">
+                                        <% } %>
+                                        <% if (order.remainingCount > 0) { %>
+                                            <span class="more-products">+<%= order.remainingCount %> more</span>
+                                        <% } %>
+                                    </div>
+                                </td>
                                   <td onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'" style="cursor: pointer;" class="oh-order-id"><%= order.orderId %></td>
                                   <td class="oh-date"><%= order.date %></td>
                                   <td class="oh-total">₹<%= order.total.toLocaleString() %></td>
                                   <td class="oh-discount"><%= order.discount.toLocaleString() %></td>
                                   <td>
-                                    <%if(order.status==="Payment Pending"){%>
+                                    <% if (order.status === "Payment Pending") { %>
                                         <button class="od-btn" onclick="handleRepayment('<%= order.orderId %>')" data-order='<%= order.orderId %>'>
                                             Re-Pay
                                         </button>
-                                    <%}%>
+                                    <% } else { %>
+                                        <button class="btns" onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'">
+                                            View
+                                        </button>
+                                    <% } %>
+                                    
+                                    
                                 </td>
                               </tr>
                           <% }); %>
@@ -91,6 +109,88 @@
         <a href="?page=<%= page + 1 %>" class="page-link">></a>
     <% } %>
   </div>
+</main> -->
+<main class="main-content">
+    <div class="oh-container">
+        <h1 class="oh-main-title">Order History</h1>
+
+        <div class="oh-section oh-placed-section">
+            <h2 class="oh-section-title oh-placed-title">Placed Orders</h2>
+            
+            <div class="oh-cards-wrapper">
+                <% if (placedOrders && placedOrders.length > 0) { %>
+                    <% placedOrders.forEach(order => { %>
+                        <div class="oh-card" onclick="window.location.href='/user/orderDetails/<%= order.orderId %>'">
+                            <div class="oh-card-header">
+                                <div class="product-image-container">
+                                    <% if (order.firstProduct.image) { %>
+                                        <img src="/img/productsimg/<%= order.firstProduct.image %>" 
+                                            alt="<%= order.firstProduct.name %>" 
+                                            class="product-thumbnail"
+                                            title="<%= order.firstProduct.name %>">
+                                    <% } %>
+                                    <% if (order.remainingCount > 0) { %>
+                                        <span class="more-products">+<%= order.remainingCount %> more</span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <div class="oh-card-content">
+                                <div class="oh-card-row">
+                                    <span class="oh-label">Order ID:</span>
+                                    <span class="oh-value oh-order-id"><%= order.orderId %></span>
+                                </div>
+                                <div class="oh-card-row">
+                                    <span class="oh-label">Date:</span>
+                                    <span class="oh-value oh-date"><%= order.date %></span>
+                                </div>
+                                <div class="oh-card-row">
+                                    <span class="oh-label">Total:</span>
+                                    <span class="oh-value oh-total">₹<%= order.total.toLocaleString() %></span>
+                                </div>
+                                <% if (order.discount > 0) { %>
+                                    <div class="oh-card-row">
+                                        <span class="oh-label">Discount:</span>
+                                        <span class="oh-value oh-discount">₹<%= order.discount.toLocaleString() %></span>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <div class="oh-card-footer">
+                                <% if (order.status === "Payment Pending") { %>
+                                    <button class="od-btn" onclick="handleRepayment('<%= order.orderId %>'); event.stopPropagation();">
+                                        Re-Pay
+                                    </button>
+                                <% } else { %>
+                                    <button class="btns">
+                                        View Details
+                                    </button>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="no-orders">No placed orders</div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="pagination">
+            <% if (page > 1) { %>
+                <a href="?page=<%= page - 1 %>" class="page-link"><</a>
+            <% } %>
+
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>" class="page-link <%= i === page ? 'active' : '' %>">
+                    <%= i %>
+                </a>
+            <% } %>
+
+            <% if (page < totalPages) { %>
+                <a href="?page=<%= page + 1 %>" class="page-link">></a>
+            <% } %>
+        </div>
+    </div>
 </main>
 </div>
 

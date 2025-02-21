@@ -5,7 +5,7 @@ const fs = require('fs').promises;
 
 const createcat = async (req, res) => {
   try {
-    console.log(req.body);
+    
     const { name, description } = req.body;
 
     
@@ -41,7 +41,7 @@ const createcat = async (req, res) => {
       const filename = await processImage(req.file.buffer, req.file.originalname);
       imageUrl = `/img/categories/${filename}`;
     } else {
-      console.log('No file uploaded');
+     
     }
 
   
@@ -54,7 +54,7 @@ const createcat = async (req, res) => {
       message: 'Category added successfully',
     });
   } catch (error) {
-    console.error('Error creating category:', error);
+    
     res.render('admin/createcategory', {
       error: 'Error creating category',
       values: req.body,
@@ -91,7 +91,7 @@ const getAllCategories = async (req, res) => {
       categories,
     });
   } catch (error) {
-    console.error(error);
+
     res.status(500).send('Error fetching categories');
   }
 };
@@ -130,7 +130,7 @@ const updateCategory = async (req, res) => {
                       await fs.access(oldImagePath);
                       await fs.unlink(oldImagePath);
                   } catch (err) {
-                      console.log('No old image found to delete');
+                      res.send(err)
                   }
               }
 
@@ -143,7 +143,7 @@ const updateCategory = async (req, res) => {
               // Add image path to update data
               updateData.image = `/img/categories/${filename}`;
           } catch (error) {
-              console.error('Image processing error:', error);
+              
               return res.status(500).json({
                   success: false,
                   message: 'Error processing image',
@@ -163,7 +163,7 @@ const updateCategory = async (req, res) => {
       return res.redirect('/admin/category');
 
   } catch (error) {
-      console.error('Error updating category:', error);
+      
       return res.status(500).json({
           success: false,
           message: 'Internal server error while updating category',
@@ -192,10 +192,10 @@ const deleteCat=async(req,res)=>{
             { _id: id},
             { $set: { isDeleted: true } }
         );
-        console.log(`Update result:`, result);
+        
         res.status(200).json({ message: 'Category soft deleted successfully' });
     } catch (err) {
-        console.error('Error during category deletion:', err.message);
+        
         res.status(500).json({ message: 'Failed to delete category' });
     }
   
@@ -212,7 +212,7 @@ const loadEditCat = async (req, res) => {
 
     res.render('admin/editcategory', { title: 'Edit Category', category ,csspage:"editcategory.css",layout: './layout/admin-layout'});
   } catch (err) {
-    console.error('Error loading category:', err);
+ 
     res.status(500).send('Internal Server Error');
   }
 };

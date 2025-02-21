@@ -101,11 +101,11 @@
                     <td>₹<%=item.price * item.quantity%></td>
                     <td>
                       <% if (item.status === 'processing') { %>
-                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/cancelOrder/<%=orders.orderID%>/<%=item.product%>'">Cancel Order</button>
+                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/cancelOrder/<%=orders.orderID%>/<%=item.product._id%>'">Cancel Order</button>
                       <% } else if (item.status === 'shipped') { %>
                           <span class="od-btn od-btn-disabled">Cancellation not possible after shipping</span>
                       <% } else if (item.status === 'delivered') { %>
-                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/returnOrder/<%=orders.orderID%>/<%=item.product%>'">Return</button>
+                          <button class="od-btn" onclick="event.stopPropagation(); window.location.href='/user/returnOrder/<%=orders.orderID%>/<%=item.product._id%>'">Return</button>
                       <% } else if (item.status === 'Payment Pending') { %>
                         <button class="od-btn od-btn-disabled" disabled>
                           Re-Pay

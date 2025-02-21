@@ -29,7 +29,7 @@ const loadAddress = async (req, res) => {
           addresses
       });
   } catch (err) {
-      console.error("Error loading addresses:", err);
+      
       res.status(500).send("Error fetching addresses");
   }
 };
@@ -68,7 +68,7 @@ const addAddress = async (req, res) => {
     message: "Address added successfully"
 });
   } catch (error) {
-    console.error("Error adding address:", error);
+   
     res.status(500).json({
         success: false,
         message: "Error adding address"
@@ -120,7 +120,7 @@ const editAddress = async (req, res) => {
       });
 
   } catch (error) {
-      console.error('Address update error:', error);
+     
       res.status(500).json({ message: 'Failed to update address' });
   }
 };
@@ -128,8 +128,7 @@ const deleteAddress = async (req, res) => {
   try {
       const userId = req.user._id;
       const addressId = req.params.id;
-      console.log('user',userId)
-      console.log('addressis',addressId)
+   
 
       // Remove address from user's addresses array
       await signupModel.findByIdAndUpdate(
@@ -146,7 +145,7 @@ const deleteAddress = async (req, res) => {
           message: "Address deleted successfully"
       });
   } catch (err) {
-      console.error("Error deleting address:", err);
+     
       res.status(500).json({
           success: false,
           message: "Error deleting address"

@@ -84,7 +84,7 @@ const updateProfile = async (req, res) => {
       });
   
     } catch (error) {
-      console.error("Profile update error:", error);
+  
       res.status(500).json({
         message: "Server error while updating profile",
       });
@@ -133,7 +133,7 @@ const changePassword = async (req, res) => {
       res.json({ message: "Password updated successfully" });
 
   } catch (error) {
-      console.error('Password change error:', error);
+      
       res.status(500).json({ message: "Server error while changing password" });
   }
 };
@@ -156,7 +156,7 @@ const logout = (req, res) => {
       message: 'Logged out successfully',
     });
   } catch (error) {
-    console.error('Error during logout:', error);
+   
     return res.status(500).json({
       success: false,
       message: 'An error occurred during logout',

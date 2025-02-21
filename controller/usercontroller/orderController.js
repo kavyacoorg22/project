@@ -3,19 +3,16 @@ const Razorpay = require('razorpay');
 const PDFDocument = require('pdfkit');
 const {calculateDiscount}=require('../../utils/calculateDiscount')
 
-
 const loadOrderHistory = async (req, res) => {
   try {
       const userId = req.user._id;
-      const page = parseInt(req.query.page) || 1; // Default to page 1
-      const limit = 10; // Orders per page
+      const page = parseInt(req.query.page) || 1;
+      const limit = 10;
       const skip = (page - 1) * limit;
 
-      // Get total count of user's orders for pagination
       const totalOrders = await orderModel.countDocuments({ user: userId });
       const totalPages = Math.ceil(totalOrders / limit);
 
-      // Get paginated orders
       const orders = await orderModel.find({ user: userId })
           .sort({ orderDate: -1 })
           .skip(skip)
@@ -23,6 +20,11 @@ const loadOrderHistory = async (req, res) => {
 
       const processedOrders = orders.map(order => ({
           productCount: order.orderedItem.length,
+          firstProduct: {
+              image: order.orderedItem[0]?.firstImage || '',
+              name: order.orderedItem[0]?.name || 'Product'
+          },
+          remainingCount: Math.max(0, order.orderedItem.length - 1),
           orderId: order.orderID,
           date: new Date(order.orderDate).toLocaleString(),
           total: order.totalAmount,
@@ -40,7 +42,6 @@ const loadOrderHistory = async (req, res) => {
       });
 
   } catch (err) {
-      console.error('Error loading order history:', err);
       res.status(500).render('error', {
           message: 'Error loading order history',
           error: err
@@ -102,6 +103,7 @@ const loadOrderDetails = async (req, res) => {
 const loadOrderCancel = async (req, res) => {
   try {
     const { orderID, productId } = req.params;
+
     res.render('user/orderCancel', {
       title: 'cancelOrder', 
       includeCss: true, 
@@ -116,10 +118,11 @@ const loadOrderCancel = async (req, res) => {
 
 const cancelOrder = async (req, res) => {
   try {
-    console.log("returm",req.params)
+   
     const { orderID, productId } = req.params;
+
     const { cancelReason } = req.body;
-    console.log(req.body)
+    
 
     if (!orderID || !productId) {
       return res.status(400).json({ 
@@ -157,7 +160,7 @@ const cancelOrder = async (req, res) => {
       message: 'Product cancellation request submitted' 
     });
   } catch (error) {
-    console.error(error);
+    
     res.status(500).json({ 
       success: false, 
       message: 'Server error during product cancellation' 
@@ -222,7 +225,7 @@ const returnOrder = async (req, res) => {
       message: 'Product return request submitted' 
     });
   } catch (error) {
-    console.error(error);
+ 
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
@@ -416,7 +419,7 @@ const invoice = async (req, res) => {
         doc.end();
 
     } catch (error) {
-        console.error('Error generating invoice:', error);
+      
         res.status(500).json({ message: 'Error generating invoice' });
     }
 };

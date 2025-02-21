@@ -38,7 +38,7 @@ const loadsignup=async(req,res)=>{
   }
   catch(err)
   {
-    console.log(err.message)
+
   }
 }
 
@@ -91,7 +91,7 @@ const signup = async (req, res) => {
     });
 
   } catch (err) {
-    console.error(err.message);
+
     return res.status(500).json({
       success: false,
       message: "An error occurred during signup. Please try again later."
@@ -102,15 +102,21 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
-  
+     
     const user = await signupModel.findOne({ email });
 
-    
     if (!user) {
       return res.status(400).json({
         success: false,
         message: 'Invalid credentials',
+      });
+    }
+
+    // Check if this is a Google user trying to login with password
+    if (user.googleId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please login with Google',
       });
     }
 
@@ -125,24 +131,19 @@ const login = async (req, res) => {
 
     // Create JWT token
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    
-
     
     res.cookie("token", token, {
       httpOnly: true, 
       secure: process.env.NODE_ENV === 'production',
-      
     });
 
-    
     return res.status(200).json({
       success: true,
       message: 'Login successful',
     });
   
   } catch (error) {
-    console.error('Error during login:', error);
+    
     return res.status(500).json({
       success: false,
       message: 'An error occurred during login',
@@ -216,7 +217,7 @@ const email = async (req, res) => {
       });
 
   } catch (error) {
-      console.error('Server error:', error);
+     
       return res.status(500).json({ 
           success: false,
           message: 'An unexpected error occurred. Please try again.' 
@@ -252,7 +253,6 @@ const loadotp = async (req, res) => {
           expiryTime: otpData.expiryTime
       });
   } catch (err) {
-      console.error('Load OTP error:', err);
       res.redirect('/user/email');
   }
 };
@@ -309,7 +309,7 @@ const verifyotp = async (req, res) => {
           redirectUrl: '/user/password'
       });
   } catch (error) {
-      console.error('Verify OTP error:', error);
+      
       res.status(500).json({ 
           success: false,
           message: 'Server error' 
@@ -350,7 +350,7 @@ const resendotp = async (req, res) => {
           message: 'OTP resent successfully' 
       });
   } catch (error) {
-      console.error('Resend OTP error:', error);
+     
       res.status(500).json({ 
           success: false,
           message: 'Failed to resend OTP' 
@@ -374,9 +374,7 @@ const password=async(req,res)=>{
 }
 
 const resetPassword = async (req, res) => {
-  console.log('Password reset request received');
-  console.log('Request body:', req.body);
-  console.log('Session data:', req.session);
+  
   try {
     const { newPassword, confirmPassword } = req.body;
     
@@ -436,7 +434,7 @@ const resetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Password change error:', error);
+    
     return res.status(500).json({
       success: false,
       message: "Failed to update password"

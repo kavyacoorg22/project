@@ -1,7 +1,7 @@
 
 
 const validateImg=(req,res,next)=>{
-  file=req.files;  // it handling multiple images so req.files
+  file=req.files;  
   if(!file || file.length<3)
   {
     return res.status(400).json({

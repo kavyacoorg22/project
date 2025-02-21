@@ -50,9 +50,9 @@ const loadAddproduct=async(req,res)=>
 const loadEditproduct=async(req,res)=>
 {
  try{
-  console.log("id",req.params.id)
+ 
     const {id}=req.params;
-    console.log(req.params)
+   
     const product=await productModel.findById(id)
     const categories=await categoryModel.find({isDeleted:false})
     if(!product)
@@ -132,7 +132,7 @@ const loadEditproduct=async(req,res)=>
       });
 
   } catch (err) {
-      console.log(err.message);
+     
       res.status(400).json({
           success: false,
           error: err.message
@@ -159,10 +159,10 @@ const deleteProduct = async (req, res) => {
           { _id: id},
           { $set: { isDeleted: true } }
       );
-      console.log(`Update result:`, result);
+     
       res.status(200).json({ message: 'Product soft deleted successfully' });
   } catch (err) {
-      console.error('Error during product deletion:', err.message);
+      
       res.status(500).json({ message: 'Failed to delete product' });
   }
 };
@@ -204,6 +204,14 @@ const editproduct = async (req, res) => {
     // Handle image upload
     if (req.file) {
       try {
+
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedMimeTypes.includes(req.file.mimetype)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid file type. Only JPEG, PNG, GIF, and WebP images are allowed.'
+          });
+        }
         // Delete old image if it exists
         if (product.images && product.images.length > 0) {
           const oldImagePath = path.join('public', 'img', 'productsimg', product.images[0]);
@@ -211,7 +219,8 @@ const editproduct = async (req, res) => {
             await fs.promises.access(oldImagePath);
             await fs.promises.unlink(oldImagePath);
           } catch (err) {
-            console.log('No old image found to delete');
+            
+            res.send(err)
           }
         }
 
@@ -231,7 +240,7 @@ const editproduct = async (req, res) => {
           updateData.images[0] = filename;
         }
       } catch (error) {
-        console.error('Image processing error:', error);
+       
         return res.status(500).json({
           success: false,
           message: 'Error processing image: ' + error.message
@@ -260,7 +269,7 @@ const updatedProduct = await productModel.findByIdAndUpdate(
     });
 
   } catch (error) {
-    console.error('Error updating product:', error);
+   
     res.status(500).json({
       success: false,
       message: 'Internal server error while updating product: ' + error.message

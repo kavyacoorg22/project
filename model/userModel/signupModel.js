@@ -12,7 +12,7 @@ const signupSchema = new mongoose.Schema({
   number: {
     type: Number,
     required: function() {
-      return !this.googleId; // Only required for non-Google users
+      return !this.googleId; 
     }
   },
   email: {
@@ -22,7 +22,7 @@ const signupSchema = new mongoose.Schema({
   password: {
     type: String,
     required: function() {
-      return !this.googleId; // Only required for non-Google users
+      return !this.googleId; 
     }
   },
 
@@ -37,6 +37,7 @@ const signupSchema = new mongoose.Schema({
   },
   googleId: String,
   picture: String,
+ 
   address:[{
      type: mongoose.Schema.Types.ObjectId,
         ref: 'address',

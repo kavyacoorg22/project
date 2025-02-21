@@ -87,7 +87,7 @@ const loadCart = async (req, res) => {
           coupons,
       });
   } catch (err) {
-      console.error('Error loading cart:', err);
+     
       res.status(500).render('error', { message: 'Error loading cart' });
   }
 };
@@ -174,7 +174,7 @@ const addToCart = async (req, res) => {
           message: 'Product added to cart successfully'
       });
   } catch (err) {
-      console.error('Add to cart error:', err);
+      
       res.status(500).json({ 
           success: false, 
           message: 'Error adding product to cart' 
@@ -242,7 +242,7 @@ const updateQuantity = async (req, res) => {
       cartTotal: cart.totalPrice
     });
   } catch (err) {
-    console.error('Update quantity error:', err);
+   
     res.status(500).json({ 
       success: false, 
       message: 'Error updating quantity' 
@@ -295,7 +295,7 @@ const removeFromCart = async (req, res) => {
       cartCount: cart.product.length
     });
   } catch (err) {
-    console.error('Remove from cart error:', err);
+
     res.status(500).json({ 
       success: false, 
       message: 'Error removing product from cart' 
@@ -346,7 +346,7 @@ async function calculateTotalPrice(products) {
       }
       return Number(total.toFixed(2)); // Ensure consistent decimal places
   } catch (err) {
-      console.error('Calculate total price error:', err);
+      
       throw new Error('Error calculating total price');
   }
 }
@@ -382,7 +382,7 @@ async function updateCartTotals(cart) {
     
     return cart;
   } catch (err) {
-    console.error('Update cart totals error:', err);
+    
     throw new Error('Error updating cart totals');
   }
 }
@@ -435,7 +435,7 @@ const applyCoupon = async (req, res) => {
       });
 
   } catch (error) {
-      console.error('Error applying coupon:', error);
+      
       res.status(500).json({
           success: false,
           message: 'Error applying coupon'
@@ -470,7 +470,7 @@ const removeCoupon = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error removing coupon:', error);
+
     res.status(500).json({
       success: false,
       message: 'Error removing coupon'

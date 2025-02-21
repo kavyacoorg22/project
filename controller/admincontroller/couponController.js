@@ -78,8 +78,7 @@ const loadCoupon=async(req,res)=>{
 
 const changeStatus = async (req, res) => {
   try {
-    console.log(req.params);
-    console.log(req.body);
+    
     const { couponId } = req.params;
 
     const { status } = req.body;
@@ -117,7 +116,7 @@ const changeStatus = async (req, res) => {
 
 const deleteCoupon= async (req, res) => {
   try {
-    console.log(req.params)
+    
     const { couponId } = req.params;
 
     // Find and delete the coupon
@@ -137,7 +136,7 @@ const deleteCoupon= async (req, res) => {
       item: deletedCoupon,
     });
   } catch (error) {
-    console.error('Error deleting coupon:', error);
+   
     res.status(500).json({
       success: false,
       message: 'Error deleting coupon',

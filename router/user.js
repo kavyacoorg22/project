@@ -13,21 +13,46 @@ const addressvalidation=require('../middleware/addressValidation')
 const orderController=require('../controller/usercontroller/orderController')
 const wishlistController=require('../controller/usercontroller/wishlistController')
 const walletController=require('../controller/usercontroller/walletController')
+const jwt = require('jsonwebtoken');
+require("dotenv").config();
 const passport = require('passport');
 require('../utils/passport');
 
 
 
 router.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-router.get('/auth/google/callback',
   passport.authenticate('google', { 
-    failureRedirect: '/user/login',
-    successRedirect: '/user/home'
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+    accessType: 'offline'
   })
 );
+router.get('/auth/google/callback',
+  (req, res, next) => {
+    passport.authenticate('google', (err, user, info) => {
+      if (err) {
+        
+        return res.redirect('/user/login?error=session_expired');
+      }
+      
+      if (!user) {
+        return res.redirect('/user/login?error=authentication_failed');
+      }
+
+      // Create JWT token
+      const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+      
+      // Set JWT cookie
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+      });
+
+      return res.redirect('/user/home');
+    })(req, res, next);
+  }
+);
+
 
 router.use((req, res, next) => {
   // Get current URL path

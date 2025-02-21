@@ -40,7 +40,7 @@ const loadOffer = async(req, res) => {
       offers: processedOffers
     });
   } catch(err) {
-    console.error('Error:', err);
+
     res.status(500).send(err.message);
   }
 }
@@ -102,7 +102,7 @@ const updateStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error updating status:', error);
+
     res.status(500).json({
       success: false,
       message: 'Error updating status',
@@ -211,7 +211,7 @@ const addoffer = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in addoffer:', error);
+ 
     return res.status(500).json({
       success: false,
       message: 'Error while creating offer',
@@ -316,7 +316,7 @@ const editOffer = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in editOffer:', error);
+   
     res.status(500).json({
       success: false,
       message: "Error updating offer",

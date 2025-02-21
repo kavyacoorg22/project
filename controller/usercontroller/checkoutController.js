@@ -66,7 +66,7 @@ const loadCheckout = async (req, res) => {
         });
 
     } catch (err) {
-        console.error('Checkout page error:', err);
+        
         res.status(500).render('error', { 
             message: 'Error loading checkout page',
             error: err 
@@ -79,9 +79,9 @@ const loadCheckout = async (req, res) => {
 const loadSuccessPage = async (req, res) => {
     try {
         const { id } = req.params;
-         console.log(id)
+        
         const order = await orderModel.findOne({ orderID:id });
-        console.log(order)
+        
         if (!order) {
             return res.send("order not found")
         }
@@ -94,7 +94,7 @@ const loadSuccessPage = async (req, res) => {
             
         });
     } catch (error) {
-        console.error('Error loading success page:', error);
+        
         res.status(500).render('error', { 
             message: 'Error loading order details' 
         });
@@ -105,9 +105,9 @@ const loadSuccessPage = async (req, res) => {
 const loadFailedPage = async (req, res) => {
     try {
         const { id } = req.params;
-         console.log(id)
+       
         const order = await orderModel.findOne({ orderID:id });
-        console.log(order)
+       
         if (!order) {
             return res.send("order not found")
         }
@@ -121,7 +121,7 @@ const loadFailedPage = async (req, res) => {
             
         });
     } catch (error) {
-        console.error('Error loading failer page:', error);
+       
         res.status(500).render('error', { 
             message: 'Error loading order details' 
         });
@@ -363,7 +363,7 @@ const placeOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error placing order:', error);
+        
         res.status(500).json({ 
             success: false, 
             message: error.message || 'Internal server error. Please try again.' 
@@ -447,7 +447,7 @@ const verifyRepayment = async (req, res) => {
             message: 'Payment verified and order confirmed'
         });
     } catch (error) {
-        console.error('Payment verification error:', error);
+        
         res.status(400).json({
             success: false,
             message: error.message || 'Payment verification failed'
@@ -541,7 +541,7 @@ const retryPayment = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Repayment error:', error);
+       
         res.status(500).json({ 
             success: false, 
             message: error.message || 'Failed to create repayment order' 
@@ -626,7 +626,7 @@ const verifyPayment = async (req, res) => {
             throw new Error('Invalid payment signature');
         }
     } catch (error) {
-        console.error('Payment verification error:', error);
+       
         res.status(400).json({
             success: false,
             message: error.message || 'Payment verification failed'

@@ -44,7 +44,7 @@ const loadOrder = async (req, res) => {
       page
     });
   } catch (err) {
-    console.error('Error loading orders:', err);
+    
     res.status(500).send('Error loading orders. Please try again.');
   }
 };
@@ -52,18 +52,12 @@ const loadOrder = async (req, res) => {
 
 const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedItem) => {
   try {
-    console.log('Starting handleRefundAndQuantityUpdate with:', {
-      orderId,
-      itemId,
-      status,
-      updatedItem
-    });
+    
 
-
+    // Handle inventory update
     if (status === 'canceled' || status === 'returned') {
-     
       const productBefore = await productModel.findById(updatedItem.product);
-      console.log('Product before update:', productBefore);
+     
 
       const updatedProduct = await productModel.findOneAndUpdate(
         { _id: updatedItem.product }, 
@@ -76,18 +70,31 @@ const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedIte
         { new: true }
       );
 
-      console.log('Product after update:', updatedProduct);
-    }
+      
 
-    // Handle refund logic
-    const order = await orderModel.findOne({ orderID: orderId });
-    if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
-      const refundAmount = updatedItem.price * updatedItem.quantity;
+      // Handle refund logic
+      const order = await orderModel.findOne({ orderID: orderId });
+      if (!order) {
+        throw new Error('Order not found');
+      }
 
-      if (order.paymentMethod === 'wallet') {
-        const walletBefore = await walletModel.findOne({ user: order.user });
-        console.log('Wallet before update:', walletBefore);
+      if (order.paymentMethod === 'wallet' || order.paymentMethod === 'razorpay') {
+        const refundAmount = updatedItem.price * updatedItem.quantity;
 
+        // Find existing wallet or create new one
+        let wallet = await walletModel.findOne({ user: order.user });
+        
+        if (!wallet) {
+          wallet = new walletModel({
+            user: order.user,
+            balance: 0,
+            transactions: []
+          });
+        }
+
+       
+
+        // Update wallet with refund
         const updatedWallet = await walletModel.findOneAndUpdate(
           { user: order.user },
           {
@@ -96,18 +103,18 @@ const handleRefundAndQuantityUpdate = async (orderId, itemId, status, updatedIte
               transactions: {
                 transactionType: 'deposit',
                 amount: refundAmount,
-                date: new Date()
+                date: new Date(),
               }
             }
           },
-          { new: true }
+          { new: true, upsert: true } // Create wallet if it doesn't exist
         );
 
-        console.log('Wallet after update:', updatedWallet);
+        
       }
     }
   } catch (error) {
-    console.error('Error in handleRefundAndQuantityUpdate:', error);
+    
     throw error;
   }
 };
@@ -117,12 +124,7 @@ const updateStatus = async (req, res) => {
     const { orderId, itemId } = req.params;
     const { status } = req.body;
 
-    console.log('Updating status for:', {
-      orderId,
-      itemId,
-      status
-    });
-
+   
     const updatedOrder = await orderModel.findOneAndUpdate(
       { 
         orderID: orderId, 
@@ -137,20 +139,19 @@ const updateStatus = async (req, res) => {
     );
 
     if (!updatedOrder) {
-      console.log('Order or Item not found');
+      
       return res.status(404).json({ 
         success: false, 
         message: 'Order or Item not found' 
       });
     }
 
-    console.log('Updated order:', updatedOrder);
+    
 
     const updatedItem = updatedOrder.orderedItem.find(
       item => item._id.toString() === itemId
     );
     
-    console.log('Found updated item:', updatedItem);
 
     // Check if all items are canceled or returned
     const allItemsCanceledOrReturned = updatedOrder.orderedItem.every(
@@ -178,7 +179,7 @@ const updateStatus = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in updateStatus:', error);
+   
     res.status(500).json({ 
       success: false, 
       message: 'Error updating item status', 

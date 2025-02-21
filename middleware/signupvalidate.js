@@ -1,8 +1,7 @@
 const validator = require('validator');
 
 const validateSignUpData = (req, res,next) => {
-  console.log(req.body)
-  console.log("middleware is called")
+ 
   const { firstname, lastname, email, number, password, confirmPassword } = req.body;
 
   if (validator.isEmpty(firstname) && validator.isEmpty(lastname)) {

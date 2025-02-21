@@ -1,8 +1,8 @@
 const checkSession = (req, res, next) => {
-  console.log('Session data:', req.session); 
+  
   
   if (!req.session || !req.session.admin) {
-    console.log('No valid session found');
+    
     return res.redirect('/admin/signup');
   }
   

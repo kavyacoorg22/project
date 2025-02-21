@@ -65,22 +65,57 @@
 </form>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function() {
   const form = document.getElementById('editProductForm');
   const uploadInput = document.getElementById('upload-image');
   const previewImage = document.getElementById('previewImage');
   let newImageFile = null;
 
-  // Preview image before upload
+  // Function to validate image
+  function validateImage(file) {
+  
+    if (!file) return true; 
+
+    // Check file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error('Only JPEG, JPG, PNG and GIF files are allowed');
+    }
+
+    // Check file size (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxSize) {
+      throw new Error('File size must be less than 5MB');
+    }
+
+    return true;
+  }
+
+  // Preview image before upload with validation
   uploadInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
-      newImageFile = file;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        previewImage.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+      try {
+        // Validate image before preview
+        if (validateImage(file)) {
+          newImageFile = file;
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            previewImage.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (error) {
+        // Reset the file input and show error
+        uploadInput.value = '';
+        newImageFile = null;
+        previewImage.src = previewImage.dataset.originalSrc || ''; // Reset to original image
+        Swal.fire({
+          icon: 'error',
+          title: 'Invalid File',
+          text: error.message
+        });
+      }
     }
   });
 
@@ -89,6 +124,11 @@ document.addEventListener('DOMContentLoaded', function() {
     e.preventDefault();
 
     try {
+      // Validate image again before submission
+      if (newImageFile && !validateImage(newImageFile)) {
+        return;
+      }
+
       // Show loading state
       Swal.fire({
         title: 'Saving changes...',

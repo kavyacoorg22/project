@@ -132,7 +132,7 @@ const loadDashboard = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error loading dashboard:", error);
+   
     res.status(500).send("Error loading dashboard");
   }
 };
@@ -246,7 +246,7 @@ const ledgerData = async (req, res) => {
 
     res.json(formattedData);
   } catch (error) {
-    console.error("Error generating ledger data:", error);
+    
     res.status(500).json({ message: "Failed to generate ledger data." });
   }
 };
@@ -382,7 +382,7 @@ const salesData = async (req, res) => {
 
     res.json({ labels, sales, discounts });
   } catch (error) {
-    console.error("Error in salesData:", error);
+  
     res.status(500).json({ error: error.message });
   }
 };

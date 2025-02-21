@@ -62,7 +62,7 @@ const loaduser=async(req,res)=>
         });
 
     } catch (error) {
-        console.error('Error in updating status:', error);
+        
         res.status(500).json({ 
             success: false, 
             message: 'Failed to update user status. Please try again.' 

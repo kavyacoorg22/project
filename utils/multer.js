@@ -23,6 +23,3 @@ const upload = multer({
 });
 
 module.exports = upload;
-// The cb in your Multer configuration stands for callback. It is a function
-//  provided by Multer to signal whether a file should be accepted or rejected 
-//  during the upload process.

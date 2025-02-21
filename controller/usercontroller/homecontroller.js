@@ -45,7 +45,7 @@ const home = async (req, res) => {
       csspage: "shop.css"
     });
   } catch (err) {
-    console.error('Error in home controller:', err);
+    onsole.error('Error in home controller:', err);
     res.status(500).send('Internal Server Error');
   }
 };
@@ -54,14 +54,14 @@ const home = async (req, res) => {
 
 const shop = async (req, res) => {
   try {
-    
     const page = parseInt(req.query.page) || 1;
     const limit = 4;
     const skip = (page - 1) * limit;
 
-  
+    // Base query
     let productQuery = { isDeleted: false };
 
+    // Category filter
     const selectedCategory = req.query.category || null;
     if (selectedCategory) {
       productQuery.category = selectedCategory;
@@ -76,80 +76,104 @@ const shop = async (req, res) => {
       ];
     }
 
-
+    // Fixed stock filter
     const stockFilter = req.query.stock;
     if (stockFilter === 'in-stock') {
       productQuery.quantity = { $gt: 0 };
-      productQuery.status = 'In-stock';
     } else if (stockFilter === 'out-of-stock') {
-      productQuery.$or = [
-        { quantity: { $lte: 0 } },
-        { status: 'Out-of-stock' }
-      ];
+      productQuery.quantity = { $lte: 0 };
     }
 
-    
-    let sort = { createdAt: -1 }; 
-    
-    switch (req.query.sort) {
-      case 'price-low-to-high':
-        sort = { price: 1 };
-        break;
-      case 'price-high-to-low':
-        sort = { price: -1 };
-        break;
-      case 'a-to-z':
-        sort = { name: 1 };
-        break;
-      case 'z-to-a':
-        sort = { name: -1 };
-        break;
-      case 'ratings-high-to-low':
-        sort = { averageRating: -1, createdAt: -1 }; // Secondary sort by creation date
-        break;
-      case 'ratings-low-to-high':
-        sort = { averageRating: 1, createdAt: -1 };
-        break;
-      case 'new-arrivals':
-        sort = { createdAt: -1 };
-        break;
-    }
-
-    // Get total count for pagination
+    // Get total count for pagination before applying sort
     const totalProducts = await productModel.countDocuments(productQuery);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    // Fetch products
-    const products = await productModel.find(productQuery)
-      .sort(sort)
-      .skip(skip)
-      .limit(limit)
-      .populate('category')
-      .populate({
-        path: 'offers',
-        match: {
-          status: 'Active',
-          startDate: { $lte: new Date() },
-          endDate: { $gte: new Date() }
+    // Fetch products with proper sorting
+    let aggregatePipeline = [
+      { $match: productQuery },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'category',
+          foreignField: '_id',
+          as: 'category'
         }
-      })
-      .populate({
-        path: 'category',
-        populate: {
-          path: 'offers',
-          match: {
-            status: 'Active',
-            startDate: { $lte: new Date() },
-            endDate: { $gte: new Date() }
-          }
+      },
+      { $unwind: '$category' },
+      {
+        $lookup: {
+          from: 'offers',
+          localField: 'offers',
+          foreignField: '_id',
+          as: 'offers'
         }
-      });
+      },
+      {
+        $lookup: {
+          from: 'offers',
+          localField: 'category.offers',
+          foreignField: '_id',
+          as: 'categoryOffers'
+        }
+      }
+    ];
 
-      // Add discount calculations to each product
+    // Add sorting stage
+    let sortStage = { $sort: { createdAt: -1 } };
+    
+    switch (req.query.sort) {
+      case 'price-low-to-high':
+        sortStage = { $sort: { price: 1, _id: 1 } };
+        break;
+      case 'price-high-to-low':
+        sortStage = { $sort: { price: -1, _id: 1 } };
+        break;
+      case 'a-to-z':
+        sortStage = { $sort: { name: 1, _id: 1 } };
+        break;
+      case 'z-to-a':
+        sortStage = { $sort: { name: -1, _id: 1 } };
+        break;
+      case 'ratings-high-to-low':
+        sortStage = { $sort: { averageRating: -1, createdAt: -1, _id: 1 } };
+        break;
+      case 'ratings-low-to-high':
+        sortStage = { $sort: { averageRating: 1, createdAt: -1, _id: 1 } };
+        break;
+      case 'new-arrivals':
+        sortStage = { $sort: { createdAt: -1, _id: 1 } };
+        break;
+    }
+
+    aggregatePipeline.push(sortStage);
+
+    // Add pagination
+    aggregatePipeline.push(
+      { $skip: skip },
+      { $limit: limit }
+    );
+
+    const products = await productModel.aggregate(aggregatePipeline);
+
+    // Filter active offers
+    const currentDate = new Date();
     const processedProducts = products.map(product => {
+      // Filter active offers
+      product.offers = product.offers.filter(offer => 
+        offer.status === 'Active' &&
+        new Date(offer.startDate) <= currentDate &&
+        new Date(offer.endDate) >= currentDate
+      );
+      
+      product.categoryOffers = product.categoryOffers.filter(offer => 
+        offer.status === 'Active' &&
+        new Date(offer.startDate) <= currentDate &&
+        new Date(offer.endDate) >= currentDate
+      );
+
       const discountInfo = calculateDiscount(product);
       return {
-        ...product.toObject(),
+        ...product,
         ...discountInfo
       };
     });
@@ -158,7 +182,7 @@ const shop = async (req, res) => {
     const categories = await categoryModel.find({ isDeleted: false });
 
     res.render('user/shop', {
-      products:processedProducts,
+      products: processedProducts,
       categories,
       page,
       totalPages,
@@ -171,7 +195,7 @@ const shop = async (req, res) => {
     });
 
   } catch (err) {
-    console.error('Shop page error:', err);
+   
     res.status(500).send(err.message);
   }
 };
@@ -252,7 +276,7 @@ const product = async (req, res) => {
       currentPage: product.name
     });
   } catch (err) {
-    console.error('Error in product controller:', err);
+    
     res.status(500).send(err.message); 
   }
 };

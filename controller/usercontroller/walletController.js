@@ -19,6 +19,15 @@ const loadWallet = async (req, res) => {
       });
     }
 
+   
+    wallet.balance = Math.ceil(wallet.balance);
+
+    if (wallet.transactions) {
+      wallet.transactions.forEach(transaction => {
+        transaction.amount = Math.ceil(transaction.amount);
+      });
+    }
+
     res.render('user/wallet', {
       title: "Wallet",
       includeCss: true,
@@ -26,7 +35,7 @@ const loadWallet = async (req, res) => {
       wallet
     });
   } catch (err) {
-    console.error('Error loading wallet:', err);
+   
     res.status(500).render('error', { 
       message: 'Failed to load wallet details',
       error: process.env.NODE_ENV === 'development' ? err : {}
@@ -38,13 +47,16 @@ const loadWallet = async (req, res) => {
 
 
 
+
+
 const addWallet = async (req, res) => {
   try {
     const { amount } = req.body;
     const userId = req.user._id;
 
-  
-    const numAmount = Number(amount);
+    // Convert to number and round up
+    const numAmount = Math.ceil(Number(amount));
+    
     if (!userId || isNaN(numAmount) || numAmount <= 0 || numAmount > 100000) {
       return res.status(400).json({ 
         status: "error",
@@ -52,7 +64,7 @@ const addWallet = async (req, res) => {
       });
     }
 
-    // Use findOneAndUpdate for atomic operation
+    // Use findOneAndUpdate for atomic operation with rounded amount
     const wallet = await walletModel.findOneAndUpdate(
       { user: userId },
       {
@@ -67,19 +79,25 @@ const addWallet = async (req, res) => {
       },
       { 
         new: true,
-        upsert: true // Creates new wallet if doesn't exist
+        upsert: true 
       }
     );
+
+    const roundedBalance = Math.ceil(wallet.balance);
+    const roundedTransactions = wallet.transactions.slice(-5).map(transaction => ({
+      ...transaction,
+      amount: Math.ceil(transaction.amount)
+    }));
 
     return res.status(200).json({
       status: "success",
       message: "Money added successfully",
-      balance: wallet.balance,
-      transactions: wallet.transactions.slice(-5) // Return only recent transactions
+      balance: roundedBalance,
+      transactions: roundedTransactions
     });
 
   } catch (err) {
-    console.error("Error adding money to wallet:", err);
+   
     res.status(500).json({ 
       status: "error",
       error: "Failed to add money to wallet. Please try again." 

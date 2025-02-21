@@ -83,7 +83,6 @@ app.use('/admin',adminRouter)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
   res.status(500).json({
       success: false,
       message: 'Internal server error',
@@ -147,12 +146,3 @@ const startServer = async () => {
 // Call the function
 startServer();
 
-// connectDB()
-// .then(()=>
-// {
-//   console.log("Database connection established succesfully")
-//   app.listen(port, ()=>console.log(`server running on the port ${port}`));
-// })
-// .catch(()=>{
-//   console.log('Database connection lost',err.message)
-// })

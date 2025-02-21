@@ -11,7 +11,7 @@ const loadWishlist = async(req, res) => {
       wishlist: wishlist || { products: [] } // Provide default empty products array
     });
   } catch(err) {
-    console.error('Wishlist load error:', err);
+    
     res.status(500).send('Error loading wishlist');
   }
 }
@@ -36,7 +36,7 @@ const addWishlist = async (req, res) => {
       wishlistCount: result.products.length
     });
   } catch (error) {
-    console.error('Add to wishlist error:', error);
+    
     res.status(500).json({ 
       success: false, 
       message: 'Failed to add to wishlist'
@@ -59,7 +59,7 @@ const removeFromWishlist = async (req, res) => {
       wishlistCount: result ? result.products.length : 0
     });
   } catch (error) {
-    console.error('Remove from wishlist error:', error);
+ 
     res.status(500).json({ 
       success: false, 
       message: 'Failed to remove from wishlist'

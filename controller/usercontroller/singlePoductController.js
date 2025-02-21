@@ -19,13 +19,13 @@ const loadreviews = async (req, res) => {
 
 const reviews = async (req, res) => {
   try {
-    console.log('body', req.body);
+   
     if (!req.user) {
       return res.status(401).json({ message: 'Please login to add a review' });
     }
 
     const { productId, rating, review } = req.body;
-    console.log(req.body);
+  
 
     
     if (!productId || !rating || !review) {
