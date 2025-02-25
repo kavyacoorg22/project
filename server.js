@@ -81,7 +81,7 @@ app.use((req, res, next) => {
 app.use('/user',userRouter)
 app.use('/admin',adminRouter)
 app.get('/', (req, res) => {
-  res.redirect('/user/home');
+  res.redirect(`/user/home`);
 });
 
 
