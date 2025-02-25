@@ -22,7 +22,12 @@ const mongoose=require('mongoose')
 let port = process.env.PORT || 8000;
 
 
-app.use(cors({  origin: ["http://localhost:3000", "https://vege-foods.shop"], credentials: true }))
+app.use(cors({
+  origin: ["http://localhost:3000", "https://vege-foods.shop"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser())
