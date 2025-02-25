@@ -68,11 +68,19 @@
 }
 
      </style>
-
+ 
 
 
   </head>
-
+  <body>
+     <!-- This should be in your layout file -->
+    <% if (locals.showAuthRequired) { %>
+    <div id="authRequired" 
+       data-required="true" 
+       data-return-url="<%= locals.returnUrl %>" 
+       style="display: none;"></div>
+     <% } %>
+  
     <%- include ('../partials/header') %>
     
      
@@ -84,6 +92,7 @@
     <%- include ('../partials/footer') %>
     <div id="ftco-loader" class="show fullscreen"><svg class="circular" width="48px" height="48px"><circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke="#eeeeee"/><circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4" stroke-miterlimit="10" stroke="#F96D00"/></svg></div>
 
+    
 
     <script src="/js/jquery.min.js"></script>
     <script src="/js/jquery-migrate-3.0.1.min.js"></script>
@@ -101,8 +110,40 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBVWaKrjvy3MaE7SQ74_uJiULgl1JY0H2s&sensor=false"></script>
     <script src="/js/google-map.js"></script>
     <script src="/js/main.js"></script>
-    
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Check if the authRequired element exists
+        const authRequiredEl = document.getElementById('authRequired');
+        
+        if (authRequiredEl) {
+          
+          
+          Swal.fire({
+            title: 'Please Login',
+            text: 'You need to login to continue',
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonText: 'Login',
+            cancelButtonText: 'Go back'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // Redirect to login page and store return URL
+              const returnUrl = authRequiredEl.getAttribute('data-return-url') || '/';
+              window.location.href = '/user/login?returnTo=' + encodeURIComponent(returnUrl);
+            } else {
+              // Go back in history or to home page
+              if (document.referrer) {
+                window.history.back();
+              } else {
+                window.location.href = '/';
+              }
+            }
+          });
+        } else {
+         
+        }
+      });
+    </script>
 
-      
-</body>
+  </body>
 </html>

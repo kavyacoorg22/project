@@ -19,6 +19,14 @@ const loadWishlist = async(req, res) => {
 const addWishlist = async (req, res) => {
   try {
     const productId = req.params.productId;
+    const userId=req.user._id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        requiresLogin: true,
+        message: "Please login to continue"
+      });
+    }
     
     const result = await wishlistModel.findOneAndUpdate(
       { userId: req.user._id },

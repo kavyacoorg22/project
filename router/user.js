@@ -82,7 +82,7 @@ router.post('/resendotp',userAuthController.resendotp)
 router.get('/password',userAuthController.password)
 router.post('/password',userAuthController.resetPassword)
 
-router.get('/home',userAuth,homeController.home)
+router.get('/home',homeController.home)
 
 router.get('/shop',userAuth,homeController.shop)
 

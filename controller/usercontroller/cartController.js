@@ -87,7 +87,7 @@ const loadCart = async (req, res) => {
           coupons,
       });
   } catch (err) {
-     
+    
       res.status(500).render('error', { message: 'Error loading cart' });
   }
 };
@@ -98,6 +98,15 @@ const addToCart = async (req, res) => {
   try {
       const { productId, quantity = 1 } = req.body;
       const userId = req.user._id;
+
+      if(!userId)
+      {
+        return res.status(400).json({
+          sucess:false,
+          requiresLogin: true,
+          message:"please login to continue"
+        })
+      }
 
       if (!productId || quantity < 1) {
           return res.status(400).json({ 
@@ -175,12 +184,14 @@ const addToCart = async (req, res) => {
       });
   } catch (err) {
       
+   
+      
       res.status(500).json({ 
           success: false, 
-          message: 'Error adding product to cart' 
+          message: err.message || 'Error adding product to cart' 
       });
   }
-};
+  };
 
 const updateQuantity = async (req, res) => {
   try {

@@ -80,6 +80,10 @@ app.use((req, res, next) => {
 
 app.use('/user',userRouter)
 app.use('/admin',adminRouter)
+app.get('/', (req, res) => {
+  res.redirect('/user/home');
+});
+
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -145,4 +149,3 @@ const startServer = async () => {
 
 // Call the function
 startServer();
-

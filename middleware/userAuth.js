@@ -2,51 +2,73 @@ const jwt = require('jsonwebtoken');
 const signupModel = require('../model/userModel/signupModel');
 require('dotenv').config();
 
-// Main authentication middleware for protected routes
+
+
+
+
+
+
 const userAuth = async (req, res, next) => {
   try {
     const token = req.cookies.token;
+   
     
     if (!token) {
-      // No token, redirect to login
-      return res.redirect('/user/login');
+      // Store the attempted URL for redirect after login
+      req.session.returnTo = req.originalUrl;
+      
+      // Handle XHR/API requests
+      if (req.xhr || req.headers.accept?.includes('application/json')) {
+        return res.status(401).json({ 
+          authRequired: true,
+          returnUrl: req.originalUrl
+        });
+      }
+      
+     
+      res.locals.showAuthRequired = true;
+      res.locals.returnUrl = req.originalUrl;
+      req.user = { _id: null };
+      // Continue to next middleware/controller
+      return next();
     }
-
-    // Verify token
+    
+    // Token exists, verify it
     const decodedObj = await jwt.verify(token, process.env.JWT_SECRET);
-    const { _id } = decodedObj;
-
-    // Find user
-    const user = await signupModel.findById(_id);
+    const user = await signupModel.findById(decodedObj._id);
     
-    if (!user) {
+    if (!user || user.status === 'inactive') {
       res.clearCookie('token');
-      return res.redirect('/user/login');
+      
+      // Store return path and set auth required flag
+      req.session.returnTo = req.originalUrl;
+      res.locals.showAuthRequired = true;
+      res.locals.returnUrl = req.originalUrl;
+     
+      // Continue to next middleware/controller
+      return next();
     }
 
-    if (user.status === 'inactive') {
-      res.clearCookie('token');
-      return res.redirect('/user/login?error=Account blocked by admin');
-    }
-
-    // User is authenticated
+    // Valid authentication
     req.user = user;
-    
-    // Prevent caching for authenticated pages
-    res.set({
-      'Cache-Control': 'no-store, no-cache, must-revalidate, private',
-      'Pragma': 'no-cache',
-      'Expires': '0'
-    });
-    
+    res.locals.user = user; // Make user available to templates
+    res.locals.showAuthRequired = false; // Explicitly set to false
     next();
+    
   } catch (err) {
+    // Token verification failed
     res.clearCookie('token');
-    return res.redirect('/user/login');
+    
+    // Store return path and set auth required flag
+    req.session.returnTo = req.originalUrl;
+    res.locals.showAuthRequired = true;
+    res.locals.returnUrl = req.originalUrl;
+    req.user = { _id: null };
+    // Continue to next middleware/controller
+    return next();
   }
 };
 
-// Middleware specifically for the login page
 const checkLoginPage = async (req, res, next) => {
   try {
     const token = req.cookies.token;
