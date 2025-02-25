@@ -104,17 +104,23 @@ const startServer = async () => {
     let server;
     
     // Handle graceful shutdown
-    const gracefulShutdown = () => {
+    const gracefulShutdown = async () => {
       console.log('Received kill signal, shutting down gracefully');
+      
       if (server) {
-        server.close(() => {
+        server.close(async () => {
           console.log('Closed out remaining connections');
-          mongoose.connection.close(false, () => {
+          
+          try {
+            await mongoose.connection.close(false); // Using await instead of callback
             console.log('MongoDB connection closed');
             process.exit(0);
-          });
+          } catch (error) {
+            console.error('Error closing MongoDB connection:', error);
+            process.exit(1);
+          }
         });
-
+    
         // Force shutdown after 10 seconds
         setTimeout(() => {
           console.error('Could not close connections in time, forcefully shutting down');
