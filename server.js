@@ -58,7 +58,7 @@ app.set('view engine', 'ejs');
 //session
 app.use(session({
   store: MongoStore.create({
-    mongoUrl: 'mongodb://localhost:27017/adminDB'
+    mongoUrl: process.env.DATABASE_URL
   }),
   secret: process.env.SESSION_SECRET||'mysecret',
   resave: false,
