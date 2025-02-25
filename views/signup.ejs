@@ -23,7 +23,7 @@ document.getElementById('loginform').addEventListener('submit', async (event) =>
   const password = document.getElementById('password').value;
 
   try {
-    const response = await fetch('http://localhost:3000/admin/signup', {
+    const response = await fetch('/admin/signup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

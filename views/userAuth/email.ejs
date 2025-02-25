@@ -20,7 +20,7 @@ document.getElementById('emailform').addEventListener('submit', async (e) => {
         // Disable button during submission
         submitButton.disabled = true;
         
-        const response = await fetch('http://localhost:3000/user/email', {
+        const response = await fetch('/user/email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
