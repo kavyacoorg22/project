@@ -95,7 +95,6 @@ app.use((err, req, res, next) => {
 });
 
 
-
 const startServer = async () => {
   try {
     await connectDB(); // Using your existing connectDB function
@@ -108,27 +107,35 @@ const startServer = async () => {
       console.log('Received kill signal, shutting down gracefully');
       
       if (server) {
-        server.close(async () => {
-          console.log('Closed out remaining connections');
-          
-          try {
-            await mongoose.connection.close(false); // Using await instead of callback
-            console.log('MongoDB connection closed');
-            process.exit(0);
-          } catch (error) {
-            console.error('Error closing MongoDB connection:', error);
-            process.exit(1);
-          }
+        // Create a promise that resolves when the server closes
+        const serverClosePromise = new Promise(resolve => {
+          server.close(() => {
+            console.log('Closed out remaining connections');
+            resolve();
+          });
         });
-    
-        // Force shutdown after 10 seconds
-        setTimeout(() => {
-          console.error('Could not close connections in time, forcefully shutting down');
+        
+        try {
+          // Wait for the server to close
+          await serverClosePromise;
+          
+          // Close the MongoDB connection (no callback)
+          await mongoose.connection.close();
+          console.log('MongoDB connection closed');
+          process.exit(0);
+        } catch (error) {
+          console.error('Error during shutdown:', error);
           process.exit(1);
-        }, 10000);
+        }
       }
+      
+      // Force shutdown after 10 seconds
+      setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+      }, 10000);
     };
-
+    
     // Handle shutdown signals
     process.on('SIGTERM', gracefulShutdown);
     process.on('SIGINT', gracefulShutdown);
