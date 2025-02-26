@@ -17,36 +17,43 @@ const loadSignup=async(req,res)=>
 //signup
 const signup = async (req, res) => {
   try {
+   
+    
     validateSignUpData(req);
     const {email, password} = req.body;
+    
     const admin = await signinModel.findOne({ email });
+    
 
     if (!admin) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     const isMatch = await bcrypt.compare(password, admin.password);
+   
     
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    
     req.session.admin = true;
-    req.session.adminId = admin._id; // Store admin ID
-    
+    req.session.adminId = admin._id;
 
     req.session.save((err) => {
       if (err) {
         
-        return res.status(500).json({ message: 'Session error' });
+        return res.status(500).json({ message: 'Session error', error: err.message });
       }
+     
       return res.status(200).json({ message: 'Login successful' });
     });
 
   } catch (err) {
- 
-    return res.status(500).json({ message: 'An error occurred. Please try again.' });
+    
+    return res.status(500).json({ 
+      message: 'An error occurred. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
   }
 };
 
